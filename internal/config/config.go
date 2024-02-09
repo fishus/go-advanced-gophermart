@@ -10,6 +10,7 @@ type config struct {
 	runAddr     string // runAddr адрес и порт запуска сервиса
 	accrualAddr string // accrualAddr адрес системы расчёта начислений
 	databaseURI string // databaseURI адрес подключения к базе данных
+	logLevel    string // logLevel Log level
 }
 
 func init() {
@@ -54,5 +55,14 @@ func (c config) DatabaseURI() string {
 
 func (c config) SetDatabaseURI(uri string) config {
 	c.databaseURI = uri
+	return c
+}
+
+func (c config) LogLevel() string {
+	return c.logLevel
+}
+
+func (c config) SetLogLevel(level string) config {
+	c.logLevel = level
 	return c
 }

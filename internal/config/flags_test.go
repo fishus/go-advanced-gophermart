@@ -26,6 +26,7 @@ func (suite *FlagsTestSuite) SetupSuite() {
 		"RUN_ADDRESS",
 		"ACCRUAL_SYSTEM_ADDRESS",
 		"DATABASE_URI",
+		"LOG_LEVEL",
 	} {
 		suite.osEnviron[e] = os.Getenv(e)
 	}
@@ -71,6 +72,7 @@ func (suite *FlagsTestSuite) TestParseFlags() {
 				"runAddr":     "localhost:8080",
 				"accrualAddr": "localhost:8081",
 				"databaseURI": "",
+				"logLevel":    "debug",
 			},
 		},
 		{
@@ -88,6 +90,11 @@ func (suite *FlagsTestSuite) TestParseFlags() {
 			args: []string{"-d=postgres://username:password@localhost:5432/database_name"},
 			want: map[string]interface{}{"databaseURI": "postgres://username:password@localhost:5432/database_name"},
 		},
+		{
+			name: "Positive case: Set flag -ll",
+			args: []string{"-ll=fatal"},
+			want: map[string]interface{}{"logLevel": "fatal"},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -103,7 +110,7 @@ func (suite *FlagsTestSuite) TestParseFlags() {
 
 			for k, want := range tc.want {
 				field := configFields.FieldByName(k)
-				suite.Assert().Truef(field.Equal(reflect.ValueOf(want)), "Invalid value for '%s'", k)
+				suite.Assert().Truef(field.Equal(reflect.ValueOf(want)), "Invalid value for '%s'. Expected: '%+v'. Actual: '%+v'.", k, reflect.ValueOf(want), reflect.ValueOf(field))
 			}
 		})
 	}
@@ -122,6 +129,7 @@ func (suite *FlagsTestSuite) TestParseEnvs() {
 				"runAddr":     "",
 				"accrualAddr": "",
 				"databaseURI": "",
+				"logLevel":    "",
 			},
 		},
 		{
@@ -138,6 +146,11 @@ func (suite *FlagsTestSuite) TestParseEnvs() {
 			name: "Positive case: Set env DATABASE_URI",
 			envs: []string{"DATABASE_URI=postgres://username:password@localhost:5432/database_name"},
 			want: map[string]interface{}{"databaseURI": "postgres://username:password@localhost:5432/database_name"},
+		},
+		{
+			name: "Positive case: Set env LOG_LEVEL",
+			envs: []string{"LOG_LEVEL=fatal"},
+			want: map[string]interface{}{"logLevel": "fatal"},
 		},
 	}
 
@@ -166,7 +179,7 @@ func (suite *FlagsTestSuite) TestParseEnvs() {
 
 			for k, want := range tc.want {
 				field := configFields.FieldByName(k)
-				suite.Assert().Truef(field.Equal(reflect.ValueOf(want)), "Invalid value for '%s'", k)
+				suite.Assert().Truef(field.Equal(reflect.ValueOf(want)), "Invalid value for '%s'. Expected: '%+v'. Actual: '%+v'.", k, reflect.ValueOf(want), reflect.ValueOf(field))
 			}
 		})
 	}
@@ -187,6 +200,7 @@ func (suite *FlagsTestSuite) TestLoadConfig() {
 				"runAddr":     "localhost:8080",
 				"accrualAddr": "localhost:8081",
 				"databaseURI": "",
+				"logLevel":    "debug",
 			},
 		},
 		{
@@ -243,6 +257,24 @@ func (suite *FlagsTestSuite) TestLoadConfig() {
 			envs: []string{"DATABASE_URI=postgres://username2:password2@localhost:5432/database_name2"},
 			want: map[string]interface{}{"databaseURI": "postgres://username2:password2@localhost:5432/database_name2"},
 		},
+		{
+			name: "Positive case: Set flag -ll and env LOG_LEVEL",
+			args: []string{"-ll=warn"},
+			envs: []string{"LOG_LEVEL=error"},
+			want: map[string]interface{}{"logLevel": "error"},
+		},
+		{
+			name: "Positive case: Set flag -ll only",
+			args: []string{"-ll=fatal"},
+			envs: nil,
+			want: map[string]interface{}{"logLevel": "fatal"},
+		},
+		{
+			name: "Positive case: Set env LOG_LEVEL only",
+			args: nil,
+			envs: []string{"LOG_LEVEL=panic"},
+			want: map[string]interface{}{"logLevel": "panic"},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -273,7 +305,7 @@ func (suite *FlagsTestSuite) TestLoadConfig() {
 
 			for k, want := range tc.want {
 				field := configFields.FieldByName(k)
-				suite.Assert().Truef(field.Equal(reflect.ValueOf(want)), "Invalid value for '%s'", k)
+				suite.Assert().Truef(field.Equal(reflect.ValueOf(want)), "Invalid value for '%s'. Expected: '%+v'. Actual: '%+v'.", k, reflect.ValueOf(want), reflect.ValueOf(field))
 			}
 		})
 	}

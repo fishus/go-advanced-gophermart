@@ -19,12 +19,16 @@ func parseFlags(config config) config {
 	// Флаг -d=<ЗНАЧЕНИЕ> адрес подключения к базе данных
 	databaseURI := flag.String("d", "", "database URI")
 
+	// Флаг -ll=<ЗНАЧЕНИЕ> log level.
+	logLevel := flag.String("ll", "debug", "log level")
+
 	flag.Parse()
 
 	return config.
 		SetRunAddr(*runAddr).
 		SetAccrualAddr(*accrualAddr).
-		SetDatabaseURI(*databaseURI)
+		SetDatabaseURI(*databaseURI).
+		SetLogLevel(*logLevel)
 }
 
 func parseEnvs(config config) config {
@@ -32,6 +36,7 @@ func parseEnvs(config config) config {
 		RunAddr     string `env:"RUN_ADDRESS"`
 		AccrualAddr string `env:"ACCRUAL_SYSTEM_ADDRESS"`
 		DatabaseURI string `env:"DATABASE_URI"`
+		LogLevel    string `env:"LOG_LEVEL"`
 	}
 	err := env.Parse(&cfg)
 	if err != nil {
@@ -48,6 +53,10 @@ func parseEnvs(config config) config {
 
 	if _, exists := os.LookupEnv("DATABASE_URI"); exists {
 		config = config.SetDatabaseURI(cfg.DatabaseURI)
+	}
+
+	if _, exists := os.LookupEnv("LOG_LEVEL"); exists {
+		config = config.SetLogLevel(cfg.LogLevel)
 	}
 
 	return config
