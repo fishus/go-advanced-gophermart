@@ -14,7 +14,7 @@ type LoyaltyBalance struct {
 type LoyaltyHistory struct {
 	UserID      UserID    // ID пользователя
 	OrderID     OrderID   // ID заказа
-	ProcessedAt time.Time // Дата зачисления или списания
 	Accrual     float64   // Начисление
 	Withdrawal  float64   // Списание
+	ProcessedAt time.Time // Дата зачисления или списания
 }
