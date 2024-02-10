@@ -30,5 +30,9 @@ func New(ctx context.Context, cfg *Config) (store.Storager, error) {
 		return nil, err
 	}
 
+	if err := migrate(pool); err != nil {
+		return nil, err
+	}
+
 	return &storage{cfg: cfg, pool: pool}, nil
 }
