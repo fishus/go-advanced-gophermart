@@ -1,8 +1,4 @@
-package config
-
-import (
-	"testing"
-)
+package app
 
 var Config config
 
@@ -11,13 +7,6 @@ type config struct {
 	accrualAddr string // accrualAddr адрес системы расчёта начислений
 	databaseURI string // databaseURI адрес подключения к базе данных
 	logLevel    string // logLevel Log level
-}
-
-func init() {
-	if testing.Testing() {
-		return
-	}
-	Config = initConfig()
 }
 
 func initConfig() config {

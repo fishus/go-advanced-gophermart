@@ -1,12 +1,13 @@
-package config
+package app
 
 import (
 	"flag"
-	"github.com/stretchr/testify/suite"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/suite"
 )
 
 type FlagsTestSuite struct {
