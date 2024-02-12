@@ -22,7 +22,7 @@ func (s *storage) Close() error {
 var _ io.Closer = (*storage)(nil)
 var _ store.Storager = (*storage)(nil)
 
-func New(ctx context.Context, cfg *Config) (store.Storager, error) {
+func New(ctx context.Context, cfg *Config) (*storage, error) {
 	ctx, cancel := context.WithTimeout(ctx, cfg.ConnectTimeout)
 	defer cancel()
 	pool, err := pgxpool.New(ctx, cfg.ConnString)

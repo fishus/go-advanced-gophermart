@@ -19,6 +19,9 @@ func parseFlags(config config) config {
 	// Флаг -d=<ЗНАЧЕНИЕ> адрес подключения к базе данных
 	databaseURI := flag.String("d", "", "database URI")
 
+	// Флаг -sk=<ЗНАЧЕНИЕ> secret key for JWT
+	jwtSecretKey := flag.String("sk", "MySecretKey", "secret key for JWT")
+
 	// Флаг -ll=<ЗНАЧЕНИЕ> log level.
 	logLevel := flag.String("ll", "debug", "log level")
 
@@ -28,15 +31,17 @@ func parseFlags(config config) config {
 		SetRunAddr(*runAddr).
 		SetAccrualAddr(*accrualAddr).
 		SetDatabaseURI(*databaseURI).
+		SetJWTSecretKey(*jwtSecretKey).
 		SetLogLevel(*logLevel)
 }
 
 func parseEnvs(config config) config {
 	var cfg struct {
-		RunAddr     string `env:"RUN_ADDRESS"`
-		AccrualAddr string `env:"ACCRUAL_SYSTEM_ADDRESS"`
-		DatabaseURI string `env:"DATABASE_URI"`
-		LogLevel    string `env:"LOG_LEVEL"`
+		RunAddr      string `env:"RUN_ADDRESS"`
+		AccrualAddr  string `env:"ACCRUAL_SYSTEM_ADDRESS"`
+		DatabaseURI  string `env:"DATABASE_URI"`
+		JWTSecretKey string `env:"JWT_SECRET_KEY"`
+		LogLevel     string `env:"LOG_LEVEL"`
 	}
 	err := env.Parse(&cfg)
 	if err != nil {
@@ -53,6 +58,10 @@ func parseEnvs(config config) config {
 
 	if _, exists := os.LookupEnv("DATABASE_URI"); exists {
 		config = config.SetDatabaseURI(cfg.DatabaseURI)
+	}
+
+	if _, exists := os.LookupEnv("JWT_SECRET_KEY"); exists {
+		config = config.SetJWTSecretKey(cfg.JWTSecretKey)
 	}
 
 	if _, exists := os.LookupEnv("LOG_LEVEL"); exists {

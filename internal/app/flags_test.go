@@ -27,6 +27,7 @@ func (suite *FlagsTestSuite) SetupSuite() {
 		"RUN_ADDRESS",
 		"ACCRUAL_SYSTEM_ADDRESS",
 		"DATABASE_URI",
+		"JWT_SECRET_KEY",
 		"LOG_LEVEL",
 	} {
 		suite.osEnviron[e] = os.Getenv(e)
@@ -70,10 +71,11 @@ func (suite *FlagsTestSuite) TestParseFlags() {
 			name: "Positive case: Default values",
 			args: nil,
 			want: map[string]interface{}{
-				"runAddr":     "localhost:8080",
-				"accrualAddr": "localhost:8081",
-				"databaseURI": "",
-				"logLevel":    "debug",
+				"runAddr":      "localhost:8080",
+				"accrualAddr":  "localhost:8081",
+				"databaseURI":  "",
+				"jwtSecretKey": "MySecretKey",
+				"logLevel":     "debug",
 			},
 		},
 		{
@@ -90,6 +92,11 @@ func (suite *FlagsTestSuite) TestParseFlags() {
 			name: "Positive case: Set flag -d",
 			args: []string{"-d=postgres://username:password@localhost:5432/database_name"},
 			want: map[string]interface{}{"databaseURI": "postgres://username:password@localhost:5432/database_name"},
+		},
+		{
+			name: "Positive case: Set flag -sk",
+			args: []string{"-sk=Secret1"},
+			want: map[string]interface{}{"jwtSecretKey": "Secret1"},
 		},
 		{
 			name: "Positive case: Set flag -ll",
@@ -127,10 +134,11 @@ func (suite *FlagsTestSuite) TestParseEnvs() {
 			name: "Positive case: Default values",
 			envs: nil,
 			want: map[string]interface{}{
-				"runAddr":     "",
-				"accrualAddr": "",
-				"databaseURI": "",
-				"logLevel":    "",
+				"runAddr":      "",
+				"accrualAddr":  "",
+				"databaseURI":  "",
+				"jwtSecretKey": "",
+				"logLevel":     "",
 			},
 		},
 		{
@@ -147,6 +155,11 @@ func (suite *FlagsTestSuite) TestParseEnvs() {
 			name: "Positive case: Set env DATABASE_URI",
 			envs: []string{"DATABASE_URI=postgres://username:password@localhost:5432/database_name"},
 			want: map[string]interface{}{"databaseURI": "postgres://username:password@localhost:5432/database_name"},
+		},
+		{
+			name: "Positive case: Set env JWT_SECRET_KEY",
+			envs: []string{"JWT_SECRET_KEY=Secret2"},
+			want: map[string]interface{}{"jwtSecretKey": "Secret2"},
 		},
 		{
 			name: "Positive case: Set env LOG_LEVEL",
@@ -198,10 +211,11 @@ func (suite *FlagsTestSuite) TestLoadConfig() {
 			args: nil,
 			envs: nil,
 			want: map[string]interface{}{
-				"runAddr":     "localhost:8080",
-				"accrualAddr": "localhost:8081",
-				"databaseURI": "",
-				"logLevel":    "debug",
+				"runAddr":      "localhost:8080",
+				"accrualAddr":  "localhost:8081",
+				"databaseURI":  "",
+				"jwtSecretKey": "MySecretKey",
+				"logLevel":     "debug",
 			},
 		},
 		{
@@ -257,6 +271,24 @@ func (suite *FlagsTestSuite) TestLoadConfig() {
 			args: nil,
 			envs: []string{"DATABASE_URI=postgres://username2:password2@localhost:5432/database_name2"},
 			want: map[string]interface{}{"databaseURI": "postgres://username2:password2@localhost:5432/database_name2"},
+		},
+		{
+			name: "Positive case: Set flag -sk and env JWT_SECRET_KEY",
+			args: []string{"-sk=Secret3"},
+			envs: []string{"JWT_SECRET_KEY=Secret4"},
+			want: map[string]interface{}{"jwtSecretKey": "Secret4"},
+		},
+		{
+			name: "Positive case: Set flag -sk only",
+			args: []string{"-sk=Secret5"},
+			envs: nil,
+			want: map[string]interface{}{"jwtSecretKey": "Secret5"},
+		},
+		{
+			name: "Positive case: Set env JWT_SECRET_KEY only",
+			args: nil,
+			envs: []string{"JWT_SECRET_KEY=Secret6"},
+			want: map[string]interface{}{"jwtSecretKey": "Secret6"},
 		},
 		{
 			name: "Positive case: Set flag -ll and env LOG_LEVEL",

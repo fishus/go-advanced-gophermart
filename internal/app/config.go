@@ -1,12 +1,16 @@
 package app
 
+import "time"
+
 var Config config
 
 type config struct {
-	runAddr     string // runAddr адрес и порт запуска сервиса
-	accrualAddr string // accrualAddr адрес системы расчёта начислений
-	databaseURI string // databaseURI адрес подключения к базе данных
-	logLevel    string // logLevel Log level
+	runAddr      string        // runAddr адрес и порт запуска сервиса
+	accrualAddr  string        // accrualAddr адрес системы расчёта начислений
+	databaseURI  string        // databaseURI адрес подключения к базе данных
+	jwtSecretKey string        // jwtSecretKey for JWT
+	jwtExpires   time.Duration // jwtExpires Срок действия JWT
+	logLevel     string        // logLevel Log level
 }
 
 func initConfig() config {
@@ -17,7 +21,9 @@ func initConfig() config {
 }
 
 func newConfig() config {
-	return config{}
+	return config{
+		jwtExpires: 3 * time.Hour,
+	}
 }
 
 func (c config) RunAddr() string {
@@ -44,6 +50,15 @@ func (c config) DatabaseURI() string {
 
 func (c config) SetDatabaseURI(uri string) config {
 	c.databaseURI = uri
+	return c
+}
+
+func (c config) JWTSecretKey() string {
+	return c.jwtSecretKey
+}
+
+func (c config) SetJWTSecretKey(key string) config {
+	c.jwtSecretKey = key
 	return c
 }
 

@@ -10,8 +10,8 @@ func (id UserID) String() string {
 
 // User Пользователь
 type User struct {
-	ID        UserID    // ID пользователя
-	Username  string    // Логин
-	Password  string    // Пароль
-	CreatedAt time.Time // Дата регистрации
+	ID        UserID    `json:"-"`                                                                                              // ID пользователя
+	Username  string    `json:"login" validate:"required" message:"required:{field} is required" label:"login"`                 // Логин
+	Password  string    `json:"password,omitempty" validate:"required" message:"required:{field} is required" label:"password"` // Пароль
+	CreatedAt time.Time `json:"-"`                                                                                              // Дата регистрации
 }

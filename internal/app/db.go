@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"io"
 	"time"
 
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
@@ -20,6 +19,6 @@ func ConnDB(ctx context.Context) (store.Storager, error) {
 	if err != nil {
 		return nil, err
 	}
-	Closers = append(Closers, db.(io.Closer))
+	Closers = append(Closers, db)
 	return db, nil
 }
