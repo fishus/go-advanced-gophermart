@@ -49,7 +49,8 @@ func Router(s *server) chi.Router {
 	r.Use(middleware.Compress(9, "application/json"))
 	r.Use(middleware.RequestLogger(&logger.LogFormatter{}))
 
-	r.Post("/api/user/register", s.userRegister)
+	r.Post("/api/user/register", s.userRegister) // Регистрация пользователя
+	r.Post("/api/user/login", s.userLogin)       // Аутентификация пользователя
 
 	return r
 }

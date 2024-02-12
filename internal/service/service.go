@@ -10,6 +10,7 @@ import (
 
 type Userer interface {
 	Register(context.Context, models.User) (models.User, error)
+	Login(context.Context, models.User) (models.User, error)
 	BuildToken(user models.User) (string, error)
 }
 

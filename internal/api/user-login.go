@@ -11,8 +11,8 @@ import (
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
-// userRegister Регистрация пользователя
-func (s *server) userRegister(w http.ResponseWriter, r *http.Request) {
+// userLogin Аутентификация пользователя
+func (s *server) userLogin(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	var user models.User
@@ -23,10 +23,10 @@ func (s *server) userRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := s.service.User().Register(r.Context(), user)
+	user, err := s.service.User().Login(r.Context(), user)
 	if err != nil {
-		if errors.Is(err, store.ErrAlreadyExists) {
-			JSONError(w, "User already exists", http.StatusConflict)
+		if errors.Is(err, store.ErrNotFound) {
+			JSONError(w, "Wrong login or password", http.StatusUnauthorized)
 			return
 		}
 		var validErr *serviceErr.ValidationError
@@ -39,7 +39,7 @@ func (s *server) userRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// автоматическая аутентификация пользователя
+	// аутентификация пользователя
 	token, err := s.service.User().BuildToken(user)
 	if err != nil {
 		JSONError(w, err.Error(), http.StatusInternalServerError)
