@@ -23,7 +23,7 @@ func (s *server) userRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := s.service.User().Register(r.Context(), user)
+	userID, err := s.service.User().Register(r.Context(), user)
 	if err != nil {
 		if errors.Is(err, store.ErrAlreadyExists) {
 			JSONError(w, "User already exists", http.StatusConflict)
@@ -40,7 +40,7 @@ func (s *server) userRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// автоматическая аутентификация пользователя
-	token, err := s.service.User().BuildToken(user)
+	token, err := s.service.User().BuildToken(userID)
 	if err != nil {
 		JSONError(w, err.Error(), http.StatusInternalServerError)
 		logger.Log.Error(err.Error())

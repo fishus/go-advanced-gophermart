@@ -23,7 +23,7 @@ func (s *server) userLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := s.service.User().Login(r.Context(), user)
+	userID, err := s.service.User().Login(r.Context(), user)
 	if err != nil {
 		if errors.Is(err, store.ErrNotFound) {
 			JSONError(w, "Wrong login or password", http.StatusUnauthorized)
@@ -40,7 +40,7 @@ func (s *server) userLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// аутентификация пользователя
-	token, err := s.service.User().BuildToken(user)
+	token, err := s.service.User().BuildToken(userID)
 	if err != nil {
 		JSONError(w, err.Error(), http.StatusInternalServerError)
 		logger.Log.Error(err.Error())

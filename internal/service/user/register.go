@@ -9,15 +9,18 @@ import (
 )
 
 // Register Регистрация пользователя
-func (s *service) Register(ctx context.Context, user models.User) (models.User, error) {
+func (s *service) Register(ctx context.Context, user models.User) (models.UserID, error) {
+	var userID models.UserID
+
 	v := validate.Struct(user)
 	if !v.Validate() {
-		return user, serviceErr.NewValidationError(v.Errors)
+		return userID, serviceErr.NewValidationError(v.Errors)
 	}
 
-	user, err := s.storage.UserAdd(ctx, user)
+	userID, err := s.storage.UserAdd(ctx, user)
 	if err != nil {
-		return user, err
+		return userID, err
 	}
-	return user, nil
+
+	return userID, nil
 }

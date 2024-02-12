@@ -7,8 +7,9 @@ import (
 )
 
 type UserStorager interface {
-	UserAdd(context.Context, models.User) (models.User, error)
-	UserLogin(context.Context, models.User) (models.User, error)
+	UserAdd(context.Context, models.User) (models.UserID, error)
+	UserLogin(context.Context, models.User) (models.UserID, error)
+	UserByID(context.Context, models.UserID) (*models.User, error)
 }
 
 type Storager interface {

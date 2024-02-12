@@ -6,27 +6,26 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/fishus/go-advanced-gophermart/internal/logger"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
-func (s *storage) UserLogin(ctx context.Context, user models.User) (models.User, error) {
+func (s *storage) UserLogin(ctx context.Context, user models.User) (models.UserID, error) {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
-	rows, err := s.pool.Query(ctxQuery, "SELECT id, username, created_at FROM users WHERE username = $1 AND password = crypt($2, password)",
+	var userID models.UserID
+	row := s.pool.QueryRow(ctxQuery, "SELECT id FROM users WHERE username = $1 AND password = crypt($2, password);",
 		user.Username, user.Password)
+	err := row.Scan(&userID)
 	if err != nil {
-		return user, err
-	}
-
-	user, err = pgx.CollectExactlyOneRow(rows, pgx.RowToStructByNameLax[models.User])
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) || errors.Is(err, pgx.ErrTooManyRows) {
-			return user, store.ErrNotFound
+		if errors.Is(err, pgx.ErrNoRows) {
+			return userID, store.ErrNotFound
 		}
-		return user, err
+		logger.Log.Warn(err.Error())
+		return userID, err
 	}
 
-	return user, nil
+	return userID, nil
 }

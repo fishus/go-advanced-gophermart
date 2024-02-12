@@ -14,12 +14,12 @@ type JWTClaims struct {
 }
 
 // BuildToken build token for user
-func (s *service) BuildToken(user models.User) (string, error) {
+func (s *service) BuildToken(userID models.UserID) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, JWTClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.cfg.JWTExpires)),
 		},
-		UserID: user.ID,
+		UserID: userID,
 	})
 
 	tokenString, err := token.SignedString([]byte(s.cfg.JWTSecretKey))

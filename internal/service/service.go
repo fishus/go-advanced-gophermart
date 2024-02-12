@@ -9,9 +9,10 @@ import (
 )
 
 type Userer interface {
-	Register(context.Context, models.User) (models.User, error)
-	Login(context.Context, models.User) (models.User, error)
-	BuildToken(user models.User) (string, error)
+	Register(context.Context, models.User) (models.UserID, error)
+	Login(context.Context, models.User) (models.UserID, error)
+	UserByID(context.Context, models.UserID) (*models.User, error)
+	BuildToken(user models.UserID) (string, error)
 }
 
 type service struct {
