@@ -15,7 +15,7 @@ func (s *storage) UserByID(ctx context.Context, id models.UserID) (*models.User,
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
-	rows, err := s.pool.Query(ctxQuery, "SELECT id, username, created_at FROM users WHERE id = $1;", id)
+	rows, err := s.pool.Query(ctxQuery, "SELECT id, username, created_at FROM users WHERE id = @id;", pgx.NamedArgs{"id": id})
 	if err != nil {
 		return nil, err
 	}

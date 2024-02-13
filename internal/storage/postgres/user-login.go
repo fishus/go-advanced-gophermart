@@ -16,8 +16,8 @@ func (s *storage) UserLogin(ctx context.Context, user models.User) (models.UserI
 	defer cancel()
 
 	var userID models.UserID
-	row := s.pool.QueryRow(ctxQuery, "SELECT id FROM users WHERE username = $1 AND password = crypt($2, password);",
-		user.Username, user.Password)
+	row := s.pool.QueryRow(ctxQuery, "SELECT id FROM users WHERE username = @username AND password = crypt(@password, password);",
+		pgx.NamedArgs{"username": user.Username, "password": user.Password})
 	err := row.Scan(&userID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {

@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 

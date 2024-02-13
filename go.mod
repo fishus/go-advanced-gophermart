@@ -11,6 +11,7 @@ require (
 	github.com/jackc/pgx/v5 v5.5.3
 	github.com/pressly/goose/v3 v3.18.0
 	github.com/stretchr/testify v1.8.4
+	github.com/theplant/luhn v0.0.0-20170224032821-81a1a381387a
 	go.uber.org/zap v1.26.0
 )
 

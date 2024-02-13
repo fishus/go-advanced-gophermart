@@ -7,7 +7,6 @@ import (
 
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
-	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
@@ -25,7 +24,7 @@ func (s *server) userLogin(w http.ResponseWriter, r *http.Request) {
 
 	userID, err := s.service.User().Login(r.Context(), user)
 	if err != nil {
-		if errors.Is(err, store.ErrNotFound) {
+		if errors.Is(err, serviceErr.ErrUserNotFound) {
 			JSONError(w, "Wrong login or password", http.StatusUnauthorized)
 			return
 		}

@@ -7,7 +7,6 @@ import (
 
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
-	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
@@ -25,7 +24,7 @@ func (s *server) userRegister(w http.ResponseWriter, r *http.Request) {
 
 	userID, err := s.service.User().Register(r.Context(), user)
 	if err != nil {
-		if errors.Is(err, store.ErrAlreadyExists) {
+		if errors.Is(err, serviceErr.ErrUserAlreadyExists) {
 			JSONError(w, "User already exists", http.StatusConflict)
 			return
 		}
@@ -46,6 +45,10 @@ func (s *server) userRegister(w http.ResponseWriter, r *http.Request) {
 		logger.Log.Error(err.Error())
 	}
 	w.Header().Set("Authorization", token)
+
+	logger.Log.Info("Registered new user",
+		logger.String("userID", userID.String()),
+	)
 
 	w.WriteHeader(http.StatusOK)
 }

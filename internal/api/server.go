@@ -14,6 +14,7 @@ import (
 
 type Servicer interface {
 	User() service.Userer
+	Order() service.Orderer
 }
 
 type server struct {
@@ -51,6 +52,7 @@ func Router(s *server) chi.Router {
 
 	r.Post("/api/user/register", s.userRegister) // Регистрация пользователя
 	r.Post("/api/user/login", s.userLogin)       // Аутентификация пользователя
+	r.Post("/api/user/orders", s.orderAdd)       // Загрузка номера заказа для расчёта
 
 	return r
 }

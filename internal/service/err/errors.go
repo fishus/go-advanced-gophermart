@@ -1,5 +1,7 @@
 package err
 
+import "errors"
+
 type ValidationError struct {
 	Err error
 }
@@ -15,3 +17,10 @@ func (e *ValidationError) Error() string {
 func (e *ValidationError) Unwrap() error {
 	return e.Err
 }
+
+var ErrUserAlreadyExists = errors.New("user already exists")
+var ErrUserNotFound = errors.New("user not found")
+
+var ErrOrderAlreadyExists = errors.New("order already exists")
+var ErrOrderWrongOwner = errors.New("order has been already registered by another user")
+var ErrOrderWrongNum = errors.New("invalid order number")

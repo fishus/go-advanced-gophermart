@@ -22,7 +22,7 @@ func initConfig() config {
 
 func newConfig() config {
 	return config{
-		jwtExpires: 3 * time.Hour,
+		jwtExpires: 15 * time.Minute,
 	}
 }
 

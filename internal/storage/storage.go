@@ -12,6 +12,13 @@ type UserStorager interface {
 	UserByID(context.Context, models.UserID) (*models.User, error)
 }
 
+type OrderStorager interface {
+	OrderAdd(context.Context, models.Order) (models.OrderID, error)
+	OrderByID(context.Context, models.OrderID) (*models.Order, error)
+	OrderByFilter(context.Context, ...OrderFilter) (*models.Order, error)
+}
+
 type Storager interface {
 	UserStorager
+	OrderStorager
 }
