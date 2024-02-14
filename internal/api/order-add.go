@@ -38,6 +38,10 @@ func (s *server) orderAdd(w http.ResponseWriter, r *http.Request) {
 			JSONError(w, serviceErr.ErrOrderAlreadyExists.Error(), http.StatusOK)
 			return
 		}
+		if errors.Is(err, serviceErr.ErrIncorrectData) {
+			JSONError(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		// номер заказа уже был загружен другим пользователем
 		if errors.Is(err, serviceErr.ErrOrderWrongOwner) {
 			JSONError(w, serviceErr.ErrOrderWrongOwner.Error(), http.StatusConflict)

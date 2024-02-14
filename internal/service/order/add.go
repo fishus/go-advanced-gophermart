@@ -48,6 +48,11 @@ func (s *service) Add(ctx context.Context, userID models.UserID, orderNum string
 	if err != nil {
 		if errors.Is(err, store.ErrAlreadyExists) {
 			err = serviceErr.ErrOrderAlreadyExists
+			return
+		}
+		if errors.Is(err, store.ErrIncorrectData) {
+			err = serviceErr.ErrIncorrectData
+			return
 		}
 		return orderID, err
 	}

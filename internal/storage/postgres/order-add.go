@@ -13,21 +13,28 @@ import (
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
-func (s *storage) OrderAdd(ctx context.Context, order models.Order) (models.OrderID, error) {
+func (s *storage) OrderAdd(ctx context.Context, order models.Order) (orderID models.OrderID, err error) {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
-	var orderID models.OrderID
-	err := s.pool.QueryRow(ctxQuery, `INSERT INTO orders (user_id, num, status) VALUES (@userID, @num, @status) RETURNING id;`,
-		pgx.NamedArgs{"userID": order.UserID, "num": order.Num, "status": order.Status}).Scan(&orderID)
+	if order.UserID == "" || order.Num == "" {
+		err = store.ErrIncorrectData
+		return
+	}
+
+	err = s.pool.QueryRow(ctxQuery, `INSERT INTO orders (user_id, num, status) VALUES (@userID, @num, @status) RETURNING id;`,
+		pgx.NamedArgs{
+			"userID": order.UserID,
+			"num":    order.Num,
+			"status": order.Status,
+		}).Scan(&orderID)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
-			return orderID, errors.Join(err, store.ErrAlreadyExists)
+			err = errors.Join(err, store.ErrAlreadyExists)
+			return
 		}
 		logger.Log.Warn(err.Error())
-		return orderID, err
 	}
-
-	return orderID, nil
+	return
 }
