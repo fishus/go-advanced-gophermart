@@ -14,12 +14,21 @@ import (
 func (s *server) userRegister(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	var user models.User
+	type reqData struct {
+		Username string `json:"login"`              // Логин
+		Password string `json:"password,omitempty"` // Пароль
+	}
 
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+	var data reqData
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		JSONError(w, err.Error(), http.StatusBadRequest)
 		logger.Log.Debug(err.Error())
 		return
+	}
+
+	user := models.User{
+		Username: data.Username,
+		Password: data.Password,
 	}
 
 	userID, err := s.service.User().Register(r.Context(), user)

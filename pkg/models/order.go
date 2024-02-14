@@ -41,10 +41,10 @@ func (s OrderStatus) String() string {
 
 // Order Заказ
 type Order struct {
-	ID         OrderID     `db:"id"`                          // ID заказа
-	UserID     UserID      `db:"user_id" validate:"required"` // ID пользователя
-	Num        string      `db:"num" validate:"required"`     // Номер заказа
-	Accrual    float64     `db:"accrual"`                     // Начислено баллов лояльности
-	Status     OrderStatus `db:"status"`                      // Статус заказа
-	UploadedAt time.Time   `db:"uploaded_at"`                 // Дата и время добавления заказа
+	ID         OrderID     `db:"id"`          // ID заказа
+	UserID     UserID      `db:"user_id"`     // ID пользователя
+	Num        string      `db:"num"`         // Номер заказа
+	Accrual    float64     `db:"accrual"`     // Начислено баллов лояльности
+	Status     OrderStatus `db:"status"`      // Статус заказа
+	UploadedAt time.Time   `db:"uploaded_at"` // Дата и время добавления заказа
 }

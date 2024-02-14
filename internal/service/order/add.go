@@ -5,33 +5,29 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/gookit/validate"
-
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
 // Add Загрузка номера заказа для расчёта
-func (s *service) Add(ctx context.Context, userID models.UserID, orderNum string) (models.OrderID, error) {
-	var orderID models.OrderID
-
+func (s *service) Add(ctx context.Context, userID models.UserID, orderNum string) (orderID models.OrderID, err error) {
 	orderNum = strings.TrimSpace(orderNum)
 
-	order := &models.Order{
+	order := models.Order{
 		UserID: userID,
 		Num:    orderNum,
 		Status: models.OrderStatusNew,
 	}
 
-	v := validate.Struct(order)
-	if !v.Validate() {
-		return orderID, serviceErr.NewValidationError(v.Errors)
+	err = validateOrder(order)
+	if err != nil {
+		return
 	}
 
 	// Проверка номера заказа на корректность с помощью алгоритма Луна
-	if err := validateNumLuhn(orderNum); err != nil {
-		return orderID, err
+	if err = validateNumLuhn(orderNum); err != nil {
+		return
 	}
 
 	// Проверка, был ли такой заказ загружен ранее
@@ -48,7 +44,7 @@ func (s *service) Add(ctx context.Context, userID models.UserID, orderNum string
 		return orderID, serviceErr.ErrOrderWrongOwner
 	}
 
-	orderID, err = s.storage.OrderAdd(ctx, *order)
+	orderID, err = s.storage.OrderAdd(ctx, order)
 	if err != nil {
 		if errors.Is(err, store.ErrAlreadyExists) {
 			err = serviceErr.ErrOrderAlreadyExists
