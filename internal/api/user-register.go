@@ -33,12 +33,16 @@ func (s *server) userRegister(w http.ResponseWriter, r *http.Request) {
 
 	userID, err := s.service.User().Register(r.Context(), user)
 	if err != nil {
-		if errors.Is(err, serviceErr.ErrUserAlreadyExists) {
-			JSONError(w, "User already exists", http.StatusConflict)
-			return
-		}
 		var validErr *serviceErr.ValidationError
 		if errors.As(err, &validErr) {
+			JSONError(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if errors.Is(err, serviceErr.ErrUserAlreadyExists) {
+			JSONError(w, err.Error(), http.StatusConflict)
+			return
+		}
+		if errors.Is(err, serviceErr.ErrIncorrectData) {
 			JSONError(w, err.Error(), http.StatusBadRequest)
 			return
 		}

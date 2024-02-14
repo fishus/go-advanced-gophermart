@@ -12,6 +12,6 @@ func (id UserID) String() string {
 type User struct {
 	ID        UserID    `db:"id"`         // ID пользователя
 	Username  string    `db:"username"`   // Логин
-	Password  string    `db:"-" `         // Пароль
+	Password  string    `db:"-"`          // Пароль
 	CreatedAt time.Time `db:"created_at"` // Дата регистрации
 }

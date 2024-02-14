@@ -18,6 +18,8 @@ func (e *ValidationError) Unwrap() error {
 	return e.Err
 }
 
+var ErrIncorrectData = errors.New("incorrect input data")
+
 var ErrUserAlreadyExists = errors.New("user already exists")
 var ErrUserNotFound = errors.New("user not found")
 

@@ -20,6 +20,11 @@ func (s *service) Register(ctx context.Context, user models.User) (userID models
 	if err != nil {
 		if errors.Is(err, store.ErrAlreadyExists) {
 			err = serviceErr.ErrUserAlreadyExists
+			return
+		}
+		if errors.Is(err, store.ErrIncorrectData) {
+			err = serviceErr.ErrIncorrectData
+			return
 		}
 		return
 	}

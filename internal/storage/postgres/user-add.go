@@ -13,21 +13,24 @@ import (
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
-func (s *storage) UserAdd(ctx context.Context, user models.User) (models.UserID, error) {
+func (s *storage) UserAdd(ctx context.Context, user models.User) (userID models.UserID, err error) {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
-	var userID models.UserID
-	err := s.pool.QueryRow(ctxQuery, `INSERT INTO users (username, password) VALUES (@username, crypt(@password, gen_salt('bf'))) RETURNING id;`,
+	if user.Username == "" || user.Password == "" {
+		err = store.ErrIncorrectData
+		return
+	}
+
+	err = s.pool.QueryRow(ctxQuery, `INSERT INTO users (username, password) VALUES (@username, crypt(@password, gen_salt('bf'))) RETURNING id;`,
 		pgx.NamedArgs{"username": user.Username, "password": user.Password}).Scan(&userID)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
-			return userID, errors.Join(err, store.ErrAlreadyExists)
+			err = errors.Join(err, store.ErrAlreadyExists)
+			return
 		}
 		logger.Log.Warn(err.Error())
-		return userID, err
 	}
-
-	return userID, nil
+	return
 }
