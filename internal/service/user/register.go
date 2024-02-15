@@ -26,8 +26,6 @@ func (s *service) Register(ctx context.Context, user models.User) (userID models
 			err = serviceErr.ErrIncorrectData
 			return
 		}
-		return
 	}
-
 	return
 }

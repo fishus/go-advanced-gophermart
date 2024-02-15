@@ -21,8 +21,6 @@ func (s *service) Login(ctx context.Context, user models.User) (userID models.Us
 		if errors.Is(err, store.ErrAlreadyExists) {
 			err = serviceErr.ErrUserAlreadyExists
 		}
-		return
 	}
-
 	return
 }

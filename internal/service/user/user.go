@@ -6,10 +6,7 @@ import (
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
-func (s *service) UserByID(ctx context.Context, id models.UserID) (*models.User, error) {
-	user, err := s.storage.UserByID(ctx, id)
-	if err != nil {
-		return user, err
-	}
-	return user, nil
+func (s *service) UserByID(ctx context.Context, id models.UserID) (user *models.User, err error) {
+	user, err = s.storage.UserByID(ctx, id)
+	return
 }

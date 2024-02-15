@@ -33,13 +33,13 @@ func (s *server) userLogin(w http.ResponseWriter, r *http.Request) {
 
 	userID, err := s.service.User().Login(r.Context(), user)
 	if err != nil {
-		if errors.Is(err, serviceErr.ErrUserNotFound) {
-			JSONError(w, "Wrong login or password", http.StatusUnauthorized)
-			return
-		}
 		var validErr *serviceErr.ValidationError
 		if errors.As(err, &validErr) {
 			JSONError(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if errors.Is(err, serviceErr.ErrUserNotFound) {
+			JSONError(w, "Wrong login or password", http.StatusUnauthorized)
 			return
 		}
 		JSONError(w, err.Error(), http.StatusInternalServerError)

@@ -36,6 +36,7 @@ func New(cfg *Config, s store.Storager) *service {
 		JWTSecretKey: cfg.JWTSecretKey,
 	}
 	user := uService.New(userCfg, s)
+
 	return &service{
 		storage: s,
 		cfg:     cfg,

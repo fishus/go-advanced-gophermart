@@ -33,17 +33,20 @@ func (s *service) Add(ctx context.Context, userID models.UserID, orderNum string
 	// Проверка, был ли такой заказ загружен ранее
 	o, err := s.storage.OrderByFilter(ctx, store.WithOrderNum(orderNum))
 	if err != nil && !errors.Is(err, store.ErrNotFound) {
-		return orderID, err
+		return
 	}
 	if o != nil {
 		// номер заказа уже был загружен другим пользователем
 		if o.UserID == userID {
-			return orderID, serviceErr.ErrOrderAlreadyExists
+			err = serviceErr.ErrOrderAlreadyExists
+			return
 		}
 		// номер заказа уже был загружен этим пользователем
-		return orderID, serviceErr.ErrOrderWrongOwner
+		err = serviceErr.ErrOrderWrongOwner
+		return
 	}
 
+	// TODO Рассмотр. возможность объединения в один запрос с проверкой
 	orderID, err = s.storage.OrderAdd(ctx, order)
 	if err != nil {
 		if errors.Is(err, store.ErrAlreadyExists) {
@@ -54,8 +57,6 @@ func (s *service) Add(ctx context.Context, userID models.UserID, orderNum string
 			err = serviceErr.ErrIncorrectData
 			return
 		}
-		return orderID, err
 	}
-
-	return orderID, nil
+	return
 }

@@ -11,22 +11,16 @@ import (
 //go:embed migrations
 var migrations embed.FS
 
-func migrate(pool *pgxpool.Pool) error {
+func migrate(pool *pgxpool.Pool) (err error) {
 	goose.SetBaseFS(migrations)
 
-	if err := goose.SetDialect("postgres"); err != nil {
-		return err
+	if err = goose.SetDialect("postgres"); err != nil {
+		return
 	}
 
 	db := stdlib.OpenDBFromPool(pool)
+	defer db.Close()
 
-	if err := goose.Up(db, "migrations"); err != nil {
-		return err
-	}
-
-	if err := db.Close(); err != nil {
-		return err
-	}
-
-	return nil
+	err = goose.Up(db, "migrations")
+	return
 }
