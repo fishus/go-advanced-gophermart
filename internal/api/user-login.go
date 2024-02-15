@@ -54,7 +54,7 @@ func (s *server) userLogin(w http.ResponseWriter, r *http.Request) {
 		JSONError(w, err.Error(), http.StatusInternalServerError)
 		logger.Log.Error(err.Error())
 	}
-	w.Header().Set("Authorization", token)
+	w.Header().Set("Authorization", ("Bearer " + token))
 
 	w.WriteHeader(http.StatusOK)
 }
