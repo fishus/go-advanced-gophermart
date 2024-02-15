@@ -8,8 +8,9 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
+
+	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
 func (ts *PostgresTestSuite) TestUserAdd() {

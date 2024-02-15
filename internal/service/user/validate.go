@@ -3,8 +3,9 @@ package user
 import (
 	"github.com/gookit/validate"
 
-	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
+
+	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 )
 
 func validateUser(user models.User) error {

@@ -8,9 +8,10 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 
+	"github.com/fishus/go-advanced-gophermart/pkg/models"
+
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
-	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
 func (s *storage) UserAdd(ctx context.Context, user models.User) (userID models.UserID, err error) {

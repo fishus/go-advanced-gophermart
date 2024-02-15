@@ -7,9 +7,10 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"github.com/fishus/go-advanced-gophermart/pkg/models"
+
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
-	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
 func (s *storage) OrderByID(ctx context.Context, id models.OrderID) (*models.Order, error) {

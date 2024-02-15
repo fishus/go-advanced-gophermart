@@ -5,9 +5,10 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/fishus/go-advanced-gophermart/pkg/models"
+
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
-	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
 // userLogin Аутентификация пользователя

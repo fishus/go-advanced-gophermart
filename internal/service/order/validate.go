@@ -6,8 +6,9 @@ import (
 	"github.com/gookit/validate"
 	"github.com/theplant/luhn"
 
-	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
+
+	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 )
 
 // Проверка номера заказа на корректность с помощью алгоритма Луна

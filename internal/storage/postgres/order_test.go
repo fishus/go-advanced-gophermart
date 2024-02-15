@@ -4,13 +4,14 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
-	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
+
+	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
 func (ts *PostgresTestSuite) TestOrderByID() {

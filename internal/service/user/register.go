@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 
+	"github.com/fishus/go-advanced-gophermart/pkg/models"
+
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
-	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
 // Register Регистрация пользователя

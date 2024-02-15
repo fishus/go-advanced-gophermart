@@ -3,10 +3,11 @@ package service
 import (
 	"context"
 
+	"github.com/fishus/go-advanced-gophermart/pkg/models"
+
 	oService "github.com/fishus/go-advanced-gophermart/internal/service/order"
 	uService "github.com/fishus/go-advanced-gophermart/internal/service/user"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
-	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
 type Userer interface {

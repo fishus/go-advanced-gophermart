@@ -5,9 +5,10 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/fishus/go-advanced-gophermart/pkg/models"
+
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
-	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
 // Add Загрузка номера заказа для расчёта
