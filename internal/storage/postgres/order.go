@@ -22,7 +22,7 @@ func (s *storage) OrderByID(ctx context.Context, id models.OrderID) (*models.Ord
 		return nil, err
 	}
 
-	order, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByNameLax[models.Order])
+	orderResult, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByNameLax[OrderResult])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) || errors.Is(err, pgx.ErrTooManyRows) {
 			return nil, store.ErrNotFound
@@ -31,6 +31,7 @@ func (s *storage) OrderByID(ctx context.Context, id models.OrderID) (*models.Ord
 		return nil, err
 	}
 
+	order := models.Order(orderResult)
 	return &order, nil
 }
 
@@ -66,7 +67,7 @@ func (s *storage) OrderByFilter(ctx context.Context, filters ...store.OrderFilte
 		return nil, err
 	}
 
-	order, err := pgx.CollectOneRow(rows, pgx.RowToStructByNameLax[models.Order])
+	orderResult, err := pgx.CollectOneRow(rows, pgx.RowToStructByNameLax[OrderResult])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, store.ErrNotFound
@@ -75,5 +76,6 @@ func (s *storage) OrderByFilter(ctx context.Context, filters ...store.OrderFilte
 		return nil, err
 	}
 
+	order := models.Order(orderResult)
 	return &order, nil
 }

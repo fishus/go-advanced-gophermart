@@ -21,7 +21,7 @@ func (s *storage) UserByID(ctx context.Context, id models.UserID) (*models.User,
 		return nil, err
 	}
 
-	user, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByNameLax[models.User])
+	userResult, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByNameLax[UserResult])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) || errors.Is(err, pgx.ErrTooManyRows) {
 			return nil, store.ErrNotFound
@@ -30,5 +30,6 @@ func (s *storage) UserByID(ctx context.Context, id models.UserID) (*models.User,
 		return nil, err
 	}
 
+	user := models.User(userResult)
 	return &user, nil
 }
