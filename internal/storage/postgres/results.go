@@ -23,3 +23,12 @@ type OrderResult struct {
 	Status     models.OrderStatus `db:"status"`      // Статус заказа
 	UploadedAt time.Time          `db:"uploaded_at"` // Дата и время добавления заказа
 }
+
+func listResultsToOrders(results []OrderResult) []models.Order {
+	orders := make([]models.Order, 0)
+	for _, res := range results {
+		order := models.Order(res)
+		orders = append(orders, order)
+	}
+	return orders
+}
