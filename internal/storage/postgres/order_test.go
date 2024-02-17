@@ -60,7 +60,7 @@ func (ts *PostgresTestSuite) TestOrderByID() {
 
 	order, err := ts.storage.OrderByID(ctx, orderData.ID)
 	ts.NoError(err)
-	ts.EqualValues(orderData, *order)
+	ts.EqualValues(orderData, order)
 }
 
 func (ts *PostgresTestSuite) TestOrderByFilter() {
@@ -114,12 +114,12 @@ func (ts *PostgresTestSuite) TestOrderByFilter() {
 	ts.Run("WithOrderNum", func() {
 		order, err := ts.storage.OrderByFilter(ctx, store.WithOrderNum(orderData[0].Num))
 		ts.NoError(err)
-		ts.EqualValues(orderData[0], *order)
+		ts.EqualValues(orderData[0], order)
 	})
 
 	ts.Run("WithOrderUserID", func() {
 		order, err := ts.storage.OrderByFilter(ctx, store.WithOrderUserID(orderData[1].UserID))
 		ts.NoError(err)
-		ts.EqualValues(orderData[1], *order)
+		ts.EqualValues(orderData[1], order)
 	})
 }

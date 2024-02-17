@@ -13,7 +13,7 @@ import (
 type Userer interface {
 	Register(context.Context, models.User) (models.UserID, error)
 	Login(context.Context, models.User) (models.UserID, error)
-	UserByID(context.Context, models.UserID) (*models.User, error)
+	UserByID(context.Context, models.UserID) (models.User, error)
 	BuildToken(models.UserID) (string, error)
 	DecryptToken(tokenString string) (*uService.JWTClaims, error)
 	CheckAuthorizationHeader(auth string) (*uService.JWTClaims, error)

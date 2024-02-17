@@ -36,7 +36,7 @@ func (s *service) Add(ctx context.Context, userID models.UserID, orderNum string
 	if err != nil && !errors.Is(err, store.ErrNotFound) {
 		return
 	}
-	if o != nil {
+	if err == nil {
 		// номер заказа уже был загружен другим пользователем
 		if o.UserID == userID {
 			err = serviceErr.ErrOrderAlreadyExists

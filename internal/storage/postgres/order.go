@@ -13,29 +13,30 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
-func (s *storage) OrderByID(ctx context.Context, id models.OrderID) (*models.Order, error) {
+func (s *storage) OrderByID(ctx context.Context, id models.OrderID) (order models.Order, err error) {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
-	rows, err := s.pool.Query(ctxQuery, "SELECT id, user_id, num, accrual, status, uploaded_at FROM orders WHERE id = @id;", pgx.NamedArgs{"id": id})
+	rows, err := s.pool.Query(ctxQuery, "SELECT * FROM orders WHERE id = @id;", pgx.NamedArgs{"id": id})
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	orderResult, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByNameLax[OrderResult])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) || errors.Is(err, pgx.ErrTooManyRows) {
-			return nil, store.ErrNotFound
+			err = store.ErrNotFound
+			return
 		}
 		logger.Log.Warn(err.Error())
-		return nil, err
+		return
 	}
 
-	order := models.Order(orderResult)
-	return &order, nil
+	order = models.Order(orderResult)
+	return
 }
 
-func (s *storage) OrderByFilter(ctx context.Context, filters ...store.OrderFilter) (*models.Order, error) {
+func (s *storage) OrderByFilter(ctx context.Context, filters ...store.OrderFilter) (order models.Order, err error) {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
@@ -44,7 +45,8 @@ func (s *storage) OrderByFilter(ctx context.Context, filters ...store.OrderFilte
 		filter(f)
 	}
 	if f.IsEmpty() {
-		return nil, errors.New("at least one filter required")
+		err = errors.New("at least one filter required")
+		return
 	}
 
 	queryFilter := make([]string, 0)
@@ -62,20 +64,21 @@ func (s *storage) OrderByFilter(ctx context.Context, filters ...store.OrderFilte
 
 	filterStr := strings.Join(queryFilter, ` AND `)
 
-	rows, err := s.pool.Query(ctxQuery, `SELECT id, user_id, num, accrual, status, uploaded_at FROM orders WHERE `+filterStr+` LIMIT 1;`, namedArgs)
+	rows, err := s.pool.Query(ctxQuery, `SELECT * FROM orders WHERE `+filterStr+` LIMIT 1;`, namedArgs)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	orderResult, err := pgx.CollectOneRow(rows, pgx.RowToStructByNameLax[OrderResult])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, store.ErrNotFound
+			err = store.ErrNotFound
+			return
 		}
 		logger.Log.Warn(err.Error())
-		return nil, err
+		return
 	}
 
-	order := models.Order(orderResult)
-	return &order, nil
+	order = models.Order(orderResult)
+	return
 }

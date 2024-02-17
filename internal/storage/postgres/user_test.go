@@ -43,5 +43,5 @@ func (ts *PostgresTestSuite) TestUserByID() {
 	data.Password = "" // password is always empty
 	user, err := ts.storage.UserByID(ctx, data.ID)
 	ts.NoError(err)
-	ts.EqualValues(data, *user)
+	ts.EqualValues(data, user)
 }

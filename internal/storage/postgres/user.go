@@ -12,24 +12,25 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
-func (s *storage) UserByID(ctx context.Context, id models.UserID) (*models.User, error) {
+func (s *storage) UserByID(ctx context.Context, id models.UserID) (user models.User, err error) {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
 	rows, err := s.pool.Query(ctxQuery, "SELECT id, username, created_at FROM users WHERE id = @id;", pgx.NamedArgs{"id": id})
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	userResult, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByNameLax[UserResult])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) || errors.Is(err, pgx.ErrTooManyRows) {
-			return nil, store.ErrNotFound
+			err = store.ErrNotFound
+			return
 		}
 		logger.Log.Warn(err.Error())
-		return nil, err
+		return
 	}
 
-	user := models.User(userResult)
-	return &user, nil
+	user = models.User(userResult)
+	return
 }
