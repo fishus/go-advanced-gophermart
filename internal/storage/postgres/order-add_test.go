@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
@@ -22,24 +21,14 @@ func (ts *PostgresTestSuite) TestOrderAdd() {
 	_, err := rand.Read(bUsername)
 	ts.Require().NoError(err)
 
-	userData := &models.User{
-		ID:        models.UserID(uuid.New().String()),
-		Username:  hex.EncodeToString(bUsername),
-		Password:  hex.EncodeToString(bUsername),
-		CreatedAt: time.Now().UTC().Round(1 * time.Second),
+	userData := models.User{
+		Username: hex.EncodeToString(bUsername),
+		Password: hex.EncodeToString(bUsername),
 	}
-
-	_, err = ts.pool.Exec(ctx, `INSERT INTO users (id, username, password, created_at) VALUES (@id, @username, @password, @created_at);`,
-		pgx.NamedArgs{
-			"id":         userData.ID,
-			"username":   userData.Username,
-			"password":   userData.Password,
-			"created_at": userData.CreatedAt,
-		})
-	ts.NoError(err)
+	userID, err := ts.storage.UserAdd(ctx, userData)
 
 	orderData := models.Order{
-		UserID: userData.ID,
+		UserID: userID,
 		Num:    "0866150147",
 		Status: models.OrderStatusNew,
 	}

@@ -56,11 +56,11 @@ func (ts *PostgresTestSuite) TestUserAdd() {
 	})
 
 	ts.Run("IncorrectUser", func() {
-		data := &models.User{
+		data := models.User{
 			Username: "",
 			Password: "",
 		}
-		_, err := ts.storage.UserAdd(ctx, *data)
+		_, err := ts.storage.UserAdd(ctx, data)
 		ts.Error(err)
 		ts.ErrorIs(err, store.ErrIncorrectData)
 	})

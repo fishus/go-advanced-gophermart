@@ -6,9 +6,6 @@ import (
 	"encoding/hex"
 	"time"
 
-	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
-
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
@@ -22,44 +19,28 @@ func (ts *PostgresTestSuite) TestOrderByID() {
 	_, err := rand.Read(bUsername)
 	ts.Require().NoError(err)
 
-	userData := &models.User{
-		ID:        models.UserID(uuid.New().String()),
-		Username:  hex.EncodeToString(bUsername),
-		Password:  hex.EncodeToString(bUsername),
-		CreatedAt: time.Now().UTC().Round(1 * time.Second),
+	userData := models.User{
+		Username: hex.EncodeToString(bUsername),
+		Password: hex.EncodeToString(bUsername),
 	}
-
-	_, err = ts.pool.Exec(ctx, `INSERT INTO users (id, username, password, created_at) VALUES (@id, @username, @password, @created_at);`,
-		pgx.NamedArgs{
-			"id":         userData.ID,
-			"username":   userData.Username,
-			"password":   userData.Password,
-			"created_at": userData.CreatedAt,
-		})
-	ts.NoError(err)
+	userID, err := ts.storage.UserAdd(ctx, userData)
+	ts.Require().NoError(err)
 
 	orderData := models.Order{
-		ID:         models.OrderID(uuid.New().String()),
-		UserID:     userData.ID,
+		UserID:     userID,
 		Num:        "8020122696",
 		Accrual:    0,
 		Status:     models.OrderStatusNew,
 		UploadedAt: time.Now().UTC().Round(1 * time.Second),
 	}
 
-	_, err = ts.pool.Exec(ctx, `INSERT INTO orders (id, user_id, num, accrual, status, uploaded_at) VALUES (@id, @userID, @num, @accrual, @status, @uploadedAt);`,
-		pgx.NamedArgs{
-			"id":         orderData.ID,
-			"userID":     orderData.UserID,
-			"num":        orderData.Num,
-			"accrual":    orderData.Accrual,
-			"status":     orderData.Status,
-			"uploadedAt": orderData.UploadedAt,
-		})
-	ts.NoError(err)
+	orderID, err := ts.storage.OrderAdd(ctx, orderData)
+	ts.Require().NoError(err)
+	orderData.ID = orderID
 
 	order, err := ts.storage.OrderByID(ctx, orderData.ID)
 	ts.NoError(err)
+	order.UploadedAt = order.UploadedAt.UTC().Round(1 * time.Second)
 	ts.EqualValues(orderData, order)
 }
 
@@ -76,50 +57,35 @@ func (ts *PostgresTestSuite) TestOrderByFilter() {
 		ts.Require().NoError(err)
 
 		userData[i] = models.User{
-			ID:        models.UserID(uuid.New().String()),
-			Username:  hex.EncodeToString(bUsername),
-			Password:  hex.EncodeToString(bUsername),
-			CreatedAt: time.Now().UTC().Round(1 * time.Second),
+			Username: hex.EncodeToString(bUsername),
+			Password: hex.EncodeToString(bUsername),
 		}
-
-		_, err = ts.pool.Exec(ctx, `INSERT INTO users (id, username, password, created_at) VALUES (@id, @username, @password, @created_at);`,
-			pgx.NamedArgs{
-				"id":         userData[i].ID,
-				"username":   userData[i].Username,
-				"password":   userData[i].Password,
-				"created_at": userData[i].CreatedAt,
-			})
-		ts.NoError(err)
+		userData[i].ID, err = ts.storage.UserAdd(ctx, userData[i])
+		ts.Require().NoError(err)
 
 		orderData[i] = models.Order{
-			ID:         models.OrderID(uuid.New().String()),
 			UserID:     userData[i].ID,
 			Num:        orderNum,
 			Accrual:    0,
 			Status:     models.OrderStatusNew,
 			UploadedAt: time.Now().UTC().Round(1 * time.Second),
 		}
-		_, err = ts.pool.Exec(ctx, `INSERT INTO orders (id, user_id, num, accrual, status, uploaded_at) VALUES (@id, @userID, @num, @accrual, @status, @uploadedAt);`,
-			pgx.NamedArgs{
-				"id":         orderData[i].ID,
-				"userID":     orderData[i].UserID,
-				"num":        orderData[i].Num,
-				"accrual":    orderData[i].Accrual,
-				"status":     orderData[i].Status,
-				"uploadedAt": orderData[i].UploadedAt,
-			})
-		ts.NoError(err)
+		orderID, err := ts.storage.OrderAdd(ctx, orderData[i])
+		ts.Require().NoError(err)
+		orderData[i].ID = orderID
 	}
 
 	ts.Run("WithOrderNum", func() {
 		order, err := ts.storage.OrderByFilter(ctx, store.WithOrderNum(orderData[0].Num))
 		ts.NoError(err)
+		order.UploadedAt = order.UploadedAt.UTC().Round(1 * time.Second)
 		ts.EqualValues(orderData[0], order)
 	})
 
 	ts.Run("WithOrderUserID", func() {
 		order, err := ts.storage.OrderByFilter(ctx, store.WithOrderUserID(orderData[1].UserID))
 		ts.NoError(err)
+		order.UploadedAt = order.UploadedAt.UTC().Round(1 * time.Second)
 		ts.EqualValues(orderData[1], order)
 	})
 }
