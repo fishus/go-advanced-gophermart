@@ -84,4 +84,24 @@ func (ts *PostgresTestSuite) TestOrdersByFilter() {
 			ts.EqualValues(orderData[i], order)
 		}
 	})
+
+	ts.Run("WithOrderStatus", func() {
+		orders, err := ts.storage.OrdersByFilter(ctx, 10, store.WithOrderStatus(models.OrderStatusNew))
+		ts.NoError(err)
+		for _, order := range orders {
+			i := slices.Index(orderNums, order.Num)
+			ts.Equal(models.OrderStatusNew, order.Status)
+			ts.EqualValues(orderData[i], order)
+		}
+	})
+
+	ts.Run("WithOrderStatuses", func() {
+		orders, err := ts.storage.OrdersByFilter(ctx, 10, store.WithOrderStatuses(models.OrderStatusProcessing))
+		ts.NoError(err)
+		for _, order := range orders {
+			i := slices.Index(orderNums, order.Num)
+			ts.Equal(models.OrderStatusProcessing, order.Status)
+			ts.EqualValues(orderData[i], order)
+		}
+	})
 }

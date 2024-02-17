@@ -3,8 +3,9 @@ package storage
 import "github.com/fishus/go-advanced-gophermart/pkg/models"
 
 type OrderFilters struct {
-	UserID models.UserID
-	Num    string
+	UserID   models.UserID
+	Num      string
+	Statuses []models.OrderStatus
 }
 
 func (o OrderFilters) IsEmpty() bool {
@@ -20,14 +21,26 @@ func (o OrderFilters) IsEmpty() bool {
 
 type OrderFilter func(o *OrderFilters)
 
+func WithOrderUserID(userID models.UserID) OrderFilter {
+	return func(f *OrderFilters) {
+		f.UserID = userID
+	}
+}
+
 func WithOrderNum(num string) OrderFilter {
 	return func(f *OrderFilters) {
 		f.Num = num
 	}
 }
 
-func WithOrderUserID(userID models.UserID) OrderFilter {
+func WithOrderStatus(status models.OrderStatus) OrderFilter {
 	return func(f *OrderFilters) {
-		f.UserID = userID
+		f.Statuses = append(f.Statuses, status)
+	}
+}
+
+func WithOrderStatuses(statuses ...models.OrderStatus) OrderFilter {
+	return func(f *OrderFilters) {
+		f.Statuses = statuses
 	}
 }

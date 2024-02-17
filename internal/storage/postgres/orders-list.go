@@ -36,6 +36,15 @@ func (s *storage) OrdersByFilter(ctx context.Context, limit int, filters ...stor
 		namedArgs["userID"] = f.UserID
 	}
 
+	if len(f.Statuses) > 0 {
+		queryFilter = append(queryFilter, `status = ANY(@status)`)
+		statuses := make([]string, len(f.Statuses))
+		for i, status := range f.Statuses {
+			statuses[i] = status.String()
+		}
+		namedArgs["status"] = statuses
+	}
+
 	filterStr := strings.Join(queryFilter, ` AND `)
 	if filterStr != "" {
 		filterStr = "WHERE " + filterStr
