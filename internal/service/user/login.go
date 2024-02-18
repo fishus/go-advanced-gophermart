@@ -19,8 +19,8 @@ func (s *service) Login(ctx context.Context, user models.User) (userID models.Us
 
 	userID, err = s.storage.UserLogin(ctx, user)
 	if err != nil {
-		if errors.Is(err, store.ErrAlreadyExists) {
-			err = serviceErr.ErrUserAlreadyExists
+		if errors.Is(err, store.ErrNotFound) {
+			err = serviceErr.ErrUserNotFound
 		}
 	}
 	return
