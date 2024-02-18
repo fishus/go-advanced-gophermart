@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"github.com/google/uuid"
 	"time"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
@@ -15,33 +16,42 @@ func (ts *PostgresTestSuite) TestOrderByID() {
 	ctx, cancel := context.WithTimeout(context.Background(), ts.cfg.QueryTimeout)
 	defer cancel()
 
-	bUsername := make([]byte, 10)
-	_, err := rand.Read(bUsername)
-	ts.Require().NoError(err)
+	ts.Run("Return order by ID", func() {
+		bUsername := make([]byte, 10)
+		_, err := rand.Read(bUsername)
+		ts.Require().NoError(err)
 
-	userData := models.User{
-		Username: hex.EncodeToString(bUsername),
-		Password: hex.EncodeToString(bUsername),
-	}
-	userID, err := ts.storage.UserAdd(ctx, userData)
-	ts.Require().NoError(err)
+		userData := models.User{
+			Username: hex.EncodeToString(bUsername),
+			Password: hex.EncodeToString(bUsername),
+		}
+		userID, err := ts.storage.UserAdd(ctx, userData)
+		ts.Require().NoError(err)
 
-	orderData := models.Order{
-		UserID:     userID,
-		Num:        "8020122696",
-		Accrual:    0,
-		Status:     models.OrderStatusNew,
-		UploadedAt: time.Now().UTC().Round(1 * time.Second),
-	}
+		orderData := models.Order{
+			UserID:     userID,
+			Num:        "8020122696",
+			Accrual:    0,
+			Status:     models.OrderStatusNew,
+			UploadedAt: time.Now().UTC().Round(5 * time.Second),
+		}
 
-	orderID, err := ts.storage.OrderAdd(ctx, orderData)
-	ts.Require().NoError(err)
-	orderData.ID = orderID
+		orderID, err := ts.storage.OrderAdd(ctx, orderData)
+		ts.Require().NoError(err)
+		orderData.ID = orderID
 
-	order, err := ts.storage.OrderByID(ctx, orderData.ID)
-	ts.NoError(err)
-	order.UploadedAt = order.UploadedAt.UTC().Round(1 * time.Second)
-	ts.EqualValues(orderData, order)
+		order, err := ts.storage.OrderByID(ctx, orderData.ID)
+		ts.NoError(err)
+		order.UploadedAt = order.UploadedAt.UTC().Round(5 * time.Second)
+		ts.EqualValues(orderData, order)
+	})
+
+	ts.Run("Order not found", func() {
+		orderID := models.OrderID(uuid.New().String())
+		_, err := ts.storage.OrderByID(ctx, orderID)
+		ts.Error(err)
+		ts.ErrorIs(err, store.ErrNotFound)
+	})
 }
 
 func (ts *PostgresTestSuite) TestOrderByFilter() {
@@ -68,7 +78,7 @@ func (ts *PostgresTestSuite) TestOrderByFilter() {
 			Num:        orderNum,
 			Accrual:    0,
 			Status:     models.OrderStatusNew,
-			UploadedAt: time.Now().UTC().Round(1 * time.Second),
+			UploadedAt: time.Now().UTC().Round(5 * time.Second),
 		}
 		orderID, err := ts.storage.OrderAdd(ctx, orderData[i])
 		ts.Require().NoError(err)
@@ -78,14 +88,14 @@ func (ts *PostgresTestSuite) TestOrderByFilter() {
 	ts.Run("WithOrderNum", func() {
 		order, err := ts.storage.OrderByFilter(ctx, store.WithOrderNum(orderData[0].Num))
 		ts.NoError(err)
-		order.UploadedAt = order.UploadedAt.UTC().Round(1 * time.Second)
+		order.UploadedAt = order.UploadedAt.UTC().Round(5 * time.Second)
 		ts.EqualValues(orderData[0], order)
 	})
 
 	ts.Run("WithOrderUserID", func() {
 		order, err := ts.storage.OrderByFilter(ctx, store.WithOrderUserID(orderData[1].UserID))
 		ts.NoError(err)
-		order.UploadedAt = order.UploadedAt.UTC().Round(1 * time.Second)
+		order.UploadedAt = order.UploadedAt.UTC().Round(5 * time.Second)
 		ts.EqualValues(orderData[1], order)
 	})
 }

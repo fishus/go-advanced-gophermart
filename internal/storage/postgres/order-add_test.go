@@ -53,7 +53,7 @@ func (ts *PostgresTestSuite) TestOrderAdd() {
 		ts.Equal(orderData.Num, want.num)
 		ts.Equal(float64(0), want.accrual)
 		ts.Equal(orderData.Status.String(), want.status)
-		ts.Equal(time.Now().UTC().Round(10*time.Second), want.uploadedAt.Round(10*time.Second))
+		ts.Equal(time.Now().UTC().Round((5 * time.Second)), want.uploadedAt.Round((5 * time.Second)))
 	})
 
 	ts.Run("DuplicateOrder", func() {

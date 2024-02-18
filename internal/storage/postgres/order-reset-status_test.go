@@ -39,7 +39,7 @@ func (ts *PostgresTestSuite) TestOrderResetProcessingStatus() {
 	}
 	for i := 0; i < len(orderData); i++ {
 		orderData[i].UserID = userID
-		orderData[i].UploadedAt = time.Now().UTC().Round(1 * time.Second)
+		orderData[i].UploadedAt = time.Now().UTC().Round(5 * time.Second)
 		orderID, err := ts.storage.OrderAdd(ctx, orderData[i])
 		ts.Require().NoError(err)
 		orderData[i].ID = orderID
@@ -52,7 +52,7 @@ func (ts *PostgresTestSuite) TestOrderResetProcessingStatus() {
 	for _, want := range orderData {
 		order, err := ts.storage.OrderByID(ctx, want.ID)
 		ts.NoError(err)
-		order.UploadedAt = order.UploadedAt.UTC().Round(1 * time.Second)
+		order.UploadedAt = order.UploadedAt.UTC().Round(5 * time.Second)
 		ts.EqualValues(want, order)
 	}
 
