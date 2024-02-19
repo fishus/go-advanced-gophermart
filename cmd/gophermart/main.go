@@ -12,6 +12,18 @@ func main() {
 	defer cancel()
 	app.Shutdown(cancel)
 
-	err := app.RunAPIServer(ctx)
-	logger.Log.Info(err.Error())
+	db, err := app.ConnDB(ctx)
+	if err != nil {
+		logger.Log.Error(err.Error())
+	}
+
+	err = app.RunAccrualWorkers(ctx, db)
+	if err != nil {
+		logger.Log.Error(err.Error())
+	}
+
+	err = app.RunAPIServer(ctx, db)
+	if err != nil {
+		logger.Log.Error(err.Error())
+	}
 }
