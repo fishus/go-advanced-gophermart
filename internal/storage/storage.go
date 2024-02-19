@@ -18,6 +18,8 @@ type OrderStorager interface {
 	OrderByFilter(context.Context, ...OrderFilter) (models.Order, error)
 	OrdersByFilter(ctx context.Context, limit int, filters ...OrderFilter) ([]models.Order, error)
 	OrderResetProcessingStatus(context.Context) error
+	OrderMoveToProcessing(ctx context.Context, limit int) ([]models.Order, error)
+	OrderSetStatus(context.Context, []models.OrderID, models.OrderStatus) error
 }
 
 type Storager interface {

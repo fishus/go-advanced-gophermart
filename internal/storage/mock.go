@@ -44,3 +44,11 @@ func (m *MockStorage) OrderResetProcessingStatus(ctx context.Context) error {
 	args := m.Called(ctx)
 	return args.Error(0)
 }
+func (m *MockStorage) OrderMoveToProcessing(ctx context.Context, limit int) ([]models.Order, error) {
+	args := m.Called(ctx, limit)
+	return args.Get(0).([]models.Order), args.Error(1)
+}
+func (m *MockStorage) OrderSetStatus(ctx context.Context, idList []models.OrderID, newStatus models.OrderStatus) error {
+	args := m.Called(ctx, idList, newStatus)
+	return args.Error(0)
+}
