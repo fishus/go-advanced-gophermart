@@ -24,6 +24,7 @@ const (
 )
 
 type OrderFilters struct {
+	ID       []models.OrderID
 	UserID   models.UserID
 	Num      string
 	Statuses []models.OrderStatus
@@ -35,16 +36,34 @@ type OrderFilters struct {
 
 func (o OrderFilters) IsEmpty() bool {
 	isEmpty := true
+	if len(o.ID) > 0 {
+		isEmpty = false
+	}
 	if o.UserID != "" {
 		isEmpty = false
 	}
 	if o.Num != "" {
 		isEmpty = false
 	}
+	if len(o.Statuses) > 0 {
+		isEmpty = false
+	}
 	return isEmpty
 }
 
 type OrderFilter func(o *OrderFilters)
+
+func WithOrderID(id models.OrderID) OrderFilter {
+	return func(f *OrderFilters) {
+		f.ID = append(f.ID, id)
+	}
+}
+
+func WithOrderIDList(idList ...models.OrderID) OrderFilter {
+	return func(f *OrderFilters) {
+		f.ID = idList
+	}
+}
 
 func WithOrderUserID(userID models.UserID) OrderFilter {
 	return func(f *OrderFilters) {
