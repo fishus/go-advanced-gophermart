@@ -50,12 +50,24 @@ func (s *storage) OrdersByFilter(ctx context.Context, limit int, filters ...stor
 		filterStr = "WHERE " + filterStr
 	}
 
+	orderBy := make([]string, 0)
+	if len(f.OrderBy) == 0 {
+		f.OrderBy = append(f.OrderBy, struct {
+			Field store.OrderByField
+			Dir   store.OrderByDirection
+		}{Field: store.OrderByUploadedAt, Dir: store.OrderByAsc})
+	}
+	for _, o := range f.OrderBy {
+		orderBy = append(orderBy, fmt.Sprintf("%s %s", o.Field, o.Dir))
+	}
+	orderByStr := "ORDER BY " + strings.Join(orderBy, `, `)
+
 	limitStr := ""
 	if limit > 0 {
 		limitStr = fmt.Sprintf("LIMIT %d", limit)
 	}
 
-	rows, err := s.pool.Query(ctxQuery, `SELECT * FROM orders `+filterStr+` `+limitStr+`;`, namedArgs)
+	rows, err := s.pool.Query(ctxQuery, `SELECT * FROM orders `+filterStr+` `+orderByStr+` `+limitStr+`;`, namedArgs)
 	if err != nil {
 		return nil, err
 	}
