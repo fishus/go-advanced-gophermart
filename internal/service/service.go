@@ -21,6 +21,8 @@ type Userer interface {
 
 type Orderer interface {
 	Add(ctx context.Context, userID models.UserID, orderNum string) (models.OrderID, error)
+	ResetProcessingStatus(ctx context.Context) error
+	MoveToProcessing(ctx context.Context, limit int) ([]models.Order, error)
 }
 
 type service struct {
