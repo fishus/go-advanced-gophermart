@@ -36,6 +36,7 @@ func (d *daemon) PushNewOrders(ctx context.Context, limit int) chan models.Order
 				list, err := d.service.Order().MoveToProcessing(ctx, d.cfg.LimitNewOrders)
 				if err != nil {
 					logger.Log.Error(err.Error())
+					continue
 				}
 				for _, order := range list {
 					ch <- order
