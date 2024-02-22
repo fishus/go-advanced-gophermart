@@ -6,6 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/fishus/go-advanced-gophermart/internal/logger"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
@@ -15,6 +16,7 @@ type storage struct {
 }
 
 func (s *storage) Close() error {
+	logger.Log.Info("Shutdown DB pool")
 	s.pool.Close()
 	return nil
 }

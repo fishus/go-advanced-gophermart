@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"os/signal"
+	"slices"
 	"syscall"
 
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
@@ -13,20 +14,25 @@ import (
 var Closers []io.Closer
 
 func CloseClosers() {
+	slices.Reverse(Closers)
+
 	for _, closer := range Closers {
-		if err := closer.Close(); err != nil {
+		err := closer.Close()
+		if err != nil {
 			logger.Log.Error(err.Error())
 		}
 	}
 }
 
 // Shutdown implements graceful app
+
 func Shutdown(cancel context.CancelFunc) {
+	// Listen for syscall signals for process to interrupt/quit
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	go func() {
-		termSig := make(chan os.Signal, 1)
-		signal.Notify(termSig, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM)
-		<-termSig
-		cancel()
+		<-sig
 		CloseClosers()
+		cancel()
 	}()
 }

@@ -9,7 +9,6 @@ import (
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 	app.Shutdown(cancel)
 
 	db, err := app.ConnDB(ctx)
@@ -26,4 +25,6 @@ func main() {
 	if err != nil {
 		logger.Log.Error(err.Error())
 	}
+
+	<-ctx.Done()
 }
