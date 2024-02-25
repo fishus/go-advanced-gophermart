@@ -47,4 +47,5 @@ type Order struct {
 	Accrual    float64     // Начислено баллов лояльности // FIXME Хранить в int в копейках
 	Status     OrderStatus // Статус заказа
 	UploadedAt time.Time   // Дата и время добавления заказа
+	UpdatedAt  time.Time   // Дата и время обновления статуса заказа
 }

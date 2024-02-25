@@ -2,9 +2,6 @@ package accrual
 
 import (
 	"errors"
-	"time"
-
-	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
 // OrderAccrualStatus Статус расчёта начисления вознаграждения за заказ
@@ -35,14 +32,9 @@ func (s OrderAccrualStatus) String() string {
 	return string(s)
 }
 
-// OrderAccrual Hасчёт начисления вознаграждения за заказ
+// OrderAccrual Расчёт начисления вознаграждения за заказ
 type OrderAccrual struct {
-	Num     string             // Номер заказа
-	Status  OrderAccrualStatus // Статус расчёта начисления вознаграждения за заказ
-	Accrual float64            // Начислено баллов лояльности // FIXME
-}
-
-type delayedOrder struct {
-	order models.Order
-	delay time.Time
+	Num     string             `json:"order"`   // Номер заказа
+	Status  OrderAccrualStatus `json:"status"`  // Статус расчёта начисления вознаграждения за заказ
+	Accrual float64            `json:"accrual"` // Начислено баллов лояльности // FIXME
 }

@@ -8,7 +8,7 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
-func RunAPIServer(ctx context.Context, storage store.Storager) error {
+func RunAPIServer(ctx context.Context, storage store.Storager, loyalty AccrualDaemon) error {
 	serviceConfig := &service.Config{
 		JWTExpires:   Config.jwtExpires,
 		JWTSecretKey: Config.jwtSecretKey,
@@ -19,7 +19,7 @@ func RunAPIServer(ctx context.Context, storage store.Storager) error {
 		ServerAddr: Config.RunAddr(),
 	}
 
-	server := api.NewServer(apiConfig, serv)
+	server := api.NewServer(apiConfig, serv, loyalty)
 	Closers = append(Closers, server)
 	return server.Run()
 }

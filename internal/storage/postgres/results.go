@@ -22,6 +22,7 @@ type OrderResult struct {
 	Accrual    float64            `db:"accrual"`     // Начислено баллов лояльности // FIXME Хранить в int в копейках
 	Status     models.OrderStatus `db:"status"`      // Статус заказа
 	UploadedAt time.Time          `db:"uploaded_at"` // Дата и время добавления заказа
+	UpdatedAt  time.Time          `db:"updated_at"`  // Дата и время обновления статуса заказа
 }
 
 func listResultsToOrders(results []OrderResult) []models.Order {

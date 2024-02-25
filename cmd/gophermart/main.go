@@ -16,12 +16,12 @@ func main() {
 		logger.Log.Error(err.Error())
 	}
 
-	err = app.RunAccrualWorkers(ctx, db)
+	loyalty, err := app.RunAccrualWorkers(ctx, db)
 	if err != nil {
 		logger.Log.Error(err.Error())
 	}
 
-	err = app.RunAPIServer(ctx, db)
+	err = app.RunAPIServer(ctx, db, loyalty)
 	if err != nil {
 		logger.Log.Error(err.Error())
 	}

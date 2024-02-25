@@ -44,9 +44,10 @@ func (ts *PostgresTestSuite) TestOrderAdd() {
 			accrual    float64
 			status     string
 			uploadedAt time.Time
+			updatedAt  time.Time
 		}
-		err = ts.pool.QueryRow(ctx, "SELECT id, user_id, num, accrual, status, uploaded_at FROM orders WHERE id = @id;",
-			pgx.NamedArgs{"id": orderID}).Scan(&want.id, &want.userID, &want.num, &want.accrual, &want.status, &want.uploadedAt)
+		err = ts.pool.QueryRow(ctx, "SELECT id, user_id, num, accrual, status, uploaded_at, updated_at FROM orders WHERE id = @id;",
+			pgx.NamedArgs{"id": orderID}).Scan(&want.id, &want.userID, &want.num, &want.accrual, &want.status, &want.uploadedAt, &want.updatedAt)
 		ts.NoError(err)
 		ts.Equal(orderID.String(), want.id)
 		ts.Equal(orderData.UserID.String(), want.userID)
@@ -54,6 +55,7 @@ func (ts *PostgresTestSuite) TestOrderAdd() {
 		ts.Equal(float64(0), want.accrual)
 		ts.Equal(orderData.Status.String(), want.status)
 		ts.Equal(time.Now().UTC().Round((5 * time.Second)), want.uploadedAt.Round((5 * time.Second)))
+		ts.Equal(time.Now().UTC().Round((5 * time.Second)), want.updatedAt.Round((5 * time.Second)))
 	})
 
 	ts.Run("DuplicateOrder", func() {

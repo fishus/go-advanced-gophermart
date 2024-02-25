@@ -2,7 +2,6 @@ package accrual
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
@@ -13,134 +12,159 @@ import (
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 )
 
-// workerGetOrderAccrual the worker sends requests for information about accrual loyalty points and processes the responses
-func (d *daemon) workerGetOrderAccrual(ctx context.Context, chOrders chan models.Order, chDelayed chan delayedOrder) {
+// workerRequestOrderAccrual the worker sends requests for information about accrual loyalty points and processes the responses
+func (d *daemon) workerRequestOrderAccrual(ctx context.Context) {
 	go func() {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-		}
+		for {
+			select {
+			case <-ctx.Done():
+				return
 
-		for order := range chOrders {
-			ac, err := d.getOrderAccrual(ctx, order.Num)
-			if err != nil {
-				logger.Log.Error(err.Error(), logger.String("OrderNum", order.Num))
-
-				var de *DelayedOrderError
-				switch {
-				case (errors.Is(err, ErrOrderNotRegistered) && errors.As(err, &de)),
-					(errors.Is(err, ErrTooManyRequests) && errors.As(err, &de)),
-					(errors.Is(err, ErrAPIServerError) && errors.As(err, &de)):
-					chDelayed <- delayedOrder{order, time.Now().Add(de.Delay)}
-					continue
+			case order, opened := <-d.chOrders:
+				if !opened || d.isShutdown.Load() || ctx.Err() != nil {
+					return
 				}
+				d.wg.Add(1)
+				func() {
+					defer d.wg.Done()
+					acc, err := d.requestOrderAccrual(ctx, order.Num)
+					if err != nil {
+						switch {
+						case errors.Is(err, ErrIsShutdown),
+							errors.Is(err, ErrMaxAttemptsReached),
+							errors.Is(err, ErrOrderNotRegistered),
+							errors.Is(err, ErrAPIServerError):
+							err = d.service.Order().UpdateStatus(ctx, order.ID, models.OrderStatusProcessing)
+							if err != nil {
+								logger.Log.Error(err.Error(), logger.String("OrderID", order.ID.String()))
+							}
 
-				// TODO перевести в статус INVALID
-				continue
+						default:
+							err = d.service.Order().UpdateStatus(ctx, order.ID, models.OrderStatusInvalid)
+							if err != nil {
+								logger.Log.Error(err.Error(), logger.String("OrderID", order.ID.String()))
+							}
+						}
+						return
+					}
+
+					if acc.Num != order.Num {
+						err = d.service.Order().UpdateStatus(ctx, order.ID, models.OrderStatusInvalid)
+						if err != nil {
+							logger.Log.Error(err.Error(), logger.String("OrderID", order.ID.String()))
+						}
+						return
+					}
+
+					switch acc.Status {
+					case OrderAccrualStatusInvalid:
+						err = d.service.Order().UpdateStatus(ctx, order.ID, models.OrderStatusInvalid)
+						if err != nil {
+							logger.Log.Error(err.Error(), logger.String("OrderID", order.ID.String()))
+						}
+					case OrderAccrualStatusRegistered,
+						OrderAccrualStatusProcessing:
+						err = d.service.Order().UpdateStatus(ctx, order.ID, models.OrderStatusProcessing)
+						if err != nil {
+							logger.Log.Error(err.Error(), logger.String("OrderID", order.ID.String()))
+						}
+					case OrderAccrualStatusProcessed:
+						err = d.service.Order().AddAccrual(ctx, order.ID, acc.Accrual)
+						if err != nil {
+							logger.Log.Error(err.Error(), logger.String("OrderID", order.ID.String()))
+						}
+					}
+				}()
 			}
-			logger.Log.Info("OrderAccrual", logger.Any("OrderAccrual", ac))
-			// TODO обработать статусы
-			time.Sleep(100 * time.Millisecond)
 		}
-
-		// Статусы INVALID и PROCESSED являются окончательными.
 	}()
 }
 
-// workerDelayed implements a queue of delayed orders
-func (d *daemon) workerDelayed(ctx context.Context, chOrders chan<- models.Order) chan delayedOrder {
-	chDelayed := make(chan delayedOrder, 10000)
-
-	go func() {
-		select {
-		case <-ctx.Done():
-			close(chDelayed)
-			return
-		default:
-		}
-
-		for delayedOrder := range chDelayed {
-			if time.Now().After(delayedOrder.delay) {
-				chOrders <- delayedOrder.order
-			} else {
-				chDelayed <- delayedOrder
-			}
-			time.Sleep(100 * time.Millisecond)
-		}
-	}()
-
-	return chDelayed
-}
-
-// getOrderAccrual implements a request for the status of accrual loyalty points for an order
-func (d *daemon) getOrderAccrual(ctx context.Context, num string) (*OrderAccrual, error) {
-	select {
-	case <-ctx.Done():
-		return nil, ctx.Err()
-	default:
-	}
-
+// requestOrderAccrual makes a request for the status of accrual loyalty points for an order
+func (d *daemon) requestOrderAccrual(ctx context.Context, num string) (*OrderAccrual, error) {
 	if num == "" {
 		return nil, errors.New("order number is empty")
 	}
 
-	req := d.client.R().
-		SetContext(ctx).
-		SetDoNotParseResponse(true).
-		SetPathParams(map[string]string{
-			"number": num,
-		})
-	resp, err := req.Get("/api/orders/{number}")
-	if err != nil {
-		return nil, err
-	}
-	rawBody := resp.RawBody()
-	defer rawBody.Close()
-
-	switch resp.StatusCode() {
-	// успешная обработка запроса
-	case http.StatusOK:
-		// TODO
-
-		var respData struct {
-			Order   string
-			Status  string
-			Accrual float64 // FIXME
+	i := 0 // Attempts counter
+	var respOrder OrderAccrual
+	for {
+		if d.isShutdown.Load() {
+			return nil, ErrIsShutdown
 		}
 
-		if err = json.NewDecoder(rawBody).Decode(&respData); err != nil {
-			logger.Log.Debug(err.Error())
-			return nil, err
+		i++
+		if i != 0 && i > d.cfg.MaxAttempts {
+			return nil, ErrMaxAttemptsReached
 		}
 
-		status := OrderAccrualStatus(respData.Status)
-		if err = status.Validate(); err != nil {
-			return nil, err
+		d.delayCond.L.Lock()
+		for d.delay.Load() {
+			d.delayCond.Wait()
 		}
+		d.delayCond.L.Unlock()
 
-		ac := &OrderAccrual{
-			Num:     respData.Order,
-			Status:  status,
-			Accrual: respData.Accrual,
-		}
-
-		return ac, nil
-
-	// превышено количество запросов к сервису
-	case http.StatusTooManyRequests:
-		retryAfter, err := strconv.Atoi(resp.Header().Get("Retry-After"))
+		req := d.client.R().
+			SetContext(ctx).
+			SetResult(&respOrder).
+			SetPathParams(map[string]string{
+				"number": num,
+			})
+		resp, err := req.Get("/api/orders/{number}")
 		if err != nil {
 			return nil, err
 		}
-		return nil, NewDelayedOrderError(num, resp.StatusCode(), time.Duration(retryAfter)*time.Second, ErrTooManyRequests)
-	// заказ не зарегистрирован в системе расчёта
-	case http.StatusNoContent:
-		return nil, NewDelayedOrderError(num, resp.StatusCode(), 2*time.Second, ErrOrderNotRegistered)
-	// внутренняя ошибка сервера
-	case http.StatusInternalServerError:
-		return nil, NewDelayedOrderError(num, resp.StatusCode(), 2*time.Second, ErrAPIServerError)
+
+		switch resp.StatusCode() {
+
+		// успешная обработка запроса
+		case http.StatusOK:
+			if err = respOrder.Status.Validate(); err != nil {
+				return nil, err
+			}
+			return &respOrder, nil
+
+		// превышено количество запросов к сервису
+		case http.StatusTooManyRequests:
+			retryAfter, err := strconv.Atoi(resp.Header().Get("Retry-After"))
+			if err != nil {
+				return nil, err
+			}
+			d.doDelay(time.Duration(retryAfter+1) * time.Second)
+			continue
+
+		// заказ не зарегистрирован в системе расчёта
+		case http.StatusNoContent:
+			return nil, ErrOrderNotRegistered
+
+		// внутренняя ошибка сервера
+		case http.StatusInternalServerError:
+			return nil, ErrAPIServerError
+
+		default:
+			return nil, errors.New(http.StatusText(resp.StatusCode()))
+		}
+	}
+}
+
+func (d *daemon) doDelay(delayDuration time.Duration) {
+	d.delayCond.L.Lock()
+	d.delay.Store(true)
+
+	expire := time.Now().Add(delayDuration)
+	ticker := time.NewTicker(time.Second)
+	for {
+		if d.isShutdown.Load() {
+			// interrupt the pause early because the application is shutting down
+			break
+		}
+		t := <-ticker.C
+		if t.Equal(expire) || t.After(expire) {
+			break
+		}
 	}
 
-	return nil, NewDelayedOrderError(num, resp.StatusCode(), 0, errors.New(http.StatusText(resp.StatusCode())))
+	d.delay.Store(false)
+	d.delayCond.Broadcast()
+	d.delayCond.L.Unlock()
 }

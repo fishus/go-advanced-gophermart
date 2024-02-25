@@ -40,15 +40,11 @@ func (m *MockStorage) OrdersByFilter(ctx context.Context, limit int, filters ...
 	args := m.Called(ctx, limit, filters)
 	return args.Get(0).([]models.Order), args.Error(1)
 }
-func (m *MockStorage) OrderResetProcessingStatus(ctx context.Context) error {
-	args := m.Called(ctx)
+func (m *MockStorage) OrderUpdateStatus(ctx context.Context, id models.OrderID, status models.OrderStatus) error {
+	args := m.Called(ctx, id, status)
 	return args.Error(0)
 }
-func (m *MockStorage) OrderMoveToProcessing(ctx context.Context, limit int) ([]models.Order, error) {
-	args := m.Called(ctx, limit)
-	return args.Get(0).([]models.Order), args.Error(1)
-}
-func (m *MockStorage) OrderSetStatus(ctx context.Context, idList []models.OrderID, newStatus models.OrderStatus) error {
-	args := m.Called(ctx, idList, newStatus)
+func (m *MockStorage) OrderAddAccrual(ctx context.Context, order models.Order, accrual float64) error {
+	args := m.Called(ctx, order, accrual)
 	return args.Error(0)
 }

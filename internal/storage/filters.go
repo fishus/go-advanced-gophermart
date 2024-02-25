@@ -21,6 +21,7 @@ func (f OrderByField) String() string {
 
 const (
 	OrderByUploadedAt OrderByField = "uploaded_at"
+	OrderByUpdatedAt  OrderByField = "updated_at"
 )
 
 type OrderFilters struct {

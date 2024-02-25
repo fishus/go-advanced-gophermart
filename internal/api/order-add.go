@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"io"
 	"net/http"
@@ -60,6 +61,14 @@ func (s *server) orderAdd(w http.ResponseWriter, r *http.Request) {
 		logger.String("OrderID", orderID.String()),
 		logger.String("orderNum", string(orderNum)),
 	)
+
+	ctx := context.Background()
+	order, err := s.service.Order().OrderByID(ctx, orderID)
+	if err != nil {
+		logger.Log.Error(err.Error())
+	} else {
+		s.loyalty.AddNewOrder(ctx, order)
+	}
 
 	// новый номер заказа принят в обработку
 	w.WriteHeader(http.StatusAccepted)

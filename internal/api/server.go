@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/fishus/go-advanced-gophermart/pkg/models"
+
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 	"github.com/fishus/go-advanced-gophermart/internal/service"
 )
@@ -16,16 +18,22 @@ type Servicer interface {
 	Order() service.Orderer
 }
 
+type AccrualDaemon interface {
+	AddNewOrder(context.Context, models.Order)
+}
+
 type server struct {
 	cfg     *Config
 	server  *http.Server
 	service Servicer
+	loyalty AccrualDaemon
 }
 
-func NewServer(cfg *Config, service Servicer) *server {
+func NewServer(cfg *Config, service Servicer, loyalty AccrualDaemon) *server {
 	s := &server{
 		cfg:     cfg,
 		service: service,
+		loyalty: loyalty,
 	}
 
 	srv := &http.Server{

@@ -19,7 +19,7 @@ create table public.orders (
     accrual numeric(15,5) not null default 0,
     status order_status not null default 'NEW'::order_status,
     uploaded_at timestamp not null default current_timestamp,
-    foreign key (user_id) references public.users (id) on update cascade on delete cascade
+    CONSTRAINT orders_user_id_fkey foreign key (user_id) references public.users (id) on update cascade on delete cascade
 );
 create unique index orders_num_uindex on public.orders (num);
 create index orders_status_index on public.orders (status);
@@ -32,8 +32,8 @@ create table public.loyalty_history (
     accrual numeric(15,5) not null default 0,
     withdrawal numeric(15,5) not null default 0,
     processed_at timestamp not null default current_timestamp,
-    foreign key (order_id) references public.orders (id) on update cascade on delete cascade,
-    foreign key (user_id) references public.users (id) on update cascade on delete cascade
+    CONSTRAINT loyalty_history_order_id_fkey foreign key (order_id) references public.orders (id) on update cascade on delete cascade,
+    CONSTRAINT loyalty_history_user_id_fkey foreign key (user_id) references public.users (id) on update cascade on delete cascade
 );
 
 -- loyalty_balance
@@ -42,7 +42,7 @@ create table public.loyalty_balance (
     current numeric(15,5) not null default 0,
     accrued numeric(15,5) not null default 0,
     withdrawn numeric(15,5) not null default 0,
-    foreign key (user_id) references public.users (id) on update cascade on delete cascade
+    CONSTRAINT loyalty_balance_user_id_fkey foreign key (user_id) references public.users (id) on update cascade on delete cascade
 );
 
 -- +goose Down

@@ -20,9 +20,12 @@ type Userer interface {
 }
 
 type Orderer interface {
+	OrderByID(context.Context, models.OrderID) (models.Order, error)
 	Add(ctx context.Context, userID models.UserID, orderNum string) (models.OrderID, error)
-	ResetProcessingStatus(ctx context.Context) error
-	MoveToProcessing(ctx context.Context, limit int) ([]models.Order, error)
+	ListNew(context.Context) ([]models.Order, error)
+	ListProcessing(ctx context.Context, limit int) ([]models.Order, error)
+	UpdateStatus(context.Context, models.OrderID, models.OrderStatus) error
+	AddAccrual(ctx context.Context, id models.OrderID, accrual float64) error
 }
 
 type service struct {
