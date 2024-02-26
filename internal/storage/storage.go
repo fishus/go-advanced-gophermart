@@ -23,6 +23,7 @@ type OrderStorager interface {
 
 type LoyaltyBalancer interface {
 	LoyaltyBalanceByUser(context.Context, models.UserID) (models.LoyaltyBalance, error)
+	LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw float64) error
 }
 
 type Storager interface {

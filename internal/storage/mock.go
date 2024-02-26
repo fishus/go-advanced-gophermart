@@ -52,3 +52,7 @@ func (m *MockStorage) LoyaltyBalanceByUser(ctx context.Context, userID models.Us
 	args := m.Called(ctx, userID)
 	return args.Get(0).(models.LoyaltyBalance), args.Error(1)
 }
+func (m *MockStorage) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw float64) error {
+	args := m.Called(ctx, userID, orderNum, withdraw)
+	return args.Error(0)
+}

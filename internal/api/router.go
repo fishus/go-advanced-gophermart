@@ -17,11 +17,12 @@ func Router(s *server) chi.Router {
 	r.Use(middleware.Compress(9, "application/json"))
 	r.Use(middleware.RequestLogger(&logger.LogFormatter{}))
 
-	r.Post("/api/user/register", s.userRegister) // Регистрация пользователя
-	r.Post("/api/user/login", s.userLogin)       // Аутентификация пользователя
-	r.Post("/api/user/orders", s.orderAdd)       // Загрузка номера заказа для расчёта
-	r.Get("/api/user/orders", s.ordersList)      // Список загруженных номеров заказов
-	r.Get("/api/user/balance", s.userBalance)    // Получение баланса пользователя
+	r.Post("/api/user/register", s.userRegister)         // Регистрация пользователя
+	r.Post("/api/user/login", s.userLogin)               // Аутентификация пользователя
+	r.Post("/api/user/orders", s.orderAdd)               // Загрузка номера заказа для расчёта
+	r.Get("/api/user/orders", s.ordersList)              // Список загруженных номеров заказов
+	r.Get("/api/user/balance", s.userBalance)            // Получение баланса пользователя
+	r.Post("/api/user/balance/withdraw", s.userWithdraw) // Запрос на списание средств
 
 	return r
 }

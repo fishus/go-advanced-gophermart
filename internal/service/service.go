@@ -17,10 +17,12 @@ type Userer interface {
 	BuildToken(models.UserID) (string, error)
 	DecryptToken(tokenString string) (*uService.JWTClaims, error)
 	CheckAuthorizationHeader(auth string) (*uService.JWTClaims, error)
-	UserLoyaltyBalance(context.Context, models.UserID) (models.LoyaltyBalance, error)
+	LoyaltyUserBalance(context.Context, models.UserID) (models.LoyaltyBalance, error)
+	LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw float64) error
 }
 
 type Orderer interface {
+	ValidateNumLuhn(num string) error
 	OrderByID(context.Context, models.OrderID) (models.Order, error)
 	Add(ctx context.Context, userID models.UserID, orderNum string) (models.OrderID, error)
 	ListNew(context.Context) ([]models.Order, error)
@@ -43,7 +45,7 @@ func New(cfg *Config, s store.Storager) *service {
 		JWTExpires:   cfg.JWTExpires,
 		JWTSecretKey: cfg.JWTSecretKey,
 	}
-	user := uService.New(userCfg, s)
+	user := uService.New(userCfg, s).SetOrder(order)
 
 	return &service{
 		storage: s,

@@ -11,6 +11,10 @@ import (
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 )
 
+func (s *service) ValidateNumLuhn(num string) error {
+	return validateNumLuhn(num)
+}
+
 // Проверка номера заказа на корректность с помощью алгоритма Луна
 func validateNumLuhn(num string) error {
 	i, err := strconv.Atoi(num)

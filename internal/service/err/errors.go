@@ -19,6 +19,7 @@ func (e *ValidationError) Unwrap() error {
 }
 
 var ErrIncorrectData = errors.New("incorrect input data")
+var ErrLowBalance = errors.New("current balance is less than the withdrawal amount")
 
 var ErrUserAlreadyExists = errors.New("user already exists")
 var ErrUserNotFound = errors.New("user not found")

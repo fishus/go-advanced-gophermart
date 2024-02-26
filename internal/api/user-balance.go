@@ -22,7 +22,7 @@ func (s *server) userBalance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	balance, err := s.service.User().UserLoyaltyBalance(r.Context(), token.UserID)
+	balance, err := s.service.User().LoyaltyUserBalance(r.Context(), token.UserID)
 	if err != nil {
 		JSONError(w, err.Error(), http.StatusInternalServerError)
 		logger.Log.Error(err.Error())

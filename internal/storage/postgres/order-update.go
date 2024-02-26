@@ -43,7 +43,7 @@ func (s *storage) OrderAddAccrual(ctx context.Context, order models.Order, accru
 
 	lh := models.LoyaltyHistory{
 		UserID:     order.UserID,
-		OrderID:    order.ID,
+		OrderNum:   order.Num,
 		Accrual:    accrual,
 		Withdrawal: 0,
 	}

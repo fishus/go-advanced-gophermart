@@ -13,7 +13,7 @@ type LoyaltyBalance struct {
 // LoyaltyHistory История изменения баланса пользователя в программе лояльности (начисления и списания баллов лояльности)
 type LoyaltyHistory struct {
 	UserID      UserID    // ID пользователя
-	OrderID     OrderID   // ID заказа
+	OrderNum    string    // Номер заказа
 	Accrual     float64   // Начисление
 	Withdrawal  float64   // Списание
 	ProcessedAt time.Time // Дата зачисления или списания
