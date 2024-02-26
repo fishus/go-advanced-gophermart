@@ -17,6 +17,7 @@ type Userer interface {
 	BuildToken(models.UserID) (string, error)
 	DecryptToken(tokenString string) (*uService.JWTClaims, error)
 	CheckAuthorizationHeader(auth string) (*uService.JWTClaims, error)
+	UserLoyaltyBalance(context.Context, models.UserID) (models.LoyaltyBalance, error)
 }
 
 type Orderer interface {

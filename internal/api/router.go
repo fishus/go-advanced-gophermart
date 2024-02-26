@@ -21,6 +21,7 @@ func Router(s *server) chi.Router {
 	r.Post("/api/user/login", s.userLogin)       // Аутентификация пользователя
 	r.Post("/api/user/orders", s.orderAdd)       // Загрузка номера заказа для расчёта
 	r.Get("/api/user/orders", s.ordersList)      // Список загруженных номеров заказов
+	r.Get("/api/user/balance", s.userBalance)    // Получение баланса пользователя
 
 	return r
 }

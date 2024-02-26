@@ -2,10 +2,14 @@ package postgres
 
 import (
 	"context"
+	"errors"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
+
+	"github.com/fishus/go-advanced-gophermart/internal/logger"
+	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
 func (s *storage) LoyaltyBalanceUpdate(ctx context.Context, tx pgx.Tx, balance models.LoyaltyBalance) error {
@@ -28,4 +32,29 @@ current = ((loyalty_balance.accrued + EXCLUDED.accrued) - (loyalty_balance.withd
 			"withdrawn": balance.Withdrawn,
 		})
 	return err
+}
+
+func (s *storage) LoyaltyBalanceByUser(ctx context.Context, userID models.UserID) (balance models.LoyaltyBalance, err error) {
+	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
+	defer cancel()
+
+	rows, err := s.pool.Query(ctxQuery, "SELECT * FROM loyalty_balance WHERE user_id = @userID;", pgx.NamedArgs{
+		"userID": userID.String(),
+	})
+	if err != nil {
+		return
+	}
+
+	balanceResult, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByNameLax[LoyaltyBalanceResult])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) || errors.Is(err, pgx.ErrTooManyRows) {
+			err = store.ErrNotFound
+			return
+		}
+		logger.Log.Warn(err.Error())
+		return
+	}
+
+	balance = models.LoyaltyBalance(balanceResult)
+	return
 }

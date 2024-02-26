@@ -33,3 +33,10 @@ func listResultsToOrders(results []OrderResult) []models.Order {
 	}
 	return orders
 }
+
+type LoyaltyBalanceResult struct {
+	UserID    models.UserID `db:"user_id"`   // ID пользователя
+	Current   float64       `db:"current"`   // Текущий баланс
+	Accrued   float64       `db:"accrued"`   // Начислено за всё время
+	Withdrawn float64       `db:"withdrawn"` // Списано за всё время
+}

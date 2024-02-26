@@ -21,7 +21,12 @@ type OrderStorager interface {
 	OrderAddAccrual(ctx context.Context, order models.Order, accrual float64) error
 }
 
+type LoyaltyBalancer interface {
+	LoyaltyBalanceByUser(context.Context, models.UserID) (models.LoyaltyBalance, error)
+}
+
 type Storager interface {
 	UserStorager
 	OrderStorager
+	LoyaltyBalancer
 }

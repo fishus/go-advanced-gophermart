@@ -17,7 +17,9 @@ func (s *storage) OrderByID(ctx context.Context, id models.OrderID) (order model
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
-	rows, err := s.pool.Query(ctxQuery, "SELECT * FROM orders WHERE id = @id;", pgx.NamedArgs{"id": id})
+	rows, err := s.pool.Query(ctxQuery, "SELECT * FROM orders WHERE id = @id;", pgx.NamedArgs{
+		"id": id,
+	})
 	if err != nil {
 		return
 	}
