@@ -33,7 +33,7 @@ type daemon struct {
 
 func NewAccrual(cfg *Config, service Servicer) *daemon {
 	client := resty.New().
-		SetBaseURL("http://" + cfg.APIAddr).
+		SetBaseURL(cfg.APIAddr).
 		SetTimeout(cfg.RequestTimeout)
 
 	if cfg.WorkersNum <= 0 {
@@ -53,7 +53,7 @@ func NewAccrual(cfg *Config, service Servicer) *daemon {
 
 func (d *daemon) Run(ctx context.Context) error {
 	d.runOnce.Do(func() {
-		logger.Log.Info("Running accrual daemon")
+		logger.Log.Info("Running accrual daemon on: " + d.cfg.APIAddr)
 
 		d.addNewOrders(ctx)
 		d.addProcessingOrders(ctx)

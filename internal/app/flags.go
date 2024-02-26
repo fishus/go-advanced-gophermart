@@ -14,7 +14,7 @@ func parseFlags(config config) config {
 	runAddr := flag.String("a", "localhost:8080", "service address and port")
 
 	// Флаг -r=<ЗНАЧЕНИЕ> адрес системы расчёта начислений (по умолчанию localhost:8081).
-	accrualAddr := flag.String("r", "localhost:8081", "address:port of the accrual calculation system")
+	accrualAddr := flag.String("r", "http://localhost:8081", "http://address:port of the accrual calculation system")
 
 	// Флаг -d=<ЗНАЧЕНИЕ> адрес подключения к базе данных
 	databaseURI := flag.String("d", "", "database URI")

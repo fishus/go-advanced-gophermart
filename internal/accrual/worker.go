@@ -112,11 +112,11 @@ func (d *daemon) requestOrderAccrual(ctx context.Context, num string) (*OrderAcc
 			})
 		resp, err := req.Get("/api/orders/{number}")
 		if err != nil {
+			logger.Log.Error(err.Error(), logger.String("OrderNum", num))
 			return nil, err
 		}
 
 		switch resp.StatusCode() {
-
 		// успешная обработка запроса
 		case http.StatusOK:
 			if err = respOrder.Status.Validate(); err != nil {

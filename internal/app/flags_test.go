@@ -72,7 +72,7 @@ func (suite *FlagsTestSuite) TestParseFlags() {
 			args: nil,
 			want: map[string]interface{}{
 				"runAddr":      "localhost:8080",
-				"accrualAddr":  "localhost:8081",
+				"accrualAddr":  "http://localhost:8081",
 				"databaseURI":  "",
 				"jwtSecretKey": "MySecretKey",
 				"logLevel":     "debug",
@@ -85,8 +85,8 @@ func (suite *FlagsTestSuite) TestParseFlags() {
 		},
 		{
 			name: "Positive case: Set flag -r",
-			args: []string{"-r=example.com:8181"},
-			want: map[string]interface{}{"accrualAddr": "example.com:8181"},
+			args: []string{"-r=http://example.com:8181"},
+			want: map[string]interface{}{"accrualAddr": "http://example.com:8181"},
 		},
 		{
 			name: "Positive case: Set flag -d",
@@ -148,8 +148,8 @@ func (suite *FlagsTestSuite) TestParseEnvs() {
 		},
 		{
 			name: "Positive case: Set env ACCRUAL_SYSTEM_ADDRESS",
-			envs: []string{"ACCRUAL_SYSTEM_ADDRESS=example.com:8181"},
-			want: map[string]interface{}{"accrualAddr": "example.com:8181"},
+			envs: []string{"ACCRUAL_SYSTEM_ADDRESS=http://example.com:8181"},
+			want: map[string]interface{}{"accrualAddr": "http://example.com:8181"},
 		},
 		{
 			name: "Positive case: Set env DATABASE_URI",
@@ -212,7 +212,7 @@ func (suite *FlagsTestSuite) TestLoadConfig() {
 			envs: nil,
 			want: map[string]interface{}{
 				"runAddr":      "localhost:8080",
-				"accrualAddr":  "localhost:8081",
+				"accrualAddr":  "http://localhost:8081",
 				"databaseURI":  "",
 				"jwtSecretKey": "MySecretKey",
 				"logLevel":     "debug",
@@ -238,21 +238,21 @@ func (suite *FlagsTestSuite) TestLoadConfig() {
 		},
 		{
 			name: "Positive case: Set flag -r and env ACCRUAL_SYSTEM_ADDRESS",
-			args: []string{"-r=aaa.com:3333"},
-			envs: []string{"ACCRUAL_SYSTEM_ADDRESS=bbb.com:4444"},
-			want: map[string]interface{}{"accrualAddr": "bbb.com:4444"},
+			args: []string{"-r=http://aaa.com:3333"},
+			envs: []string{"ACCRUAL_SYSTEM_ADDRESS=http://bbb.com:4444"},
+			want: map[string]interface{}{"accrualAddr": "http://bbb.com:4444"},
 		},
 		{
 			name: "Positive case: Set flag -r only",
-			args: []string{"-r=aaa.com:4444"},
+			args: []string{"-r=http://aaa.com:4444"},
 			envs: nil,
-			want: map[string]interface{}{"accrualAddr": "aaa.com:4444"},
+			want: map[string]interface{}{"accrualAddr": "http://aaa.com:4444"},
 		},
 		{
 			name: "Positive case: Set env ACCRUAL_SYSTEM_ADDRESS only",
 			args: nil,
-			envs: []string{"ACCRUAL_SYSTEM_ADDRESS=bbb.com:3333"},
-			want: map[string]interface{}{"accrualAddr": "bbb.com:3333"},
+			envs: []string{"ACCRUAL_SYSTEM_ADDRESS=http://bbb.com:3333"},
+			want: map[string]interface{}{"accrualAddr": "http://bbb.com:3333"},
 		},
 		{
 			name: "Positive case: Set flag -d and env DATABASE_URI",
