@@ -14,8 +14,6 @@ import (
 func (s *server) ordersList(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-
 	// Аутентификация пользователя
 	token, err := s.auth(r)
 	if err != nil {
@@ -30,7 +28,9 @@ func (s *server) ordersList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if list == nil {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	if len(list) == 0 {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}

@@ -3,11 +3,13 @@ package postgres
 import (
 	"context"
 	"errors"
-	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
+
+	"github.com/fishus/go-advanced-gophermart/internal/logger"
+	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
 func (s *storage) LoyaltyHistoryAdd(ctx context.Context, tx pgx.Tx, history models.LoyaltyHistory) error {
@@ -81,4 +83,27 @@ func (s *storage) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, 
 	}
 
 	return tx.Commit(ctxQuery)
+}
+
+func (s *storage) LoyaltyHistoryByUser(ctx context.Context, userID models.UserID) ([]models.LoyaltyHistory, error) {
+	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
+	defer cancel()
+
+	rows, err := s.pool.Query(ctxQuery, `SELECT * FROM loyalty_history WHERE user_id = @userID ORDER BY processed_at ASC;`, pgx.NamedArgs{
+		"userID": userID.String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	historyResult, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[LoyaltyHistoryResult])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, store.ErrNotFound
+		}
+		logger.Log.Warn(err.Error())
+		return nil, err
+	}
+
+	return listResultsToLoyaltyHistory(historyResult), nil
 }

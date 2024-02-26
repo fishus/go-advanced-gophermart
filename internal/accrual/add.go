@@ -21,7 +21,7 @@ func (d *daemon) addNewOrders(ctx context.Context) {
 			return
 		}
 
-		if list == nil {
+		if len(list) == 0 {
 			return
 		}
 
@@ -49,7 +49,7 @@ func (d *daemon) addProcessingOrders(ctx context.Context) {
 				return
 			}
 
-			if list == nil {
+			if len(list) == 0 {
 				continue
 			}
 

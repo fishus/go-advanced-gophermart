@@ -40,3 +40,20 @@ type LoyaltyBalanceResult struct {
 	Accrued   float64       `db:"accrued"`   // Начислено за всё время
 	Withdrawn float64       `db:"withdrawn"` // Списано за всё время
 }
+
+type LoyaltyHistoryResult struct {
+	UserID      models.UserID `db:"user_id"`      // ID пользователя
+	OrderNum    string        `db:"order_num"`    // Номер заказа
+	Accrual     float64       `db:"accrual"`      // Начисление
+	Withdrawal  float64       `db:"withdrawal"`   // Списание
+	ProcessedAt time.Time     `db:"processed_at"` // Дата зачисления или списания
+}
+
+func listResultsToLoyaltyHistory(results []LoyaltyHistoryResult) []models.LoyaltyHistory {
+	history := make([]models.LoyaltyHistory, 0)
+	for _, res := range results {
+		h := models.LoyaltyHistory(res)
+		history = append(history, h)
+	}
+	return history
+}

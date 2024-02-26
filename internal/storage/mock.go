@@ -56,3 +56,7 @@ func (m *MockStorage) LoyaltyAddWithdraw(ctx context.Context, userID models.User
 	args := m.Called(ctx, userID, orderNum, withdraw)
 	return args.Error(0)
 }
+func (m *MockStorage) LoyaltyHistoryByUser(ctx context.Context, userID models.UserID) ([]models.LoyaltyHistory, error) {
+	args := m.Called(ctx, userID)
+	return args.Get(0).([]models.LoyaltyHistory), args.Error(1)
+}

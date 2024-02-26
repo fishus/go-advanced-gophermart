@@ -19,6 +19,7 @@ type Userer interface {
 	CheckAuthorizationHeader(auth string) (*uService.JWTClaims, error)
 	LoyaltyUserBalance(context.Context, models.UserID) (models.LoyaltyBalance, error)
 	LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw float64) error
+	LoyaltyUserWithdrawals(context.Context, models.UserID) ([]models.LoyaltyHistory, error)
 }
 
 type Orderer interface {

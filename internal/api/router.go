@@ -23,6 +23,7 @@ func Router(s *server) chi.Router {
 	r.Get("/api/user/orders", s.ordersList)              // Список загруженных номеров заказов
 	r.Get("/api/user/balance", s.userBalance)            // Получение баланса пользователя
 	r.Post("/api/user/balance/withdraw", s.userWithdraw) // Запрос на списание средств
+	r.Get("/api/user/withdrawals", s.userWithdrawals)    // Информации о выводе средств
 
 	return r
 }

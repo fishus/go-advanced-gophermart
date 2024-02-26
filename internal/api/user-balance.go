@@ -13,8 +13,6 @@ import (
 func (s *server) userBalance(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-
 	// Аутентификация пользователя
 	token, err := s.auth(r)
 	if err != nil {
@@ -38,6 +36,7 @@ func (s *server) userBalance(w http.ResponseWriter, r *http.Request) {
 
 	res := LoyaltyBalanceResult(balance)
 
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
