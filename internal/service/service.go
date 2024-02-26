@@ -26,6 +26,7 @@ type Orderer interface {
 	ListProcessing(ctx context.Context, limit int) ([]models.Order, error)
 	UpdateStatus(context.Context, models.OrderID, models.OrderStatus) error
 	AddAccrual(ctx context.Context, id models.OrderID, accrual float64) error
+	ListByUser(context.Context, models.UserID) ([]models.Order, error)
 }
 
 type service struct {

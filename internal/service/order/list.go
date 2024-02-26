@@ -32,3 +32,14 @@ func (s *service) ListProcessing(ctx context.Context, limit int) ([]models.Order
 	}
 	return list, nil
 }
+
+func (s *service) ListByUser(ctx context.Context, userID models.UserID) ([]models.Order, error) {
+	list, err := s.storage.OrdersByFilter(ctx, 0, store.WithOrderUserID(userID), store.WithOrderBy(store.OrderByUploadedAt, store.OrderByAsc))
+	if err != nil {
+		if errors.Is(err, store.ErrNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return list, nil
+}
