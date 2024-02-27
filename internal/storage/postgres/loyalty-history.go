@@ -12,7 +12,7 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
-func (s *storage) LoyaltyHistoryAdd(ctx context.Context, tx pgx.Tx, history models.LoyaltyHistory) error {
+func (s *storage) loyaltyHistoryAdd(ctx context.Context, tx pgx.Tx, history models.LoyaltyHistory) error {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
@@ -60,7 +60,7 @@ func (s *storage) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, 
 		Withdrawal: withdraw,
 	}
 
-	err = s.LoyaltyHistoryAdd(ctx, tx, lh)
+	err = s.loyaltyHistoryAdd(ctx, tx, lh)
 	if err != nil {
 		if errR := tx.Rollback(ctxQuery); errR != nil {
 			return errors.Join(err, errR)
@@ -74,7 +74,7 @@ func (s *storage) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, 
 		Withdrawn: withdraw,
 	}
 
-	err = s.LoyaltyBalanceUpdate(ctx, tx, lb)
+	err = s.loyaltyBalanceUpdate(ctx, tx, lb)
 	if err != nil {
 		if errR := tx.Rollback(ctxQuery); errR != nil {
 			return errors.Join(err, errR)

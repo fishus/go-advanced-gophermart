@@ -48,7 +48,7 @@ func (s *storage) OrderAddAccrual(ctx context.Context, order models.Order, accru
 		Withdrawal: 0,
 	}
 
-	err = s.LoyaltyHistoryAdd(ctx, tx, lh)
+	err = s.loyaltyHistoryAdd(ctx, tx, lh)
 	if err != nil {
 		if errR := tx.Rollback(ctxQuery); errR != nil {
 			return errors.Join(err, errR)
@@ -62,7 +62,7 @@ func (s *storage) OrderAddAccrual(ctx context.Context, order models.Order, accru
 		Withdrawn: 0,
 	}
 
-	err = s.LoyaltyBalanceUpdate(ctx, tx, lb)
+	err = s.loyaltyBalanceUpdate(ctx, tx, lb)
 	if err != nil {
 		if errR := tx.Rollback(ctxQuery); errR != nil {
 			return errors.Join(err, errR)
