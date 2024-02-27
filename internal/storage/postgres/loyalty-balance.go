@@ -34,6 +34,58 @@ current = ((loyalty_balance.accrued + EXCLUDED.accrued) - (loyalty_balance.withd
 	return err
 }
 
+func (s *storage) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw float64) error {
+	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
+	defer cancel()
+
+	tx, err := s.pool.Begin(ctxQuery)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctxQuery)
+
+	// Проверка баланса
+	balance, err := s.LoyaltyBalanceByUser(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	if balance.Current < withdraw {
+		return store.ErrLowBalance
+	}
+
+	lh := models.LoyaltyHistory{
+		UserID:     userID,
+		OrderNum:   orderNum,
+		Accrual:    0,
+		Withdrawal: withdraw,
+	}
+
+	err = s.loyaltyHistoryAdd(ctx, tx, lh)
+	if err != nil {
+		if errR := tx.Rollback(ctxQuery); errR != nil {
+			return errors.Join(err, errR)
+		}
+		return err
+	}
+
+	lb := models.LoyaltyBalance{
+		UserID:    userID,
+		Accrued:   0,
+		Withdrawn: withdraw,
+	}
+
+	err = s.loyaltyBalanceUpdate(ctx, tx, lb)
+	if err != nil {
+		if errR := tx.Rollback(ctxQuery); errR != nil {
+			return errors.Join(err, errR)
+		}
+		return err
+	}
+
+	return tx.Commit(ctxQuery)
+}
+
 func (s *storage) LoyaltyBalanceByUser(ctx context.Context, userID models.UserID) (balance models.LoyaltyBalance, err error) {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
