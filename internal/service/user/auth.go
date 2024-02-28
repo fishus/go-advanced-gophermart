@@ -64,10 +64,10 @@ func (s *service) CheckAuthorizationHeader(auth string) (*JWTClaims, error) {
 		return nil, errors.New("invalid bearer authorization header")
 	}
 
-	token, err := s.DecryptToken(auth[7:])
+	claims, err := s.DecryptToken(auth[7:])
 	if err != nil {
 		return nil, ErrInvalidToken
 	}
 
-	return token, nil
+	return claims, nil
 }

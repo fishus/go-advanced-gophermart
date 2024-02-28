@@ -16,8 +16,6 @@ import (
 func (ts *UserServiceTestSuite) TestRegister() {
 	ctx := context.Background()
 
-	storage := new(store.MockStorage)
-
 	wantID := models.UserID(uuid.New().String())
 	username := make([]byte, 10)
 	_, err := rand.Read(username)
@@ -28,35 +26,32 @@ func (ts *UserServiceTestSuite) TestRegister() {
 	}
 
 	ts.Run("Positive case", func() {
-		mockCall := storage.On("UserAdd", ctx, data).Return(wantID, nil)
-		service := New(&Config{}, storage)
+		mockCall := ts.storage.On("UserAdd", ctx, data).Return(wantID, nil)
 
-		id, err := service.Register(ctx, data)
+		id, err := ts.service.Register(ctx, data)
 		ts.NoError(err)
 		ts.Equal(wantID, id)
-		storage.AssertExpectations(ts.T())
+		ts.storage.AssertExpectations(ts.T())
 		mockCall.Unset()
 	})
 
 	ts.Run("User already exists", func() {
-		mockCall := storage.On("UserAdd", ctx, data).Return(models.UserID(""), store.ErrAlreadyExists)
-		service := New(&Config{}, storage)
+		mockCall := ts.storage.On("UserAdd", ctx, data).Return(models.UserID(""), store.ErrAlreadyExists)
 
-		_, err := service.Register(ctx, data)
+		_, err := ts.service.Register(ctx, data)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrUserAlreadyExists)
-		storage.AssertExpectations(ts.T())
+		ts.storage.AssertExpectations(ts.T())
 		mockCall.Unset()
 	})
 
 	ts.Run("Not valid", func() {
 		data := models.User{}
-		service := New(&Config{}, storage)
 
-		_, err := service.Register(ctx, data)
+		_, err := ts.service.Register(ctx, data)
 		ts.Error(err)
 		var ve *serviceErr.ValidationError
 		ts.ErrorAs(err, &ve)
-		storage.AssertNotCalled(ts.T(), "UserAdd")
+		ts.storage.AssertNotCalled(ts.T(), "UserAdd")
 	})
 }

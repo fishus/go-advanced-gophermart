@@ -16,8 +16,6 @@ import (
 func (ts *UserServiceTestSuite) TestLogin() {
 	ctx := context.Background()
 
-	storage := new(store.MockStorage)
-
 	wantID := models.UserID(uuid.New().String())
 	username := make([]byte, 10)
 	_, err := rand.Read(username)
@@ -28,13 +26,12 @@ func (ts *UserServiceTestSuite) TestLogin() {
 	}
 
 	ts.Run("Positive case", func() {
-		mockCall := storage.On("UserLogin", ctx, data).Return(wantID, nil)
-		service := New(&Config{}, storage)
+		mockCall := ts.storage.On("UserLogin", ctx, data).Return(wantID, nil)
 
-		id, err := service.Login(ctx, data)
+		id, err := ts.service.Login(ctx, data)
 		ts.NoError(err)
 		ts.Equal(wantID, id)
-		storage.AssertExpectations(ts.T())
+		ts.storage.AssertExpectations(ts.T())
 		mockCall.Unset()
 	})
 
@@ -43,24 +40,22 @@ func (ts *UserServiceTestSuite) TestLogin() {
 			Username: "test",
 			Password: "test",
 		}
-		mockCall := storage.On("UserLogin", ctx, data).Return(models.UserID(""), store.ErrNotFound)
-		service := New(&Config{}, storage)
+		mockCall := ts.storage.On("UserLogin", ctx, data).Return(models.UserID(""), store.ErrNotFound)
 
-		_, err := service.Login(ctx, data)
+		_, err := ts.service.Login(ctx, data)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrUserNotFound)
-		storage.AssertExpectations(ts.T())
+		ts.storage.AssertExpectations(ts.T())
 		mockCall.Unset()
 	})
 
 	ts.Run("Not valid", func() {
 		data := models.User{}
-		service := New(&Config{}, storage)
 
-		_, err := service.Login(ctx, data)
+		_, err := ts.service.Login(ctx, data)
 		ts.Error(err)
 		var ve *serviceErr.ValidationError
 		ts.ErrorAs(err, &ve)
-		storage.AssertNotCalled(ts.T(), "UserLogin")
+		ts.storage.AssertNotCalled(ts.T(), "UserLogin")
 	})
 }

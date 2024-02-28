@@ -17,8 +17,6 @@ import (
 func (ts *UserServiceTestSuite) TestUserByID() {
 	ctx := context.Background()
 
-	storage := new(store.MockStorage)
-
 	ts.Run("Return user by ID", func() {
 		userID := models.UserID(uuid.New().String())
 		username := make([]byte, 10)
@@ -30,26 +28,24 @@ func (ts *UserServiceTestSuite) TestUserByID() {
 			Password:  hex.EncodeToString(username),
 			CreatedAt: time.Now().UTC().Round(time.Second),
 		}
-		mockCall := storage.On("UserByID", ctx, userID).Return(want, nil)
-		service := New(&Config{}, storage)
+		mockCall := ts.storage.On("UserByID", ctx, userID).Return(want, nil)
 
-		user, err := service.UserByID(ctx, userID)
+		user, err := ts.service.UserByID(ctx, userID)
 		ts.NoError(err)
 		ts.EqualValues(want, user)
-		storage.AssertExpectations(ts.T())
+		ts.storage.AssertExpectations(ts.T())
 		mockCall.Unset()
 	})
 
 	ts.Run("User not found", func() {
 		userID := models.UserID(uuid.New().String())
 		want := models.User{}
-		mockCall := storage.On("UserByID", ctx, userID).Return(want, store.ErrNotFound)
-		service := New(&Config{}, storage)
+		mockCall := ts.storage.On("UserByID", ctx, userID).Return(want, store.ErrNotFound)
 
-		_, err := service.UserByID(ctx, userID)
+		_, err := ts.service.UserByID(ctx, userID)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrUserNotFound)
-		storage.AssertExpectations(ts.T())
+		ts.storage.AssertExpectations(ts.T())
 		mockCall.Unset()
 	})
 }
