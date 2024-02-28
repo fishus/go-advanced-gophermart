@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"testing"
 	"time"
@@ -10,6 +12,8 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	tcpostgres "github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
+
+	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
 type PostgresTestSuite struct {
@@ -120,4 +124,18 @@ func (s *storage) clean(ctx context.Context) (err error) {
 	}
 
 	return
+}
+
+func (s *storage) addTestUser(ctx context.Context) (userID models.UserID, err error) {
+	bUsername := make([]byte, 10)
+	_, err = rand.Read(bUsername)
+	if err != nil {
+		return
+	}
+
+	userData := models.User{
+		Username: hex.EncodeToString(bUsername),
+		Password: hex.EncodeToString(bUsername),
+	}
+	return s.UserAdd(ctx, userData)
 }

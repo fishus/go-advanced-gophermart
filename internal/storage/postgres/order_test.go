@@ -2,10 +2,9 @@ package postgres
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
@@ -17,15 +16,7 @@ func (ts *PostgresTestSuite) TestOrderByID() {
 	defer cancel()
 
 	ts.Run("Return order by ID", func() {
-		bUsername := make([]byte, 10)
-		_, err := rand.Read(bUsername)
-		ts.Require().NoError(err)
-
-		userData := models.User{
-			Username: hex.EncodeToString(bUsername),
-			Password: hex.EncodeToString(bUsername),
-		}
-		userID, err := ts.storage.UserAdd(ctx, userData)
+		userID, err := ts.addTestUser(ctx)
 		ts.Require().NoError(err)
 
 		orderData := models.Order{
@@ -61,22 +52,13 @@ func (ts *PostgresTestSuite) TestOrderByFilter() {
 	defer cancel()
 
 	orderNums := []string{"5431720977", "5882492415"}
-	userData := make([]models.User, len(orderNums))
 	orderData := make([]models.Order, len(orderNums))
 	for i, orderNum := range orderNums {
-		bUsername := make([]byte, 10)
-		_, err := rand.Read(bUsername)
-		ts.Require().NoError(err)
-
-		userData[i] = models.User{
-			Username: hex.EncodeToString(bUsername),
-			Password: hex.EncodeToString(bUsername),
-		}
-		userData[i].ID, err = ts.storage.UserAdd(ctx, userData[i])
+		userID, err := ts.addTestUser(ctx)
 		ts.Require().NoError(err)
 
 		orderData[i] = models.Order{
-			UserID:     userData[i].ID,
+			UserID:     userID,
 			Num:        orderNum,
 			Accrual:    0,
 			Status:     models.OrderStatusNew,

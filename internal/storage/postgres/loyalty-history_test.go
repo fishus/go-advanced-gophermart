@@ -2,10 +2,8 @@ package postgres
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"time"
-	
+
 	"github.com/jackc/pgx/v5"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
@@ -16,15 +14,7 @@ func (ts *PostgresTestSuite) TestLoyaltyHistoryAdd() {
 	defer cancel()
 
 	// Setup test data
-	bUsername := make([]byte, 10)
-	_, err := rand.Read(bUsername)
-	ts.Require().NoError(err)
-	user := models.User{
-		Username:  hex.EncodeToString(bUsername),
-		Password:  hex.EncodeToString(bUsername),
-		CreatedAt: time.Now().UTC().Round(time.Minute),
-	}
-	userID, err := ts.storage.UserAdd(ctx, user)
+	userID, err := ts.addTestUser(ctx)
 	ts.Require().NoError(err)
 
 	ts.Run("Positive case", func() {
@@ -74,15 +64,7 @@ func (ts *PostgresTestSuite) TestLoyaltyHistoryByUser() {
 	defer cancel()
 
 	// Setup test data
-	bUsername := make([]byte, 10)
-	_, err := rand.Read(bUsername)
-	ts.Require().NoError(err)
-	user := models.User{
-		Username:  hex.EncodeToString(bUsername),
-		Password:  hex.EncodeToString(bUsername),
-		CreatedAt: time.Now().UTC().Round(time.Minute),
-	}
-	userID, err := ts.storage.UserAdd(ctx, user)
+	userID, err := ts.addTestUser(ctx)
 	ts.Require().NoError(err)
 
 	wantHistory := make([]models.LoyaltyHistory, 2)

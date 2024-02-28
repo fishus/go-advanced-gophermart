@@ -2,8 +2,6 @@ package postgres
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"slices"
 	"time"
 
@@ -16,15 +14,7 @@ func (ts *PostgresTestSuite) TestOrdersByFilter() {
 	ctx, cancel := context.WithTimeout(context.Background(), ts.cfg.QueryTimeout)
 	defer cancel()
 
-	bUsername := make([]byte, 10)
-	_, err := rand.Read(bUsername)
-	ts.Require().NoError(err)
-
-	userData := models.User{
-		Username: hex.EncodeToString(bUsername),
-		Password: hex.EncodeToString(bUsername),
-	}
-	userID, err := ts.storage.UserAdd(ctx, userData)
+	userID, err := ts.addTestUser(ctx)
 	ts.Require().NoError(err)
 
 	orderData := make([]models.Order, 3)

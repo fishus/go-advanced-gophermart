@@ -2,8 +2,6 @@ package postgres
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -18,15 +16,7 @@ func (ts *PostgresTestSuite) TestLoyaltyBalanceUpdate() {
 	defer cancel()
 
 	// Setup test data
-	bUsername := make([]byte, 10)
-	_, err := rand.Read(bUsername)
-	ts.Require().NoError(err)
-	user := models.User{
-		Username:  hex.EncodeToString(bUsername),
-		Password:  hex.EncodeToString(bUsername),
-		CreatedAt: time.Now().UTC().Round(time.Minute),
-	}
-	userID, err := ts.storage.UserAdd(ctx, user)
+	userID, err := ts.addTestUser(ctx)
 	ts.Require().NoError(err)
 
 	ts.Run("Accrual", func() {
@@ -87,15 +77,7 @@ func (ts *PostgresTestSuite) TestLoyaltyAddWithdraw() {
 	defer cancel()
 
 	// Setup test data
-	bUsername := make([]byte, 10)
-	_, err := rand.Read(bUsername)
-	ts.Require().NoError(err)
-	user := models.User{
-		Username:  hex.EncodeToString(bUsername),
-		Password:  hex.EncodeToString(bUsername),
-		CreatedAt: time.Now().UTC().Round(time.Minute),
-	}
-	userID, err := ts.storage.UserAdd(ctx, user)
+	userID, err := ts.addTestUser(ctx)
 	ts.Require().NoError(err)
 
 	wantBalance := LoyaltyBalanceResult{
@@ -164,15 +146,7 @@ func (ts *PostgresTestSuite) TestLoyaltyBalanceByUser() {
 	defer cancel()
 
 	// Setup test data
-	bUsername := make([]byte, 10)
-	_, err := rand.Read(bUsername)
-	ts.Require().NoError(err)
-	user := models.User{
-		Username:  hex.EncodeToString(bUsername),
-		Password:  hex.EncodeToString(bUsername),
-		CreatedAt: time.Now().UTC().Round(time.Minute),
-	}
-	userID, err := ts.storage.UserAdd(ctx, user)
+	userID, err := ts.addTestUser(ctx)
 	ts.Require().NoError(err)
 
 	want := models.LoyaltyBalance{
