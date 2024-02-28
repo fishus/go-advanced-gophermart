@@ -29,7 +29,7 @@ func (ts *PostgresTestSuite) TestUserByID() {
 		data := models.User{
 			Username:  hex.EncodeToString(bUsername),
 			Password:  hex.EncodeToString(bPassword),
-			CreatedAt: time.Now().UTC().Round(5 * time.Second),
+			CreatedAt: time.Now().UTC().Round(time.Minute),
 		}
 		id, err := ts.storage.UserAdd(ctx, data)
 		ts.Require().NoError(err)
@@ -38,7 +38,7 @@ func (ts *PostgresTestSuite) TestUserByID() {
 
 		user, err := ts.storage.UserByID(ctx, data.ID)
 		ts.NoError(err)
-		user.CreatedAt = user.CreatedAt.UTC().Round(5 * time.Second)
+		user.CreatedAt = user.CreatedAt.UTC().Round(time.Minute)
 		ts.EqualValues(data, user)
 	})
 

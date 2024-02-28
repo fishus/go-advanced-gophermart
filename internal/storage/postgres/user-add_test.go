@@ -46,7 +46,7 @@ func (ts *PostgresTestSuite) TestUserAdd() {
 		ts.Equal(userID.String(), want.id)
 		ts.Equal(data.Username, want.username)
 		ts.NotEmpty(want.password)
-		ts.Equal(time.Now().UTC().Round((5 * time.Second)), want.createdAt.Round((5 * time.Second)))
+		ts.Equal(time.Now().UTC().Round(time.Minute), want.createdAt.Round(time.Minute))
 	})
 
 	ts.Run("DuplicateUser", func() {

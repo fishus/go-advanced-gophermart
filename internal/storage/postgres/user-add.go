@@ -23,8 +23,10 @@ func (s *storage) UserAdd(ctx context.Context, user models.User) (userID models.
 		return
 	}
 
-	err = s.pool.QueryRow(ctxQuery, `INSERT INTO users (username, password) VALUES (@username, crypt(@password, gen_salt('bf'))) RETURNING id;`,
-		pgx.NamedArgs{"username": user.Username, "password": user.Password}).Scan(&userID)
+	err = s.pool.QueryRow(ctxQuery, `INSERT INTO users (username, password) VALUES (@username, crypt(@password, gen_salt('bf'))) RETURNING id;`, pgx.NamedArgs{
+		"username": user.Username,
+		"password": user.Password,
+	}).Scan(&userID)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {

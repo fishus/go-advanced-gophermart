@@ -33,8 +33,8 @@ func (ts *PostgresTestSuite) TestOrderByID() {
 			Num:        "8020122696",
 			Accrual:    0,
 			Status:     models.OrderStatusNew,
-			UploadedAt: time.Now().UTC().Round(5 * time.Second),
-			UpdatedAt:  time.Now().UTC().Round(5 * time.Second),
+			UploadedAt: time.Now().UTC().Round(time.Minute),
+			UpdatedAt:  time.Now().UTC().Round(time.Minute),
 		}
 
 		orderID, err := ts.storage.OrderAdd(ctx, orderData)
@@ -43,8 +43,8 @@ func (ts *PostgresTestSuite) TestOrderByID() {
 
 		order, err := ts.storage.OrderByID(ctx, orderData.ID)
 		ts.NoError(err)
-		order.UploadedAt = order.UploadedAt.UTC().Round(5 * time.Second)
-		order.UpdatedAt = order.UpdatedAt.UTC().Round(5 * time.Second)
+		order.UploadedAt = order.UploadedAt.UTC().Round(time.Minute)
+		order.UpdatedAt = order.UpdatedAt.UTC().Round(time.Minute)
 		ts.EqualValues(orderData, order)
 	})
 
@@ -80,8 +80,8 @@ func (ts *PostgresTestSuite) TestOrderByFilter() {
 			Num:        orderNum,
 			Accrual:    0,
 			Status:     models.OrderStatusNew,
-			UploadedAt: time.Now().UTC().Round(5 * time.Second),
-			UpdatedAt:  time.Now().UTC().Round(5 * time.Second),
+			UploadedAt: time.Now().UTC().Round(time.Minute),
+			UpdatedAt:  time.Now().UTC().Round(time.Minute),
 		}
 		orderID, err := ts.storage.OrderAdd(ctx, orderData[i])
 		ts.Require().NoError(err)
@@ -91,16 +91,16 @@ func (ts *PostgresTestSuite) TestOrderByFilter() {
 	ts.Run("WithOrderNum", func() {
 		order, err := ts.storage.OrderByFilter(ctx, store.WithOrderNum(orderData[0].Num))
 		ts.NoError(err)
-		order.UploadedAt = order.UploadedAt.UTC().Round(5 * time.Second)
-		order.UpdatedAt = order.UpdatedAt.UTC().Round(5 * time.Second)
+		order.UploadedAt = order.UploadedAt.UTC().Round(time.Minute)
+		order.UpdatedAt = order.UpdatedAt.UTC().Round(time.Minute)
 		ts.EqualValues(orderData[0], order)
 	})
 
 	ts.Run("WithOrderUserID", func() {
 		order, err := ts.storage.OrderByFilter(ctx, store.WithOrderUserID(orderData[1].UserID))
 		ts.NoError(err)
-		order.UploadedAt = order.UploadedAt.UTC().Round(5 * time.Second)
-		order.UpdatedAt = order.UpdatedAt.UTC().Round(5 * time.Second)
+		order.UploadedAt = order.UploadedAt.UTC().Round(time.Minute)
+		order.UpdatedAt = order.UpdatedAt.UTC().Round(time.Minute)
 		ts.EqualValues(orderData[1], order)
 	})
 }

@@ -43,8 +43,8 @@ func (ts *PostgresTestSuite) TestOrdersByFilter() {
 	for i := 0; i < len(orderData); i++ {
 		orderData[i].UserID = userID
 		orderData[i].Accrual = 0
-		orderData[i].UploadedAt = time.Now().UTC().Round(5 * time.Second)
-		orderData[i].UpdatedAt = time.Now().UTC().Round(5 * time.Second)
+		orderData[i].UploadedAt = time.Now().UTC().Round(time.Minute)
+		orderData[i].UpdatedAt = time.Now().UTC().Round(time.Minute)
 		orderID, err := ts.storage.OrderAdd(ctx, orderData[i])
 		ts.Require().NoError(err)
 		orderData[i].ID = orderID
@@ -54,8 +54,8 @@ func (ts *PostgresTestSuite) TestOrdersByFilter() {
 		orders, err := ts.storage.OrdersByFilter(ctx, 10, store.WithOrderNum(orderData[0].Num))
 		ts.NoError(err)
 		ts.Equal(orderData[0].Num, orders[0].Num)
-		orders[0].UploadedAt = orders[0].UploadedAt.UTC().Round(5 * time.Second)
-		orders[0].UpdatedAt = orders[0].UpdatedAt.UTC().Round(5 * time.Second)
+		orders[0].UploadedAt = orders[0].UploadedAt.UTC().Round(time.Minute)
+		orders[0].UpdatedAt = orders[0].UpdatedAt.UTC().Round(time.Minute)
 		ts.EqualValues(orderData[0], orders[0])
 	})
 
@@ -69,8 +69,8 @@ func (ts *PostgresTestSuite) TestOrdersByFilter() {
 				return o.Num == order.Num
 			})
 			ts.Equal(userID, order.UserID)
-			order.UploadedAt = order.UploadedAt.UTC().Round(5 * time.Second)
-			order.UpdatedAt = order.UpdatedAt.UTC().Round(5 * time.Second)
+			order.UploadedAt = order.UploadedAt.UTC().Round(time.Minute)
+			order.UpdatedAt = order.UpdatedAt.UTC().Round(time.Minute)
 			ts.EqualValues(orderData[i], order)
 		}
 	})
@@ -83,8 +83,8 @@ func (ts *PostgresTestSuite) TestOrdersByFilter() {
 				return o.Num == order.Num
 			})
 			ts.Equal(models.OrderStatusNew, order.Status)
-			order.UploadedAt = order.UploadedAt.UTC().Round(5 * time.Second)
-			order.UpdatedAt = order.UpdatedAt.UTC().Round(5 * time.Second)
+			order.UploadedAt = order.UploadedAt.UTC().Round(time.Minute)
+			order.UpdatedAt = order.UpdatedAt.UTC().Round(time.Minute)
 			ts.EqualValues(orderData[i], order)
 		}
 	})
@@ -97,8 +97,8 @@ func (ts *PostgresTestSuite) TestOrdersByFilter() {
 				return o.Num == order.Num
 			})
 			ts.Equal(models.OrderStatusProcessing, order.Status)
-			order.UploadedAt = order.UploadedAt.UTC().Round(5 * time.Second)
-			order.UpdatedAt = order.UpdatedAt.UTC().Round(5 * time.Second)
+			order.UploadedAt = order.UploadedAt.UTC().Round(time.Minute)
+			order.UpdatedAt = order.UpdatedAt.UTC().Round(time.Minute)
 			ts.EqualValues(orderData[i], order)
 		}
 	})

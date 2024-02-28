@@ -3,8 +3,10 @@ package postgres
 import (
 	"context"
 	"errors"
-	"github.com/fishus/go-advanced-gophermart/pkg/models"
+
 	"github.com/jackc/pgx/v5"
+
+	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
 func (s *storage) OrderUpdateStatus(ctx context.Context, id models.OrderID, status models.OrderStatus) error {
