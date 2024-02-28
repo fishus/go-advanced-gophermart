@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/suite"
-	
+
+	oService "github.com/fishus/go-advanced-gophermart/internal/service/order"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
@@ -23,6 +24,8 @@ func (ts *UserServiceTestSuite) SetupSuite() {
 	}
 	ts.storage = new(store.MockStorage)
 	ts.service = New(ts.cfg, ts.storage)
+	order := oService.New(ts.storage)
+	ts.service.SetOrder(order)
 }
 
 func TestUserService(t *testing.T) {
