@@ -10,6 +10,7 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.0 --name=Userer  --with-expecter
 type Userer interface {
 	Register(context.Context, models.User) (models.UserID, error)
 	Login(context.Context, models.User) (models.UserID, error)
@@ -22,6 +23,7 @@ type Userer interface {
 	LoyaltyUserWithdrawals(context.Context, models.UserID) ([]models.LoyaltyHistory, error)
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.0 --name=Orderer  --with-expecter
 type Orderer interface {
 	ValidateNumLuhn(num string) error
 	OrderByID(context.Context, models.OrderID) (models.Order, error)
