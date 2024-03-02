@@ -9,10 +9,17 @@ import (
 )
 
 func (s *service) UpdateStatus(ctx context.Context, id models.OrderID, status models.OrderStatus) error {
+	if err := status.Validate(); err != nil {
+		return err
+	}
 	return s.storage.OrderUpdateStatus(ctx, id, status)
 }
 
 func (s *service) AddAccrual(ctx context.Context, id models.OrderID, accrual float64) error {
+	if accrual < 0 {
+		return serviceErr.ErrIncorrectData
+	}
+
 	order, err := s.OrderByID(ctx, id)
 	if err != nil {
 		return err
@@ -22,5 +29,5 @@ func (s *service) AddAccrual(ctx context.Context, id models.OrderID, accrual flo
 		return serviceErr.ErrOrderRewardReceived
 	}
 
-	return s.storage.OrderAddAccrual(ctx, order, accrual)
+	return s.storage.OrderAddAccrual(ctx, id, accrual)
 }

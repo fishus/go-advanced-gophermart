@@ -24,7 +24,7 @@ func (ts *PostgresTestSuite) TestOrderUpdateStatus() {
 	orderID, err := ts.storage.OrderAdd(ctx, orderData)
 	ts.NoError(err)
 
-	ts.Run("Set Processing status", func() {
+	ts.Run("Status Processing", func() {
 		err = ts.storage.OrderUpdateStatus(ctx, orderID, models.OrderStatusProcessing)
 		ts.NoError(err)
 
@@ -34,6 +34,16 @@ func (ts *PostgresTestSuite) TestOrderUpdateStatus() {
 		})
 		err = row.Scan(&orderStatus)
 		ts.Equal(models.OrderStatusProcessing.String(), orderStatus)
+	})
+
+	ts.Run("Wrong status", func() {
+		err = ts.storage.OrderUpdateStatus(ctx, orderID, "test")
+		ts.Error(err)
+	})
+
+	ts.Run("Undefined status", func() {
+		err = ts.storage.OrderUpdateStatus(ctx, orderID, "")
+		ts.Error(err)
 	})
 }
 
@@ -56,7 +66,7 @@ func (ts *PostgresTestSuite) TestOrderAddAccrual() {
 	accrual := 174.682 // FIXME
 
 	ts.Run("Positive case", func() {
-		err = ts.storage.OrderAddAccrual(ctx, order, accrual)
+		err = ts.storage.OrderAddAccrual(ctx, orderID, accrual)
 		ts.NoError(err)
 
 		// Check updated order

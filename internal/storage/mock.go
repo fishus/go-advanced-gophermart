@@ -44,8 +44,8 @@ func (m *MockStorage) OrderUpdateStatus(ctx context.Context, id models.OrderID, 
 	args := m.Called(ctx, id, status)
 	return args.Error(0)
 }
-func (m *MockStorage) OrderAddAccrual(ctx context.Context, order models.Order, accrual float64) error {
-	args := m.Called(ctx, order, accrual)
+func (m *MockStorage) OrderAddAccrual(ctx context.Context, orderID models.OrderID, accrual float64) error {
+	args := m.Called(ctx, orderID, accrual)
 	return args.Error(0)
 }
 func (m *MockStorage) LoyaltyBalanceByUser(ctx context.Context, userID models.UserID) (models.LoyaltyBalance, error) {

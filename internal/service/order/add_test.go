@@ -2,6 +2,7 @@ package order
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -14,8 +15,6 @@ import (
 func (ts *OrderServiceTestSuite) TestAdd() {
 	ctx := context.Background()
 
-	storage := new(store.MockStorage)
-
 	userID := models.UserID(uuid.New().String())
 	wantID := models.OrderID(uuid.New().String())
 	data := models.Order{
@@ -25,52 +24,47 @@ func (ts *OrderServiceTestSuite) TestAdd() {
 	}
 
 	ts.Run("Positive case", func() {
-		mockCall := storage.On("OrderAdd", ctx, data).Return(wantID, nil)
-		service := New(storage)
+		mockCall := ts.storage.On("OrderAdd", ctx, data).Return(wantID, nil)
 
-		id, err := service.Add(ctx, userID, data.Num)
+		id, err := ts.service.Add(ctx, userID, data.Num)
 		ts.NoError(err)
 		ts.Equal(wantID, id)
-		storage.AssertExpectations(ts.T())
+		ts.storage.AssertExpectations(ts.T())
 		mockCall.Unset()
 	})
 
 	ts.Run("Order already exists (my own)", func() {
-		mockCall := storage.
+		mockCall := ts.storage.
 			On("OrderAdd", ctx, data).Return(models.OrderID(""), store.ErrAlreadyExists).
 			On("OrderByFilter", ctx, mock.Anything).Return(data, nil)
-		service := New(storage)
 
-		_, err := service.Add(ctx, userID, data.Num)
+		_, err := ts.service.Add(ctx, userID, data.Num)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrOrderAlreadyExists)
-		storage.AssertExpectations(ts.T())
+		ts.storage.AssertExpectations(ts.T())
 		mockCall.Unset()
 	})
 
 	ts.Run("Order already exists (non-owned)", func() {
 		dataExists := data
 		dataExists.UserID = models.UserID(uuid.New().String())
-		mockCall := storage.
+		mockCall := ts.storage.
 			On("OrderAdd", ctx, data).Return(models.OrderID(""), store.ErrAlreadyExists).
 			// mock.FunctionalOptions(store.WithOrderNum(data.Num)) doesn't work, it's a bug https://github.com/stretchr/testify/issues/1380
 			On("OrderByFilter", ctx, mock.Anything).Return(dataExists, nil)
-		service := New(storage)
 
-		_, err := service.Add(ctx, userID, data.Num)
+		_, err := ts.service.Add(ctx, userID, data.Num)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrOrderWrongOwner)
-		storage.AssertExpectations(ts.T())
+		ts.storage.AssertExpectations(ts.T())
 		mockCall.Unset()
 	})
 
 	ts.Run("Not valid", func() {
-		service := New(storage)
-
-		_, err := service.Add(ctx, models.UserID(""), "")
+		_, err := ts.service.Add(ctx, models.UserID(""), "")
 		ts.Error(err)
 		var ve *serviceErr.ValidationError
 		ts.ErrorAs(err, &ve)
-		storage.AssertNotCalled(ts.T(), "OrderAdd")
+		ts.storage.AssertNotCalled(ts.T(), "OrderAdd")
 	})
 }

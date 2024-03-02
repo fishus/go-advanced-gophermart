@@ -38,6 +38,31 @@ func (s *storage) OrderByID(ctx context.Context, id models.OrderID) (order model
 	return
 }
 
+func (s *storage) txOrderByID(ctx context.Context, tx pgx.Tx, id models.OrderID) (order models.Order, err error) {
+	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
+	defer cancel()
+
+	rows, err := tx.Query(ctxQuery, "SELECT * FROM orders WHERE id = @id;", pgx.NamedArgs{
+		"id": id,
+	})
+	if err != nil {
+		return
+	}
+
+	orderResult, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByNameLax[OrderResult])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) || errors.Is(err, pgx.ErrTooManyRows) {
+			err = store.ErrNotFound
+			return
+		}
+		logger.Log.Warn(err.Error())
+		return
+	}
+
+	order = models.Order(orderResult)
+	return
+}
+
 func (s *storage) OrderByFilter(ctx context.Context, filters ...store.OrderFilter) (order models.Order, err error) {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()

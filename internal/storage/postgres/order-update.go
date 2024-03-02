@@ -21,7 +21,7 @@ func (s *storage) OrderUpdateStatus(ctx context.Context, id models.OrderID, stat
 	return err
 }
 
-func (s *storage) OrderAddAccrual(ctx context.Context, order models.Order, accrual float64) error {
+func (s *storage) OrderAddAccrual(ctx context.Context, orderID models.OrderID, accrual float64) error {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
@@ -30,6 +30,11 @@ func (s *storage) OrderAddAccrual(ctx context.Context, order models.Order, accru
 		return err
 	}
 	defer tx.Rollback(ctxQuery)
+
+	order, err := s.txOrderByID(ctx, tx, orderID)
+	if err != nil {
+		return err
+	}
 
 	_, err = tx.Exec(ctxQuery, `UPDATE orders SET accrual = @accrual, status = @status WHERE id = @id;`, pgx.NamedArgs{
 		"id":      order.ID.String(),

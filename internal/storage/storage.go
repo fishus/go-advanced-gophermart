@@ -18,7 +18,7 @@ type OrderStorager interface {
 	OrderByFilter(context.Context, ...OrderFilter) (models.Order, error)
 	OrdersByFilter(ctx context.Context, limit int, filters ...OrderFilter) ([]models.Order, error)
 	OrderUpdateStatus(context.Context, models.OrderID, models.OrderStatus) error
-	OrderAddAccrual(ctx context.Context, order models.Order, accrual float64) error
+	OrderAddAccrual(ctx context.Context, orderID models.OrderID, accrual float64) error
 }
 
 type LoyaltyBalancer interface {

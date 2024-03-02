@@ -47,6 +47,51 @@ func (ts *PostgresTestSuite) TestOrderByID() {
 	})
 }
 
+func (ts *PostgresTestSuite) TestTxOrderByID() {
+	ctx, cancel := context.WithTimeout(context.Background(), ts.cfg.QueryTimeout)
+	defer cancel()
+
+	ts.Run("Return order by ID", func() {
+		userID, err := ts.addTestUser(ctx)
+		ts.Require().NoError(err)
+
+		orderData := models.Order{
+			UserID:     userID,
+			Num:        "8020122696",
+			Accrual:    0,
+			Status:     models.OrderStatusNew,
+			UploadedAt: time.Now().UTC().Round(time.Minute),
+			UpdatedAt:  time.Now().UTC().Round(time.Minute),
+		}
+
+		orderID, err := ts.storage.OrderAdd(ctx, orderData)
+		ts.Require().NoError(err)
+		orderData.ID = orderID
+
+		tx, err := ts.storage.pool.Begin(ctx)
+		ts.Require().NoError(err)
+
+		order, err := ts.storage.txOrderByID(ctx, tx, orderData.ID)
+		ts.NoError(err)
+		err = tx.Commit(ctx)
+		ts.NoError(err)
+		order.UploadedAt = order.UploadedAt.UTC().Round(time.Minute)
+		order.UpdatedAt = order.UpdatedAt.UTC().Round(time.Minute)
+		ts.EqualValues(orderData, order)
+	})
+
+	ts.Run("Order not found", func() {
+		orderID := models.OrderID(uuid.New().String())
+		tx, err := ts.storage.pool.Begin(ctx)
+		ts.Require().NoError(err)
+		_, err = ts.storage.txOrderByID(ctx, tx, orderID)
+		ts.Error(err)
+		ts.ErrorIs(err, store.ErrNotFound)
+		err = tx.Commit(ctx)
+		ts.NoError(err)
+	})
+}
+
 func (ts *PostgresTestSuite) TestOrderByFilter() {
 	ctx, cancel := context.WithTimeout(context.Background(), ts.cfg.QueryTimeout)
 	defer cancel()
