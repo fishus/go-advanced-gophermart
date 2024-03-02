@@ -24,10 +24,10 @@ const (
 
 func (s OrderStatus) Validate() error {
 	switch s {
-	case OrderStatusNew:
-	case OrderStatusProcessing:
-	case OrderStatusInvalid:
-	case OrderStatusProcessed:
+	case OrderStatusNew,
+		OrderStatusProcessing,
+		OrderStatusInvalid,
+		OrderStatusProcessed:
 		return nil
 	case OrderStatusUndefined:
 		return errors.New("order status is not defined")

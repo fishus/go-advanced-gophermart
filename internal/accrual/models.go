@@ -17,10 +17,10 @@ const (
 
 func (s OrderAccrualStatus) Validate() error {
 	switch s {
-	case OrderAccrualStatusRegistered:
-	case OrderAccrualStatusInvalid:
-	case OrderAccrualStatusProcessing:
-	case OrderAccrualStatusProcessed:
+	case OrderAccrualStatusRegistered,
+		OrderAccrualStatusInvalid,
+		OrderAccrualStatusProcessing,
+		OrderAccrualStatusProcessed:
 		return nil
 	case OrderAccrualStatusUndefined:
 		return errors.New("order accrual status is not defined")
