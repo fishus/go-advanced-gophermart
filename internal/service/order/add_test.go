@@ -24,47 +24,48 @@ func (ts *OrderServiceTestSuite) TestAdd() {
 	}
 
 	ts.Run("Positive case", func() {
-		mockCall := ts.storage.On("OrderAdd", ctx, data).Return(wantID, nil)
+		mockCall := ts.storage.EXPECT().OrderAdd(ctx, data).Return(wantID, nil)
+		defer mockCall.Unset()
 
 		id, err := ts.service.Add(ctx, userID, data.Num)
 		ts.NoError(err)
 		ts.Equal(wantID, id)
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
 	})
 
 	ts.Run("Order already exists (my own)", func() {
-		mockCall := ts.storage.
-			On("OrderAdd", ctx, data).Return(models.OrderID(""), store.ErrAlreadyExists).
-			On("OrderByFilter", ctx, mock.Anything).Return(data, nil)
+		mockCall1 := ts.storage.EXPECT().OrderAdd(ctx, data).Return("", store.ErrAlreadyExists)
+		defer mockCall1.Unset()
+
+		mockCall2 := ts.storage.EXPECT().OrderByFilter(ctx, mock.Anything).Return(data, nil)
+		defer mockCall2.Unset()
 
 		_, err := ts.service.Add(ctx, userID, data.Num)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrOrderAlreadyExists)
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
 	})
 
 	ts.Run("Order already exists (non-owned)", func() {
 		dataExists := data
 		dataExists.UserID = models.UserID(uuid.New().String())
-		mockCall := ts.storage.
-			On("OrderAdd", ctx, data).Return(models.OrderID(""), store.ErrAlreadyExists).
-			// mock.FunctionalOptions(store.WithOrderNum(data.Num)) doesn't work, it's a bug https://github.com/stretchr/testify/issues/1380
-			On("OrderByFilter", ctx, mock.Anything).Return(dataExists, nil)
+		mockCall1 := ts.storage.EXPECT().OrderAdd(ctx, data).Return("", store.ErrAlreadyExists)
+		defer mockCall1.Unset()
+
+		// mock.FunctionalOptions(store.WithOrderNum(data.Num))
+		mockCall2 := ts.storage.EXPECT().OrderByFilter(ctx, mock.Anything).Return(dataExists, nil)
+		defer mockCall2.Unset()
 
 		_, err := ts.service.Add(ctx, userID, data.Num)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrOrderWrongOwner)
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
 	})
 
 	ts.Run("Not valid", func() {
-		_, err := ts.service.Add(ctx, models.UserID(""), "")
+		_, err := ts.service.Add(ctx, "", "")
 		ts.Error(err)
 		var ve *serviceErr.ValidationError
 		ts.ErrorAs(err, &ve)
-		ts.storage.AssertNotCalled(ts.T(), "OrderAdd")
 	})
 }

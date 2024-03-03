@@ -56,7 +56,8 @@ func (ts *OrderServiceTestSuite) TestUpdateStatus() {
 
 	for _, tc := range testCases {
 		ts.Run(tc.name, func() {
-			mockCall := ts.storage.On("OrderUpdateStatus", ctx, orderID, tc.status).Return(nil)
+			mockCall := ts.storage.EXPECT().OrderUpdateStatus(ctx, orderID, tc.status).Return(nil)
+			defer mockCall.Unset()
 			err := ts.service.UpdateStatus(ctx, orderID, tc.status)
 			if tc.wantErr {
 				ts.Error(err)
@@ -64,7 +65,6 @@ func (ts *OrderServiceTestSuite) TestUpdateStatus() {
 				ts.storage.AssertExpectations(ts.T())
 				ts.NoError(err)
 			}
-			mockCall.Unset()
 		})
 	}
 }
@@ -87,13 +87,13 @@ func (ts *OrderServiceTestSuite) TestAddAccrual() {
 
 	ts.Run("Positive case", func() {
 		accrual := 123.456
-		mockCallOrderByID := ts.storage.On("OrderByID", ctx, orderID).Return(mockOrder, nil)
-		mockCall := ts.storage.On("OrderAddAccrual", ctx, orderID, accrual).Return(nil)
+		mockCallOrderByID := ts.storage.EXPECT().OrderByID(ctx, orderID).Return(mockOrder, nil)
+		defer mockCallOrderByID.Unset()
+		mockCall := ts.storage.EXPECT().OrderAddAccrual(ctx, orderID, accrual).Return(nil)
+		defer mockCall.Unset()
 		err := ts.service.AddAccrual(ctx, orderID, accrual)
 		ts.NoError(err)
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
-		mockCallOrderByID.Unset()
 	})
 
 	ts.Run("Negative accrual", func() {
@@ -101,30 +101,26 @@ func (ts *OrderServiceTestSuite) TestAddAccrual() {
 		err := ts.service.AddAccrual(ctx, orderID, accrual)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrIncorrectData)
-		ts.storage.AssertNotCalled(ts.T(), "OrderByID")
-		ts.storage.AssertNotCalled(ts.T(), "OrderAddAccrual")
 	})
 
 	ts.Run("Status Processed", func() {
 		mockOrder.Status = models.OrderStatusProcessed
 		accrual := 123.456
-		mockCallOrderByID := ts.storage.On("OrderByID", ctx, orderID).Return(mockOrder, nil)
+		mockCallOrderByID := ts.storage.EXPECT().OrderByID(ctx, orderID).Return(mockOrder, nil)
+		defer mockCallOrderByID.Unset()
 		err := ts.service.AddAccrual(ctx, orderID, accrual)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrOrderRewardReceived)
 		ts.storage.AssertExpectations(ts.T())
-		ts.storage.AssertNotCalled(ts.T(), "OrderAddAccrual")
-		mockCallOrderByID.Unset()
 	})
 
 	ts.Run("Order not found", func() {
 		accrual := 123.456
-		mockCallOrderByID := ts.storage.On("OrderByID", ctx, orderID).Return(models.Order{}, store.ErrNotFound)
+		mockCallOrderByID := ts.storage.EXPECT().OrderByID(ctx, orderID).Return(models.Order{}, store.ErrNotFound)
+		defer mockCallOrderByID.Unset()
 		err := ts.service.AddAccrual(ctx, orderID, accrual)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrOrderNotFound)
 		ts.storage.AssertExpectations(ts.T())
-		ts.storage.AssertNotCalled(ts.T(), "OrderAddAccrual")
-		mockCallOrderByID.Unset()
 	})
 }

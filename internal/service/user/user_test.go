@@ -28,24 +28,24 @@ func (ts *UserServiceTestSuite) TestUserByID() {
 			Password:  hex.EncodeToString(username),
 			CreatedAt: time.Now().UTC().Round(time.Second),
 		}
-		mockCall := ts.storage.On("UserByID", ctx, userID).Return(want, nil)
+		mockCall := ts.storage.EXPECT().UserByID(ctx, userID).Return(want, nil)
+		defer mockCall.Unset()
 
 		user, err := ts.service.UserByID(ctx, userID)
 		ts.NoError(err)
 		ts.EqualValues(want, user)
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
 	})
 
 	ts.Run("User not found", func() {
 		userID := models.UserID(uuid.New().String())
 		want := models.User{}
-		mockCall := ts.storage.On("UserByID", ctx, userID).Return(want, store.ErrNotFound)
+		mockCall := ts.storage.EXPECT().UserByID(ctx, userID).Return(want, store.ErrNotFound)
+		defer mockCall.Unset()
 
 		_, err := ts.service.UserByID(ctx, userID)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrUserNotFound)
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
 	})
 }

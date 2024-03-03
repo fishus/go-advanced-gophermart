@@ -26,13 +26,13 @@ func (ts *UserServiceTestSuite) TestLogin() {
 	}
 
 	ts.Run("Positive case", func() {
-		mockCall := ts.storage.On("UserLogin", ctx, data).Return(wantID, nil)
+		mockCall := ts.storage.EXPECT().UserLogin(ctx, data).Return(wantID, nil)
+		defer mockCall.Unset()
 
 		id, err := ts.service.Login(ctx, data)
 		ts.NoError(err)
 		ts.Equal(wantID, id)
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
 	})
 
 	ts.Run("User not found", func() {
@@ -40,13 +40,13 @@ func (ts *UserServiceTestSuite) TestLogin() {
 			Username: "test",
 			Password: "test",
 		}
-		mockCall := ts.storage.On("UserLogin", ctx, data).Return(models.UserID(""), store.ErrNotFound)
+		mockCall := ts.storage.EXPECT().UserLogin(ctx, data).Return("", store.ErrNotFound)
+		defer mockCall.Unset()
 
 		_, err := ts.service.Login(ctx, data)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrUserNotFound)
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
 	})
 
 	ts.Run("Not valid", func() {
@@ -56,6 +56,5 @@ func (ts *UserServiceTestSuite) TestLogin() {
 		ts.Error(err)
 		var ve *serviceErr.ValidationError
 		ts.ErrorAs(err, &ve)
-		ts.storage.AssertNotCalled(ts.T(), "UserLogin")
 	})
 }

@@ -26,23 +26,23 @@ func (ts *UserServiceTestSuite) TestRegister() {
 	}
 
 	ts.Run("Positive case", func() {
-		mockCall := ts.storage.On("UserAdd", ctx, data).Return(wantID, nil)
+		mockCall := ts.storage.EXPECT().UserAdd(ctx, data).Return(wantID, nil)
+		defer mockCall.Unset()
 
 		id, err := ts.service.Register(ctx, data)
 		ts.NoError(err)
 		ts.Equal(wantID, id)
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
 	})
 
 	ts.Run("User already exists", func() {
-		mockCall := ts.storage.On("UserAdd", ctx, data).Return(models.UserID(""), store.ErrAlreadyExists)
+		mockCall := ts.storage.EXPECT().UserAdd(ctx, data).Return("", store.ErrAlreadyExists)
+		defer mockCall.Unset()
 
 		_, err := ts.service.Register(ctx, data)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrUserAlreadyExists)
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
 	})
 
 	ts.Run("Not valid", func() {
@@ -52,6 +52,5 @@ func (ts *UserServiceTestSuite) TestRegister() {
 		ts.Error(err)
 		var ve *serviceErr.ValidationError
 		ts.ErrorAs(err, &ve)
-		ts.storage.AssertNotCalled(ts.T(), "UserAdd")
 	})
 }

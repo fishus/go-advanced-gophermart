@@ -36,21 +36,21 @@ func (ts *OrderServiceTestSuite) TestListNew() {
 				UpdatedAt:  time.Now().UTC(),
 			},
 		}
-		mockCall := ts.storage.On("OrdersByFilter", ctx, 0, mock.Anything).Return(want, nil) // FIXME
+		mockCall := ts.storage.EXPECT().OrdersByFilter(ctx, 0, mock.Anything, mock.Anything).Return(want, nil)
+		defer mockCall.Unset()
 		list, err := ts.service.ListNew(ctx)
 		ts.NoError(err)
 		ts.EqualValues(want, list)
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
 	})
 
 	ts.Run("New orders not found", func() {
-		mockCall := ts.storage.On("OrdersByFilter", ctx, 0, mock.Anything).Return([]models.Order{}, store.ErrNotFound)
+		mockCall := ts.storage.EXPECT().OrdersByFilter(ctx, 0, mock.Anything, mock.Anything).Return([]models.Order{}, store.ErrNotFound)
+		defer mockCall.Unset()
 		list, err := ts.service.ListNew(ctx)
 		ts.NoError(err)
 		ts.Equal(0, len(list))
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
 	})
 }
 
@@ -80,21 +80,21 @@ func (ts *OrderServiceTestSuite) TestListProcessing() {
 				UpdatedAt:  time.Now().UTC(),
 			},
 		}
-		mockCall := ts.storage.On("OrdersByFilter", ctx, limit, mock.Anything).Return(want, nil) // FIXME
+		mockCall := ts.storage.EXPECT().OrdersByFilter(ctx, limit, mock.Anything, mock.Anything).Return(want, nil)
+		defer mockCall.Unset()
 		list, err := ts.service.ListProcessing(ctx, limit)
 		ts.NoError(err)
 		ts.EqualValues(want, list)
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
 	})
 
 	ts.Run("Orders in processing not found", func() {
-		mockCall := ts.storage.On("OrdersByFilter", ctx, limit, mock.Anything).Return([]models.Order{}, store.ErrNotFound)
+		mockCall := ts.storage.EXPECT().OrdersByFilter(ctx, limit, mock.Anything, mock.Anything).Return([]models.Order{}, store.ErrNotFound)
+		defer mockCall.Unset()
 		list, err := ts.service.ListProcessing(ctx, limit)
 		ts.NoError(err)
 		ts.Equal(0, len(list))
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
 	})
 }
 
@@ -133,20 +133,20 @@ func (ts *OrderServiceTestSuite) TestListByUser() {
 				UpdatedAt:  time.Now().UTC(),
 			},
 		}
-		mockCall := ts.storage.On("OrdersByFilter", ctx, 0, mock.Anything).Return(want, nil) // FIXME
+		mockCall := ts.storage.EXPECT().OrdersByFilter(ctx, 0, mock.Anything, mock.Anything).Return(want, nil)
+		defer mockCall.Unset()
 		list, err := ts.service.ListByUser(ctx, userID)
 		ts.NoError(err)
 		ts.EqualValues(want, list)
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
 	})
 
 	ts.Run("New orders not found", func() {
-		mockCall := ts.storage.On("OrdersByFilter", ctx, 0, mock.Anything).Return([]models.Order{}, store.ErrNotFound)
+		mockCall := ts.storage.EXPECT().OrdersByFilter(ctx, 0, mock.Anything, mock.Anything).Return([]models.Order{}, store.ErrNotFound)
+		defer mockCall.Unset()
 		list, err := ts.service.ListByUser(ctx, userID)
 		ts.NoError(err)
 		ts.Equal(0, len(list))
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
 	})
 }

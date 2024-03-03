@@ -27,20 +27,20 @@ func (ts *OrderServiceTestSuite) TestOrderByID() {
 			UploadedAt: time.Now().UTC(),
 			UpdatedAt:  time.Now().UTC(),
 		}
-		mockCall := ts.storage.On("OrderByID", ctx, orderID).Return(want, nil)
+		mockCall := ts.storage.EXPECT().OrderByID(ctx, orderID).Return(want, nil)
+		defer mockCall.Unset()
 		list, err := ts.service.OrderByID(ctx, orderID)
 		ts.NoError(err)
 		ts.EqualValues(want, list)
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
 	})
 
 	ts.Run("New orders not found", func() {
-		mockCall := ts.storage.On("OrderByID", ctx, orderID).Return(models.Order{}, store.ErrNotFound)
+		mockCall := ts.storage.EXPECT().OrderByID(ctx, orderID).Return(models.Order{}, store.ErrNotFound)
+		defer mockCall.Unset()
 		_, err := ts.service.OrderByID(ctx, orderID)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrOrderNotFound)
 		ts.storage.AssertExpectations(ts.T())
-		mockCall.Unset()
 	})
 }

@@ -7,13 +7,13 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	oService "github.com/fishus/go-advanced-gophermart/internal/service/order"
-	store "github.com/fishus/go-advanced-gophermart/internal/storage"
+	storageMocks "github.com/fishus/go-advanced-gophermart/internal/storage/mocks"
 )
 
 type UserServiceTestSuite struct {
 	suite.Suite
 	cfg     *Config
-	storage *store.MockStorage
+	storage *storageMocks.Storager
 	*service
 }
 
@@ -22,7 +22,7 @@ func (ts *UserServiceTestSuite) SetupSuite() {
 		JWTExpires:   15 * time.Minute,
 		JWTSecretKey: "TestSecretKey",
 	}
-	ts.storage = new(store.MockStorage)
+	ts.storage = storageMocks.NewStorager(ts.T())
 	ts.service = New(ts.cfg, ts.storage)
 	order := oService.New(ts.storage)
 	ts.service.SetOrder(order)

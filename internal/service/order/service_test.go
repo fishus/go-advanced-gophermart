@@ -5,17 +5,17 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	store "github.com/fishus/go-advanced-gophermart/internal/storage"
+	storageMocks "github.com/fishus/go-advanced-gophermart/internal/storage/mocks"
 )
 
 type OrderServiceTestSuite struct {
 	suite.Suite
-	storage *store.MockStorage
+	storage *storageMocks.Storager
 	*service
 }
 
 func (ts *OrderServiceTestSuite) SetupSuite() {
-	ts.storage = new(store.MockStorage)
+	ts.storage = storageMocks.NewStorager(ts.T())
 	ts.service = New(ts.storage)
 }
 
