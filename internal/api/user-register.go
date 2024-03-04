@@ -39,12 +39,12 @@ func (s *server) userRegister(w http.ResponseWriter, r *http.Request) {
 			JSONError(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		if errors.Is(err, serviceErr.ErrUserAlreadyExists) {
-			JSONError(w, err.Error(), http.StatusConflict)
-			return
-		}
 		if errors.Is(err, serviceErr.ErrIncorrectData) {
 			JSONError(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if errors.Is(err, serviceErr.ErrUserAlreadyExists) {
+			JSONError(w, err.Error(), http.StatusConflict)
 			return
 		}
 		JSONError(w, err.Error(), http.StatusInternalServerError)

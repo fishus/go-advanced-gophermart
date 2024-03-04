@@ -13,11 +13,13 @@ import (
 	"github.com/fishus/go-advanced-gophermart/internal/service"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.0 --name=Servicer --with-expecter
 type Servicer interface {
 	User() service.Userer
 	Order() service.Orderer
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.0 --name=AccrualDaemon  --with-expecter
 type AccrualDaemon interface {
 	AddNewOrder(context.Context, models.Order)
 }
