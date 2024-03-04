@@ -18,10 +18,20 @@ func (d *daemon) workerRequestOrderAccrual(ctx context.Context) {
 		for {
 			select {
 			case <-ctx.Done():
+				select {
+				case <-d.chOrders: // read from chan before exit
+				default:
+				}
+				return
+			case <-d.chShutdown:
+				select {
+				case <-d.chOrders: // read from chan before exit
+				default:
+				}
 				return
 
 			case order, opened := <-d.chOrders:
-				if !opened || d.isShutdown.Load() || ctx.Err() != nil {
+				if !opened || ctx.Err() != nil {
 					return
 				}
 				d.wg.Add(1)
@@ -89,8 +99,12 @@ func (d *daemon) requestOrderAccrual(ctx context.Context, num string) (*OrderAcc
 	i := 0 // Attempts counter
 	var respOrder OrderAccrual
 	for {
-		if d.isShutdown.Load() {
+		select {
+		case <-ctx.Done():
 			return nil, ErrIsShutdown
+		case <-d.chShutdown:
+			return nil, ErrIsShutdown
+		default:
 		}
 
 		i++
@@ -130,7 +144,7 @@ func (d *daemon) requestOrderAccrual(ctx context.Context, num string) (*OrderAcc
 			if err != nil {
 				return nil, err
 			}
-			d.doDelay(time.Duration(retryAfter+1) * time.Second)
+			d.doDelay(ctx, time.Duration(retryAfter+1)*time.Second)
 			continue
 
 		// заказ не зарегистрирован в системе расчёта
@@ -147,17 +161,25 @@ func (d *daemon) requestOrderAccrual(ctx context.Context, num string) (*OrderAcc
 	}
 }
 
-func (d *daemon) doDelay(delayDuration time.Duration) {
+func (d *daemon) doDelay(ctx context.Context, delayDuration time.Duration) {
 	d.delayCond.L.Lock()
 	d.delay.Store(true)
 
 	expire := time.Now().Add(delayDuration)
 	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+exit:
 	for {
-		if d.isShutdown.Load() {
+		select {
+		case <-ctx.Done():
 			// interrupt the pause early because the application is shutting down
-			break
+			break exit
+		case <-d.chShutdown:
+			// interrupt the pause early because the application is shutting down
+			break exit
+		default:
 		}
+
 		t := <-ticker.C
 		if t.Equal(expire) || t.After(expire) {
 			break

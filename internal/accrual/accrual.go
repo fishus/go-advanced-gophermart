@@ -29,7 +29,7 @@ type daemon struct {
 	wg         *sync.WaitGroup
 	delay      atomic.Bool
 	delayCond  *sync.Cond
-	isShutdown atomic.Bool
+	chShutdown chan struct{}
 }
 
 func NewAccrual(cfg *Config, service Servicer) *daemon {
@@ -42,11 +42,12 @@ func NewAccrual(cfg *Config, service Servicer) *daemon {
 	}
 
 	d := &daemon{
-		cfg:      cfg,
-		client:   client,
-		service:  service,
-		chOrders: make(chan models.Order),
-		wg:       &sync.WaitGroup{},
+		cfg:        cfg,
+		client:     client,
+		service:    service,
+		chOrders:   make(chan models.Order),
+		wg:         &sync.WaitGroup{},
+		chShutdown: make(chan struct{}),
 	}
 	d.delayCond = sync.NewCond(&sync.Mutex{})
 	return d
@@ -67,7 +68,7 @@ func (d *daemon) Run(ctx context.Context) error {
 
 func (d *daemon) Close() error {
 	logger.Log.Info("Shutdown accrual daemon")
-	d.isShutdown.Store(true)
+	close(d.chShutdown)
 	d.wg.Wait()
 	close(d.chOrders)
 	return nil

@@ -38,23 +38,28 @@ func (d *daemon) addProcessingOrders(ctx context.Context) {
 		defer d.wg.Done()
 
 		ticker := time.NewTicker(time.Second)
+		defer ticker.Stop()
+
 		for {
-			if d.isShutdown.Load() {
-				break
-			}
-			<-ticker.C
-			list, err := d.service.Order().ListProcessing(ctx, d.cfg.WorkersNum)
-			if err != nil {
-				logger.Log.Error(err.Error())
+			select {
+			case <-ctx.Done():
 				return
-			}
+			case <-d.chShutdown:
+				return
+			case <-ticker.C:
+				list, err := d.service.Order().ListProcessing(ctx, d.cfg.WorkersNum)
+				if err != nil {
+					logger.Log.Error(err.Error())
+					return
+				}
 
-			if len(list) == 0 {
-				continue
-			}
+				if len(list) == 0 {
+					continue
+				}
 
-			for _, order := range list {
-				d.chOrders <- order
+				for _, order := range list {
+					d.chOrders <- order
+				}
 			}
 		}
 	}()
