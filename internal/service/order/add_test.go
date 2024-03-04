@@ -38,6 +38,14 @@ func (ts *OrderServiceTestSuite) TestAdd() {
 		defer mockCall1.Unset()
 
 		mockCall2 := ts.storage.EXPECT().OrderByFilter(ctx, mock.Anything).Return(data, nil)
+		//mockCall2 := ts.storage.EXPECT().OrderByFilter(ctx, mock.AnythingOfType("storage.OrderFilter")).Return(data, nil)
+		//mockCall2 := ts.storage.EXPECT().OrderByFilter(ctx, mock.FunctionalOptions(store.WithOrderNum(data.Num))).Return(data, nil)
+		//matcher := mock.MatchedBy(func(filter store.OrderFilter) bool {
+		//	f := &store.OrderFilters{}
+		//	filter(f)
+		//	return f.Num == data.Num
+		//})
+		//mockCall2 := ts.storage.EXPECT().OrderByFilter(ctx, matcher).Return(data, nil)
 		defer mockCall2.Unset()
 
 		_, err := ts.service.Add(ctx, userID, data.Num)
