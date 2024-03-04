@@ -166,7 +166,7 @@ func (d *daemon) doDelay(ctx context.Context, delayDuration time.Duration) {
 	d.delay.Store(true)
 
 	expire := time.Now().Add(delayDuration)
-	ticker := time.NewTicker(time.Second)
+	ticker := time.NewTicker(100 * time.Millisecond)
 	defer ticker.Stop()
 exit:
 	for {

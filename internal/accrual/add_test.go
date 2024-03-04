@@ -70,6 +70,8 @@ func (ts *LoyaltyTestSuite) TestAddNewOrders() {
 func (ts *LoyaltyTestSuite) TestAddProcessingOrders() {
 	ctx := context.Background()
 
+	//ts.T().SkipNow()
+
 	userID := models.UserID(uuid.New().String())
 	orderNum := "5347676263"
 
@@ -92,33 +94,41 @@ func (ts *LoyaltyTestSuite) TestAddProcessingOrders() {
 
 		ts.daemon.addProcessingOrders(ctx)
 
-		ctxTC, cancel := context.WithTimeout(ctx, (2 * time.Second))
+		ctxT, cancel := context.WithTimeout(ctx, (1500 * time.Millisecond))
 		defer cancel()
+
 		select {
-		case <-ctxTC.Done():
-			ts.Fail(ctxTC.Err().Error())
+		case <-ctxT.Done():
+			ts.Fail(ctxT.Err().Error())
 		case order := <-ts.daemon.chOrders:
 			ts.EqualValues(list[0], order)
 		}
+		close(ts.daemon.chShutdown)
+		ts.daemon.wg.Wait()
+		ts.daemon.chShutdown = make(chan struct{})
 		sOrder.AssertExpectations(ts.T())
 	})
 
 	ts.Run("No new orders", func() {
 		sOrder := sMocks.NewOrderer(ts.T())
-		mockCall := sOrder.EXPECT().ListProcessing(ctx, 1).Return(nil, nil).Times(2)
+		mockCall := sOrder.EXPECT().ListProcessing(ctx, 1).Return(nil, nil)
 		defer mockCall.Unset()
 		ts.setService(sOrder, nil)
 
 		ts.daemon.addProcessingOrders(ctx)
 
-		ctxTC, cancel := context.WithTimeout(ctx, (1500 * time.Millisecond))
+		ctxT, cancel := context.WithTimeout(ctx, (1500 * time.Millisecond))
 		defer cancel()
+
 		select {
-		case <-ctxTC.Done():
-			ts.Error(ctxTC.Err())
+		case <-ctxT.Done():
+			ts.Error(ctxT.Err())
 		case <-ts.daemon.chOrders:
 			ts.Fail("Unexpected order")
 		}
+		close(ts.daemon.chShutdown)
+		ts.daemon.wg.Wait()
+		ts.daemon.chShutdown = make(chan struct{})
 		sOrder.AssertExpectations(ts.T())
 	})
 }

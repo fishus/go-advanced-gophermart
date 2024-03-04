@@ -1,7 +1,6 @@
 package accrual
 
 import (
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -17,13 +16,15 @@ import (
 
 type LoyaltyTestSuite struct {
 	suite.Suite
-	service       *mocks.Servicer
-	daemon        *daemon
-	loyaltyServer *httptest.Server
+	service        *mocks.Servicer
+	daemon         *daemon
+	loyaltyServer  *httptest.Server
+	fakeLoyaltyAPI *fakeLoyaltyAPI
 }
 
 func (ts *LoyaltyTestSuite) SetupSuite() {
-	ts.loyaltyServer = httptest.NewServer(ts.fakeLoyaltyRouter())
+	ts.fakeLoyaltyAPI = newFakeLoyaltyAPI()
+	ts.loyaltyServer = httptest.NewServer(ts.fakeLoyaltyAPI.Router())
 
 	cfg := &Config{
 		APIAddr:        ts.loyaltyServer.URL,
@@ -36,11 +37,17 @@ func (ts *LoyaltyTestSuite) SetupSuite() {
 	ts.daemon = NewAccrual(cfg, ts.service)
 }
 
+func (ts *LoyaltyTestSuite) TearDownSuite() {
+	ts.loyaltyServer.Close()
+	ts.daemon.Close()
+}
+
 func (ts *LoyaltyTestSuite) TearDownTest() {
 	// Reset mock
 	for _, mc := range ts.service.ExpectedCalls {
 		mc.Unset()
 	}
+	ts.fakeLoyaltyAPI.Clear()
 }
 
 func (ts *LoyaltyTestSuite) TearDownSubTest() {
@@ -48,6 +55,7 @@ func (ts *LoyaltyTestSuite) TearDownSubTest() {
 	for _, mc := range ts.service.ExpectedCalls {
 		mc.Unset()
 	}
+	ts.fakeLoyaltyAPI.Clear()
 }
 
 func TestLoyalty(t *testing.T) {
@@ -63,54 +71,37 @@ func (ts *LoyaltyTestSuite) setService(o service.Orderer, u service.Userer) {
 	}
 }
 
-func (ts *LoyaltyTestSuite) fakeLoyaltyRouter() chi.Router {
+type fakeLoyaltyAPI struct {
+	retryAfter  int
+	retries     int
+	contentType string
+	statusCode  int
+	resp        string
+	actual      struct {
+		number  string
+		retries int
+	}
+}
+
+func (s *fakeLoyaltyAPI) Router() chi.Router {
 	r := chi.NewRouter()
-
 	r.Use(middleware.Recoverer)
-
-	r.Get("/api/orders/{number}", ts.fakeLoyaltyOrderAccrual) // Тестовый расчёт начислений баллов лояльности
-
+	r.Get("/api/orders/{number}", s.orderAccrual) // Тестовый расчёт начислений баллов лояльности
 	return r
 }
 
-// Тестовый расчёт начислений баллов лояльности
-func (ts *LoyaltyTestSuite) fakeLoyaltyOrderAccrual(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
+func (s *fakeLoyaltyAPI) Clear() {
+	s.retryAfter = 0
+	s.retries = 0
+	s.contentType = "text/plain"
+	s.statusCode = http.StatusOK
+	s.resp = ""
+	s.actual.number = ""
+	s.actual.retries = 0
+}
 
-	orderNum := chi.URLParam(r, "number")
-
-	// Читать параметры из заголовков
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-
-	// 200 — успешная обработка запроса.
-	/*
-		{
-		  "order": "<number>",
-		  "status": "PROCESSED",
-		  "accrual": 500
-		}
-		Поля объекта ответа:
-		order — номер заказа;
-		status — статус расчёта начисления:
-		REGISTERED — заказ зарегистрирован, но вознаграждение не рассчитано;
-		INVALID — заказ не принят к расчёту, и вознаграждение не будет начислено;
-		PROCESSING — расчёт начисления в процессе;
-		PROCESSED — расчёт начисления окончен;
-		accrual — рассчитанные баллы к начислению, при отсутствии начисления — поле отсутствует в ответе.
-	*/
-
-	// 204 — заказ не зарегистрирован в системе расчёта.
-
-	// 429 — превышено количество запросов к сервису.
-	/*
-	  429 Too Many Requests HTTP/1.1
-	  Content-Type: text/plain
-	  Retry-After: 60
-
-	  No more than N requests per minute allowed
-	*/
-
-	w.WriteHeader(http.StatusOK)
-	_, _ = io.WriteString(w, orderNum)
+func newFakeLoyaltyAPI() *fakeLoyaltyAPI {
+	api := &fakeLoyaltyAPI{}
+	api.Clear()
+	return api
 }
