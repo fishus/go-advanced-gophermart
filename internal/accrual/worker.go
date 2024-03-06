@@ -9,6 +9,7 @@ import (
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
+	"github.com/fishus/go-advanced-gophermart/internal/app/config"
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 )
 
@@ -136,7 +137,7 @@ func (d *daemon) requestOrderAccrual(ctx context.Context, num string) (*OrderAcc
 			if err = respOrder.Status.Validate(); err != nil {
 				return nil, err
 			}
-			respOrder.Accrual = respOrder.Accrual.Round(5)
+			respOrder.Accrual = respOrder.Accrual.Round(config.DecimalExponent)
 			return &respOrder, nil
 
 		// превышено количество запросов к сервису

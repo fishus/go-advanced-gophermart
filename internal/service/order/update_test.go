@@ -9,6 +9,7 @@ import (
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
+	"github.com/fishus/go-advanced-gophermart/internal/app/config"
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
@@ -87,7 +88,7 @@ func (ts *OrderServiceTestSuite) TestAddAccrual() {
 	}
 
 	ts.Run("Positive case", func() {
-		accrual := decimal.NewFromFloatWithExponent(123.456, -5)
+		accrual := decimal.NewFromFloatWithExponent(123.456, -config.DecimalExponent)
 		mockCallOrderByID := ts.storage.EXPECT().OrderByID(ctx, orderID).Return(mockOrder, nil)
 		defer mockCallOrderByID.Unset()
 		mockCall := ts.storage.EXPECT().OrderAddAccrual(ctx, orderID, accrual).Return(nil)
@@ -98,7 +99,7 @@ func (ts *OrderServiceTestSuite) TestAddAccrual() {
 	})
 
 	ts.Run("Negative accrual", func() {
-		accrual := decimal.NewFromFloatWithExponent(-100.0, -5)
+		accrual := decimal.NewFromFloatWithExponent(-100.0, -config.DecimalExponent)
 		err := ts.service.AddAccrual(ctx, orderID, accrual)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrIncorrectData)
@@ -106,7 +107,7 @@ func (ts *OrderServiceTestSuite) TestAddAccrual() {
 
 	ts.Run("Status Processed", func() {
 		mockOrder.Status = models.OrderStatusProcessed
-		accrual := decimal.NewFromFloatWithExponent(123.456, -5)
+		accrual := decimal.NewFromFloatWithExponent(123.456, -config.DecimalExponent)
 		mockCallOrderByID := ts.storage.EXPECT().OrderByID(ctx, orderID).Return(mockOrder, nil)
 		defer mockCallOrderByID.Unset()
 		err := ts.service.AddAccrual(ctx, orderID, accrual)
@@ -116,7 +117,7 @@ func (ts *OrderServiceTestSuite) TestAddAccrual() {
 	})
 
 	ts.Run("Order not found", func() {
-		accrual := decimal.NewFromFloatWithExponent(123.456, -5)
+		accrual := decimal.NewFromFloatWithExponent(123.456, -config.DecimalExponent)
 		mockCallOrderByID := ts.storage.EXPECT().OrderByID(ctx, orderID).Return(models.Order{}, store.ErrNotFound)
 		defer mockCallOrderByID.Unset()
 		err := ts.service.AddAccrual(ctx, orderID, accrual)

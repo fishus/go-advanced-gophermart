@@ -11,6 +11,7 @@ import (
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
+	"github.com/fishus/go-advanced-gophermart/internal/app/config"
 	sMocks "github.com/fishus/go-advanced-gophermart/internal/service/mocks"
 	uService "github.com/fishus/go-advanced-gophermart/internal/service/user"
 )
@@ -38,8 +39,8 @@ func (ts *APITestSuite) TestUserBalance() {
 			auth: "VALID-JWT-TOKEN",
 			data: models.LoyaltyBalance{
 				UserID:    userID,
-				Accrued:   decimal.NewFromFloatWithExponent(654.321, -5),
-				Withdrawn: decimal.NewFromFloatWithExponent(123.456, -5),
+				Accrued:   decimal.NewFromFloatWithExponent(654.321, -config.DecimalExponent),
+				Withdrawn: decimal.NewFromFloatWithExponent(123.456, -config.DecimalExponent),
 			},
 			respStatus: http.StatusOK,
 		},

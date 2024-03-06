@@ -12,6 +12,7 @@ import (
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
+	"github.com/fishus/go-advanced-gophermart/internal/app/config"
 	sMocks "github.com/fishus/go-advanced-gophermart/internal/service/mocks"
 	uService "github.com/fishus/go-advanced-gophermart/internal/service/user"
 )
@@ -42,7 +43,7 @@ func (ts *APITestSuite) TestOrdersList() {
 			data: []models.Order{
 				{
 					Num:        "6825296715",
-					Accrual:    decimal.NewFromFloatWithExponent(123.456, -5),
+					Accrual:    decimal.NewFromFloatWithExponent(123.456, -config.DecimalExponent),
 					Status:     models.OrderStatusProcessed,
 					UploadedAt: time.Now().UTC().Round(time.Minute),
 				},

@@ -11,6 +11,8 @@ type Config struct {
 	logLevel     string        // logLevel Log level
 }
 
+const DecimalExponent = 5
+
 // TODO Вынести сюда дефолтные значения
 
 func InitConfig() Config {

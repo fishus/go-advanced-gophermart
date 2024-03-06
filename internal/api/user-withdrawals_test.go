@@ -12,6 +12,7 @@ import (
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
+	"github.com/fishus/go-advanced-gophermart/internal/app/config"
 	sMocks "github.com/fishus/go-advanced-gophermart/internal/service/mocks"
 	uService "github.com/fishus/go-advanced-gophermart/internal/service/user"
 )
@@ -42,7 +43,7 @@ func (ts *APITestSuite) TestUserWithdrawals() {
 				{
 					UserID:      userID,
 					OrderNum:    "6825296715",
-					Accrual:     decimal.NewFromFloatWithExponent(654.321, -5),
+					Accrual:     decimal.NewFromFloatWithExponent(654.321, -config.DecimalExponent),
 					Withdrawal:  decimal.NewFromFloat(0),
 					ProcessedAt: time.Now().UTC().Round(time.Minute),
 				},
@@ -50,7 +51,7 @@ func (ts *APITestSuite) TestUserWithdrawals() {
 					UserID:      userID,
 					OrderNum:    "5347676263",
 					Accrual:     decimal.NewFromFloat(0),
-					Withdrawal:  decimal.NewFromFloatWithExponent(123.456, -5),
+					Withdrawal:  decimal.NewFromFloatWithExponent(123.456, -config.DecimalExponent),
 					ProcessedAt: time.Now().UTC().Round(time.Minute),
 				},
 			},

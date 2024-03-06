@@ -10,6 +10,7 @@ import (
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
+	"github.com/fishus/go-advanced-gophermart/internal/app/config"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
@@ -128,7 +129,7 @@ func (ts *OrderServiceTestSuite) TestListByUser() {
 				ID:         models.OrderID(uuid.New().String()),
 				UserID:     userID,
 				Num:        "1853241857",
-				Accrual:    decimal.NewFromFloatWithExponent(123.456, -5),
+				Accrual:    decimal.NewFromFloatWithExponent(123.456, -config.DecimalExponent),
 				Status:     models.OrderStatusProcessed,
 				UploadedAt: time.Now().UTC(),
 				UpdatedAt:  time.Now().UTC(),

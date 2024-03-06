@@ -8,6 +8,8 @@ import (
 	"github.com/shopspring/decimal"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
+
+	"github.com/fishus/go-advanced-gophermart/internal/app/config"
 )
 
 func (ts *PostgresTestSuite) TestOrderUpdateStatus() {
@@ -64,7 +66,7 @@ func (ts *PostgresTestSuite) TestOrderAddAccrual() {
 	ts.NoError(err)
 	order.ID = orderID
 
-	accrual := decimal.NewFromFloatWithExponent(174.682, -5)
+	accrual := decimal.NewFromFloatWithExponent(174.682, -config.DecimalExponent)
 
 	ts.Run("Positive case", func() {
 		err = ts.storage.OrderAddAccrual(ctx, orderID, accrual)

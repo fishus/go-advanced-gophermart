@@ -9,6 +9,7 @@ import (
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
+	"github.com/fishus/go-advanced-gophermart/internal/app/config"
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
@@ -20,8 +21,8 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserBalance() {
 	ts.Run("Positive case", func() {
 		wantBalance := models.LoyaltyBalance{
 			UserID:    userID,
-			Accrued:   decimal.NewFromFloatWithExponent(752.113, -5),
-			Withdrawn: decimal.NewFromFloatWithExponent(524.631, -5),
+			Accrued:   decimal.NewFromFloatWithExponent(752.113, -config.DecimalExponent),
+			Withdrawn: decimal.NewFromFloatWithExponent(524.631, -config.DecimalExponent),
 		}
 		wantBalance.Current = wantBalance.Accrued.Sub(wantBalance.Withdrawn)
 		mockCall := ts.storage.EXPECT().LoyaltyBalanceByUser(ctx, userID).Return(wantBalance, nil)
@@ -56,7 +57,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserWithdrawals() {
 		userHistory[0] = models.LoyaltyHistory{
 			UserID:      userID,
 			OrderNum:    "5347676263",
-			Accrual:     decimal.NewFromFloatWithExponent(1123.456, -5),
+			Accrual:     decimal.NewFromFloatWithExponent(1123.456, -config.DecimalExponent),
 			Withdrawal:  decimal.NewFromFloat(0),
 			ProcessedAt: time.Now().UTC().Round(time.Minute),
 		}
@@ -64,7 +65,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserWithdrawals() {
 			UserID:      userID,
 			OrderNum:    "8163091187",
 			Accrual:     decimal.NewFromFloat(0),
-			Withdrawal:  decimal.NewFromFloatWithExponent(654.321, -5),
+			Withdrawal:  decimal.NewFromFloatWithExponent(654.321, -config.DecimalExponent),
 			ProcessedAt: time.Now().UTC().Round(time.Minute),
 		}
 		mockCall := ts.storage.EXPECT().LoyaltyHistoryByUser(ctx, userID).Return(userHistory, nil)
@@ -84,7 +85,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserWithdrawals() {
 		userHistory[0] = models.LoyaltyHistory{
 			UserID:      userID,
 			OrderNum:    "5347676263",
-			Accrual:     decimal.NewFromFloatWithExponent(1123.456, -5),
+			Accrual:     decimal.NewFromFloatWithExponent(1123.456, -config.DecimalExponent),
 			Withdrawal:  decimal.NewFromFloat(0),
 			ProcessedAt: time.Now().UTC().Round(time.Minute),
 		}
@@ -118,7 +119,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 
 	ts.Run("Positive case", func() {
 		orderNum := "3903733214"
-		withdraw := decimal.NewFromFloatWithExponent(659.784, -5)
+		withdraw := decimal.NewFromFloatWithExponent(659.784, -config.DecimalExponent)
 		mockCall := ts.storage.EXPECT().LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw).Return(nil)
 		defer mockCall.Unset()
 
@@ -129,7 +130,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 
 	ts.Run("Invalid number", func() {
 		orderNum := "126378912"
-		withdraw := decimal.NewFromFloatWithExponent(659.784, -5)
+		withdraw := decimal.NewFromFloatWithExponent(659.784, -config.DecimalExponent)
 
 		err := ts.service.LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw)
 		ts.Error(err)
@@ -138,7 +139,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 
 	ts.Run("Incorrect withdraw amount", func() {
 		orderNum := "3903733214"
-		withdraw := decimal.NewFromFloatWithExponent(-1.0, -5)
+		withdraw := decimal.NewFromFloatWithExponent(-1.0, -config.DecimalExponent)
 
 		err := ts.service.LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw)
 		ts.Error(err)
@@ -147,7 +148,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 
 	ts.Run("Low balance", func() {
 		orderNum := "3903733214"
-		withdraw := decimal.NewFromFloatWithExponent(659.784, -5)
+		withdraw := decimal.NewFromFloatWithExponent(659.784, -config.DecimalExponent)
 		mockCall := ts.storage.EXPECT().LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw).Return(store.ErrLowBalance)
 		defer mockCall.Unset()
 
@@ -159,7 +160,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 
 	ts.Run("Balance not found", func() {
 		orderNum := "3903733214"
-		withdraw := decimal.NewFromFloatWithExponent(659.784, -5)
+		withdraw := decimal.NewFromFloatWithExponent(659.784, -config.DecimalExponent)
 		mockCall := ts.storage.EXPECT().LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw).Return(store.ErrNotFound)
 		defer mockCall.Unset()
 

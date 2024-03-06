@@ -8,6 +8,8 @@ import (
 	"github.com/shopspring/decimal"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
+
+	"github.com/fishus/go-advanced-gophermart/internal/app/config"
 )
 
 func (ts *PostgresTestSuite) TestLoyaltyHistoryAdd() {
@@ -26,7 +28,7 @@ func (ts *PostgresTestSuite) TestLoyaltyHistoryAdd() {
 		wantHistory[0] = models.LoyaltyHistory{
 			UserID:      userID,
 			OrderNum:    "5347676263",
-			Accrual:     decimal.NewFromFloatWithExponent(123.456, -5),
+			Accrual:     decimal.NewFromFloatWithExponent(123.456, -config.DecimalExponent),
 			Withdrawal:  decimal.NewFromFloat(0),
 			ProcessedAt: time.Now().UTC().Round(time.Minute),
 		}
@@ -34,7 +36,7 @@ func (ts *PostgresTestSuite) TestLoyaltyHistoryAdd() {
 			UserID:      userID,
 			OrderNum:    "8163091187",
 			Accrual:     decimal.NewFromFloat(0),
-			Withdrawal:  decimal.NewFromFloatWithExponent(654.321, -5),
+			Withdrawal:  decimal.NewFromFloatWithExponent(654.321, -config.DecimalExponent),
 			ProcessedAt: time.Now().UTC().Round(time.Minute),
 		}
 
@@ -72,7 +74,7 @@ func (ts *PostgresTestSuite) TestLoyaltyHistoryByUser() {
 	wantHistory[0] = models.LoyaltyHistory{
 		UserID:      userID,
 		OrderNum:    "6825296715",
-		Accrual:     decimal.NewFromFloatWithExponent(123.456, -5),
+		Accrual:     decimal.NewFromFloatWithExponent(123.456, -config.DecimalExponent),
 		Withdrawal:  decimal.NewFromFloat(0),
 		ProcessedAt: time.Now().UTC().Round(time.Minute),
 	}
@@ -80,7 +82,7 @@ func (ts *PostgresTestSuite) TestLoyaltyHistoryByUser() {
 		UserID:      userID,
 		OrderNum:    "8215993786",
 		Accrual:     decimal.NewFromFloat(0),
-		Withdrawal:  decimal.NewFromFloatWithExponent(654.321, -5),
+		Withdrawal:  decimal.NewFromFloatWithExponent(654.321, -config.DecimalExponent),
 		ProcessedAt: time.Now().UTC().Round(time.Minute),
 	}
 

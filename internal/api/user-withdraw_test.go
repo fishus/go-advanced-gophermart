@@ -11,6 +11,7 @@ import (
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
+	"github.com/fishus/go-advanced-gophermart/internal/app/config"
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 	sMocks "github.com/fishus/go-advanced-gophermart/internal/service/mocks"
 	uService "github.com/fishus/go-advanced-gophermart/internal/service/user"
@@ -40,7 +41,7 @@ func (ts *APITestSuite) TestUserWithdraw() {
 			auth: "VALID-JWT-TOKEN",
 			data: reqData{
 				Num: "8542143048",
-				Sum: decimal.NewFromFloatWithExponent(123.456, -5),
+				Sum: decimal.NewFromFloatWithExponent(123.456, -config.DecimalExponent),
 			},
 			wErr:       nil,
 			respStatus: http.StatusOK,
@@ -50,7 +51,7 @@ func (ts *APITestSuite) TestUserWithdraw() {
 			auth: "VALID-JWT-TOKEN",
 			data: reqData{
 				Num: "8542143048",
-				Sum: decimal.NewFromFloatWithExponent(123.456, -5),
+				Sum: decimal.NewFromFloatWithExponent(123.456, -config.DecimalExponent),
 			},
 			wErr:       serviceErr.ErrLowBalance,
 			respStatus: http.StatusPaymentRequired,
@@ -60,7 +61,7 @@ func (ts *APITestSuite) TestUserWithdraw() {
 			auth: "VALID-JWT-TOKEN",
 			data: reqData{
 				Num: "8542143048",
-				Sum: decimal.NewFromInt(-100).Round(5),
+				Sum: decimal.NewFromInt(-100).Round(config.DecimalExponent),
 			},
 			wErr:       serviceErr.ErrIncorrectData,
 			respStatus: http.StatusBadRequest,
@@ -70,7 +71,7 @@ func (ts *APITestSuite) TestUserWithdraw() {
 			auth: "VALID-JWT-TOKEN",
 			data: reqData{
 				Num: "55555",
-				Sum: decimal.NewFromFloat(0).Round(5),
+				Sum: decimal.NewFromFloat(0).Round(config.DecimalExponent),
 			},
 			wErr:       serviceErr.ErrOrderWrongNum,
 			respStatus: http.StatusUnprocessableEntity,
