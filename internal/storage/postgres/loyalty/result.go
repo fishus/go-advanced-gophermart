@@ -1,4 +1,4 @@
-package postgres
+package loyalty
 
 import (
 	"time"
@@ -27,23 +27,14 @@ type OrderResult struct {
 	UpdatedAt  time.Time          `db:"updated_at"`  // Дата и время обновления статуса заказа
 }
 
-func listResultsToOrders(results []OrderResult) []models.Order {
-	orders := make([]models.Order, 0)
-	for _, res := range results {
-		order := models.Order(res)
-		orders = append(orders, order)
-	}
-	return orders
-}
-
-type LoyaltyBalanceResult struct {
+type BalanceResult struct {
 	UserID    models.UserID   `db:"user_id"`   // ID пользователя
 	Current   decimal.Decimal `db:"current"`   // Текущий баланс
 	Accrued   decimal.Decimal `db:"accrued"`   // Начислено за всё время
 	Withdrawn decimal.Decimal `db:"withdrawn"` // Списано за всё время
 }
 
-type LoyaltyHistoryResult struct {
+type HistoryResult struct {
 	UserID      models.UserID   `db:"user_id"`      // ID пользователя
 	OrderNum    string          `db:"order_num"`    // Номер заказа
 	Accrual     decimal.Decimal `db:"accrual"`      // Начисление
@@ -51,7 +42,7 @@ type LoyaltyHistoryResult struct {
 	ProcessedAt time.Time       `db:"processed_at"` // Дата зачисления или списания
 }
 
-func listResultsToLoyaltyHistory(results []LoyaltyHistoryResult) []models.LoyaltyHistory {
+func listResultsToHistory(results []HistoryResult) []models.LoyaltyHistory {
 	history := make([]models.LoyaltyHistory, 0)
 	for _, res := range results {
 		h := models.LoyaltyHistory(res)

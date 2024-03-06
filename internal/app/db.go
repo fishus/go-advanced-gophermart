@@ -5,7 +5,7 @@ import (
 	"time"
 
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
-	"github.com/fishus/go-advanced-gophermart/internal/storage/postgres"
+	postgres "github.com/fishus/go-advanced-gophermart/internal/storage/postgres/storage"
 )
 
 func ConnDB(ctx context.Context) (store.Storager, error) {

@@ -1,4 +1,4 @@
-package postgres
+package user
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
-func (s *storage) UserByID(ctx context.Context, id models.UserID) (user models.User, err error) {
+func (s *storage) GetByID(ctx context.Context, id models.UserID) (user models.User, err error) {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 

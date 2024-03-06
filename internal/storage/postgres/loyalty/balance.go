@@ -1,4 +1,4 @@
-package postgres
+package loyalty
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
-func (s *storage) loyaltyBalanceUpdate(ctx context.Context, tx pgx.Tx, balance models.LoyaltyBalance) error {
+func (s *storage) BalanceUpdate(ctx context.Context, tx pgx.Tx, balance models.LoyaltyBalance) error {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
@@ -35,7 +35,7 @@ current = ((loyalty_balance.accrued + EXCLUDED.accrued) - (loyalty_balance.withd
 	return err
 }
 
-func (s *storage) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw decimal.Decimal) error {
+func (s *storage) AddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw decimal.Decimal) error {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
@@ -46,7 +46,7 @@ func (s *storage) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, 
 	defer tx.Rollback(ctxQuery)
 
 	// Проверка баланса
-	balance, err := s.LoyaltyBalanceByUser(ctx, userID)
+	balance, err := s.BalanceByUser(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func (s *storage) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, 
 		Withdrawal: withdraw,
 	}
 
-	err = s.loyaltyHistoryAdd(ctx, tx, lh)
+	err = s.HistoryAdd(ctx, tx, lh)
 	if err != nil {
 		if errR := tx.Rollback(ctxQuery); errR != nil {
 			return errors.Join(err, errR)
@@ -76,7 +76,7 @@ func (s *storage) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, 
 		Withdrawn: withdraw,
 	}
 
-	err = s.loyaltyBalanceUpdate(ctx, tx, lb)
+	err = s.BalanceUpdate(ctx, tx, lb)
 	if err != nil {
 		if errR := tx.Rollback(ctxQuery); errR != nil {
 			return errors.Join(err, errR)
@@ -87,7 +87,7 @@ func (s *storage) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, 
 	return tx.Commit(ctxQuery)
 }
 
-func (s *storage) LoyaltyBalanceByUser(ctx context.Context, userID models.UserID) (balance models.LoyaltyBalance, err error) {
+func (s *storage) BalanceByUser(ctx context.Context, userID models.UserID) (balance models.LoyaltyBalance, err error) {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
@@ -98,7 +98,7 @@ func (s *storage) LoyaltyBalanceByUser(ctx context.Context, userID models.UserID
 		return
 	}
 
-	balanceResult, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByNameLax[LoyaltyBalanceResult])
+	balanceResult, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByNameLax[BalanceResult])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) || errors.Is(err, pgx.ErrTooManyRows) {
 			err = store.ErrNotFound

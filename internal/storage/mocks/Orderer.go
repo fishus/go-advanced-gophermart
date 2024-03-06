@@ -26,12 +26,12 @@ func (_m *Orderer) EXPECT() *Orderer_Expecter {
 	return &Orderer_Expecter{mock: &_m.Mock}
 }
 
-// OrderAdd provides a mock function with given fields: _a0, _a1
-func (_m *Orderer) OrderAdd(_a0 context.Context, _a1 models.Order) (models.OrderID, error) {
+// Add provides a mock function with given fields: _a0, _a1
+func (_m *Orderer) Add(_a0 context.Context, _a1 models.Order) (models.OrderID, error) {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
-		panic("no return value specified for OrderAdd")
+		panic("no return value specified for Add")
 	}
 
 	var r0 models.OrderID
@@ -54,41 +54,41 @@ func (_m *Orderer) OrderAdd(_a0 context.Context, _a1 models.Order) (models.Order
 	return r0, r1
 }
 
-// Orderer_OrderAdd_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OrderAdd'
-type Orderer_OrderAdd_Call struct {
+// Orderer_Add_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Add'
+type Orderer_Add_Call struct {
 	*mock.Call
 }
 
-// OrderAdd is a helper method to define mock.On call
+// Add is a helper method to define mock.On call
 //   - _a0 context.Context
 //   - _a1 models.Order
-func (_e *Orderer_Expecter) OrderAdd(_a0 interface{}, _a1 interface{}) *Orderer_OrderAdd_Call {
-	return &Orderer_OrderAdd_Call{Call: _e.mock.On("OrderAdd", _a0, _a1)}
+func (_e *Orderer_Expecter) Add(_a0 interface{}, _a1 interface{}) *Orderer_Add_Call {
+	return &Orderer_Add_Call{Call: _e.mock.On("Add", _a0, _a1)}
 }
 
-func (_c *Orderer_OrderAdd_Call) Run(run func(_a0 context.Context, _a1 models.Order)) *Orderer_OrderAdd_Call {
+func (_c *Orderer_Add_Call) Run(run func(_a0 context.Context, _a1 models.Order)) *Orderer_Add_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(models.Order))
 	})
 	return _c
 }
 
-func (_c *Orderer_OrderAdd_Call) Return(_a0 models.OrderID, _a1 error) *Orderer_OrderAdd_Call {
+func (_c *Orderer_Add_Call) Return(_a0 models.OrderID, _a1 error) *Orderer_Add_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Orderer_OrderAdd_Call) RunAndReturn(run func(context.Context, models.Order) (models.OrderID, error)) *Orderer_OrderAdd_Call {
+func (_c *Orderer_Add_Call) RunAndReturn(run func(context.Context, models.Order) (models.OrderID, error)) *Orderer_Add_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// OrderAddAccrual provides a mock function with given fields: ctx, orderID, accrual
-func (_m *Orderer) OrderAddAccrual(ctx context.Context, orderID models.OrderID, accrual decimal.Decimal) error {
+// AddAccrual provides a mock function with given fields: ctx, orderID, accrual
+func (_m *Orderer) AddAccrual(ctx context.Context, orderID models.OrderID, accrual decimal.Decimal) error {
 	ret := _m.Called(ctx, orderID, accrual)
 
 	if len(ret) == 0 {
-		panic("no return value specified for OrderAddAccrual")
+		panic("no return value specified for AddAccrual")
 	}
 
 	var r0 error
@@ -101,38 +101,38 @@ func (_m *Orderer) OrderAddAccrual(ctx context.Context, orderID models.OrderID, 
 	return r0
 }
 
-// Orderer_OrderAddAccrual_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OrderAddAccrual'
-type Orderer_OrderAddAccrual_Call struct {
+// Orderer_AddAccrual_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddAccrual'
+type Orderer_AddAccrual_Call struct {
 	*mock.Call
 }
 
-// OrderAddAccrual is a helper method to define mock.On call
+// AddAccrual is a helper method to define mock.On call
 //   - ctx context.Context
 //   - orderID models.OrderID
 //   - accrual decimal.Decimal
-func (_e *Orderer_Expecter) OrderAddAccrual(ctx interface{}, orderID interface{}, accrual interface{}) *Orderer_OrderAddAccrual_Call {
-	return &Orderer_OrderAddAccrual_Call{Call: _e.mock.On("OrderAddAccrual", ctx, orderID, accrual)}
+func (_e *Orderer_Expecter) AddAccrual(ctx interface{}, orderID interface{}, accrual interface{}) *Orderer_AddAccrual_Call {
+	return &Orderer_AddAccrual_Call{Call: _e.mock.On("AddAccrual", ctx, orderID, accrual)}
 }
 
-func (_c *Orderer_OrderAddAccrual_Call) Run(run func(ctx context.Context, orderID models.OrderID, accrual decimal.Decimal)) *Orderer_OrderAddAccrual_Call {
+func (_c *Orderer_AddAccrual_Call) Run(run func(ctx context.Context, orderID models.OrderID, accrual decimal.Decimal)) *Orderer_AddAccrual_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(models.OrderID), args[2].(decimal.Decimal))
 	})
 	return _c
 }
 
-func (_c *Orderer_OrderAddAccrual_Call) Return(_a0 error) *Orderer_OrderAddAccrual_Call {
+func (_c *Orderer_AddAccrual_Call) Return(_a0 error) *Orderer_AddAccrual_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *Orderer_OrderAddAccrual_Call) RunAndReturn(run func(context.Context, models.OrderID, decimal.Decimal) error) *Orderer_OrderAddAccrual_Call {
+func (_c *Orderer_AddAccrual_Call) RunAndReturn(run func(context.Context, models.OrderID, decimal.Decimal) error) *Orderer_AddAccrual_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// OrderByFilter provides a mock function with given fields: _a0, _a1
-func (_m *Orderer) OrderByFilter(_a0 context.Context, _a1 ...storage.OrderFilter) (models.Order, error) {
+// GetByFilter provides a mock function with given fields: _a0, _a1
+func (_m *Orderer) GetByFilter(_a0 context.Context, _a1 ...storage.OrderFilter) (models.Order, error) {
 	_va := make([]interface{}, len(_a1))
 	for _i := range _a1 {
 		_va[_i] = _a1[_i]
@@ -143,7 +143,7 @@ func (_m *Orderer) OrderByFilter(_a0 context.Context, _a1 ...storage.OrderFilter
 	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
-		panic("no return value specified for OrderByFilter")
+		panic("no return value specified for GetByFilter")
 	}
 
 	var r0 models.Order
@@ -166,20 +166,20 @@ func (_m *Orderer) OrderByFilter(_a0 context.Context, _a1 ...storage.OrderFilter
 	return r0, r1
 }
 
-// Orderer_OrderByFilter_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OrderByFilter'
-type Orderer_OrderByFilter_Call struct {
+// Orderer_GetByFilter_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByFilter'
+type Orderer_GetByFilter_Call struct {
 	*mock.Call
 }
 
-// OrderByFilter is a helper method to define mock.On call
+// GetByFilter is a helper method to define mock.On call
 //   - _a0 context.Context
 //   - _a1 ...storage.OrderFilter
-func (_e *Orderer_Expecter) OrderByFilter(_a0 interface{}, _a1 ...interface{}) *Orderer_OrderByFilter_Call {
-	return &Orderer_OrderByFilter_Call{Call: _e.mock.On("OrderByFilter",
+func (_e *Orderer_Expecter) GetByFilter(_a0 interface{}, _a1 ...interface{}) *Orderer_GetByFilter_Call {
+	return &Orderer_GetByFilter_Call{Call: _e.mock.On("GetByFilter",
 		append([]interface{}{_a0}, _a1...)...)}
 }
 
-func (_c *Orderer_OrderByFilter_Call) Run(run func(_a0 context.Context, _a1 ...storage.OrderFilter)) *Orderer_OrderByFilter_Call {
+func (_c *Orderer_GetByFilter_Call) Run(run func(_a0 context.Context, _a1 ...storage.OrderFilter)) *Orderer_GetByFilter_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		variadicArgs := make([]storage.OrderFilter, len(args)-1)
 		for i, a := range args[1:] {
@@ -192,22 +192,22 @@ func (_c *Orderer_OrderByFilter_Call) Run(run func(_a0 context.Context, _a1 ...s
 	return _c
 }
 
-func (_c *Orderer_OrderByFilter_Call) Return(_a0 models.Order, _a1 error) *Orderer_OrderByFilter_Call {
+func (_c *Orderer_GetByFilter_Call) Return(_a0 models.Order, _a1 error) *Orderer_GetByFilter_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Orderer_OrderByFilter_Call) RunAndReturn(run func(context.Context, ...storage.OrderFilter) (models.Order, error)) *Orderer_OrderByFilter_Call {
+func (_c *Orderer_GetByFilter_Call) RunAndReturn(run func(context.Context, ...storage.OrderFilter) (models.Order, error)) *Orderer_GetByFilter_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// OrderByID provides a mock function with given fields: _a0, _a1
-func (_m *Orderer) OrderByID(_a0 context.Context, _a1 models.OrderID) (models.Order, error) {
+// GetByID provides a mock function with given fields: _a0, _a1
+func (_m *Orderer) GetByID(_a0 context.Context, _a1 models.OrderID) (models.Order, error) {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
-		panic("no return value specified for OrderByID")
+		panic("no return value specified for GetByID")
 	}
 
 	var r0 models.Order
@@ -230,85 +230,37 @@ func (_m *Orderer) OrderByID(_a0 context.Context, _a1 models.OrderID) (models.Or
 	return r0, r1
 }
 
-// Orderer_OrderByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OrderByID'
-type Orderer_OrderByID_Call struct {
+// Orderer_GetByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByID'
+type Orderer_GetByID_Call struct {
 	*mock.Call
 }
 
-// OrderByID is a helper method to define mock.On call
+// GetByID is a helper method to define mock.On call
 //   - _a0 context.Context
 //   - _a1 models.OrderID
-func (_e *Orderer_Expecter) OrderByID(_a0 interface{}, _a1 interface{}) *Orderer_OrderByID_Call {
-	return &Orderer_OrderByID_Call{Call: _e.mock.On("OrderByID", _a0, _a1)}
+func (_e *Orderer_Expecter) GetByID(_a0 interface{}, _a1 interface{}) *Orderer_GetByID_Call {
+	return &Orderer_GetByID_Call{Call: _e.mock.On("GetByID", _a0, _a1)}
 }
 
-func (_c *Orderer_OrderByID_Call) Run(run func(_a0 context.Context, _a1 models.OrderID)) *Orderer_OrderByID_Call {
+func (_c *Orderer_GetByID_Call) Run(run func(_a0 context.Context, _a1 models.OrderID)) *Orderer_GetByID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(models.OrderID))
 	})
 	return _c
 }
 
-func (_c *Orderer_OrderByID_Call) Return(_a0 models.Order, _a1 error) *Orderer_OrderByID_Call {
+func (_c *Orderer_GetByID_Call) Return(_a0 models.Order, _a1 error) *Orderer_GetByID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Orderer_OrderByID_Call) RunAndReturn(run func(context.Context, models.OrderID) (models.Order, error)) *Orderer_OrderByID_Call {
+func (_c *Orderer_GetByID_Call) RunAndReturn(run func(context.Context, models.OrderID) (models.Order, error)) *Orderer_GetByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// OrderUpdateStatus provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Orderer) OrderUpdateStatus(_a0 context.Context, _a1 models.OrderID, _a2 models.OrderStatus) error {
-	ret := _m.Called(_a0, _a1, _a2)
-
-	if len(ret) == 0 {
-		panic("no return value specified for OrderUpdateStatus")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, models.OrderID, models.OrderStatus) error); ok {
-		r0 = rf(_a0, _a1, _a2)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// Orderer_OrderUpdateStatus_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OrderUpdateStatus'
-type Orderer_OrderUpdateStatus_Call struct {
-	*mock.Call
-}
-
-// OrderUpdateStatus is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 models.OrderID
-//   - _a2 models.OrderStatus
-func (_e *Orderer_Expecter) OrderUpdateStatus(_a0 interface{}, _a1 interface{}, _a2 interface{}) *Orderer_OrderUpdateStatus_Call {
-	return &Orderer_OrderUpdateStatus_Call{Call: _e.mock.On("OrderUpdateStatus", _a0, _a1, _a2)}
-}
-
-func (_c *Orderer_OrderUpdateStatus_Call) Run(run func(_a0 context.Context, _a1 models.OrderID, _a2 models.OrderStatus)) *Orderer_OrderUpdateStatus_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(models.OrderID), args[2].(models.OrderStatus))
-	})
-	return _c
-}
-
-func (_c *Orderer_OrderUpdateStatus_Call) Return(_a0 error) *Orderer_OrderUpdateStatus_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *Orderer_OrderUpdateStatus_Call) RunAndReturn(run func(context.Context, models.OrderID, models.OrderStatus) error) *Orderer_OrderUpdateStatus_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// OrdersByFilter provides a mock function with given fields: ctx, limit, filters
-func (_m *Orderer) OrdersByFilter(ctx context.Context, limit int, filters ...storage.OrderFilter) ([]models.Order, error) {
+// ListByFilter provides a mock function with given fields: ctx, limit, filters
+func (_m *Orderer) ListByFilter(ctx context.Context, limit int, filters ...storage.OrderFilter) ([]models.Order, error) {
 	_va := make([]interface{}, len(filters))
 	for _i := range filters {
 		_va[_i] = filters[_i]
@@ -319,7 +271,7 @@ func (_m *Orderer) OrdersByFilter(ctx context.Context, limit int, filters ...sto
 	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
-		panic("no return value specified for OrdersByFilter")
+		panic("no return value specified for ListByFilter")
 	}
 
 	var r0 []models.Order
@@ -344,21 +296,21 @@ func (_m *Orderer) OrdersByFilter(ctx context.Context, limit int, filters ...sto
 	return r0, r1
 }
 
-// Orderer_OrdersByFilter_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OrdersByFilter'
-type Orderer_OrdersByFilter_Call struct {
+// Orderer_ListByFilter_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListByFilter'
+type Orderer_ListByFilter_Call struct {
 	*mock.Call
 }
 
-// OrdersByFilter is a helper method to define mock.On call
+// ListByFilter is a helper method to define mock.On call
 //   - ctx context.Context
 //   - limit int
 //   - filters ...storage.OrderFilter
-func (_e *Orderer_Expecter) OrdersByFilter(ctx interface{}, limit interface{}, filters ...interface{}) *Orderer_OrdersByFilter_Call {
-	return &Orderer_OrdersByFilter_Call{Call: _e.mock.On("OrdersByFilter",
+func (_e *Orderer_Expecter) ListByFilter(ctx interface{}, limit interface{}, filters ...interface{}) *Orderer_ListByFilter_Call {
+	return &Orderer_ListByFilter_Call{Call: _e.mock.On("ListByFilter",
 		append([]interface{}{ctx, limit}, filters...)...)}
 }
 
-func (_c *Orderer_OrdersByFilter_Call) Run(run func(ctx context.Context, limit int, filters ...storage.OrderFilter)) *Orderer_OrdersByFilter_Call {
+func (_c *Orderer_ListByFilter_Call) Run(run func(ctx context.Context, limit int, filters ...storage.OrderFilter)) *Orderer_ListByFilter_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		variadicArgs := make([]storage.OrderFilter, len(args)-2)
 		for i, a := range args[2:] {
@@ -371,12 +323,60 @@ func (_c *Orderer_OrdersByFilter_Call) Run(run func(ctx context.Context, limit i
 	return _c
 }
 
-func (_c *Orderer_OrdersByFilter_Call) Return(_a0 []models.Order, _a1 error) *Orderer_OrdersByFilter_Call {
+func (_c *Orderer_ListByFilter_Call) Return(_a0 []models.Order, _a1 error) *Orderer_ListByFilter_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Orderer_OrdersByFilter_Call) RunAndReturn(run func(context.Context, int, ...storage.OrderFilter) ([]models.Order, error)) *Orderer_OrdersByFilter_Call {
+func (_c *Orderer_ListByFilter_Call) RunAndReturn(run func(context.Context, int, ...storage.OrderFilter) ([]models.Order, error)) *Orderer_ListByFilter_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateStatus provides a mock function with given fields: _a0, _a1, _a2
+func (_m *Orderer) UpdateStatus(_a0 context.Context, _a1 models.OrderID, _a2 models.OrderStatus) error {
+	ret := _m.Called(_a0, _a1, _a2)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateStatus")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, models.OrderID, models.OrderStatus) error); ok {
+		r0 = rf(_a0, _a1, _a2)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Orderer_UpdateStatus_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateStatus'
+type Orderer_UpdateStatus_Call struct {
+	*mock.Call
+}
+
+// UpdateStatus is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 models.OrderID
+//   - _a2 models.OrderStatus
+func (_e *Orderer_Expecter) UpdateStatus(_a0 interface{}, _a1 interface{}, _a2 interface{}) *Orderer_UpdateStatus_Call {
+	return &Orderer_UpdateStatus_Call{Call: _e.mock.On("UpdateStatus", _a0, _a1, _a2)}
+}
+
+func (_c *Orderer_UpdateStatus_Call) Run(run func(_a0 context.Context, _a1 models.OrderID, _a2 models.OrderStatus)) *Orderer_UpdateStatus_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(models.OrderID), args[2].(models.OrderStatus))
+	})
+	return _c
+}
+
+func (_c *Orderer_UpdateStatus_Call) Return(_a0 error) *Orderer_UpdateStatus_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Orderer_UpdateStatus_Call) RunAndReturn(run func(context.Context, models.OrderID, models.OrderStatus) error) *Orderer_UpdateStatus_Call {
 	_c.Call.Return(run)
 	return _c
 }

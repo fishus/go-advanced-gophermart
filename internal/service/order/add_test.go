@@ -10,6 +10,7 @@ import (
 
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
+	stMocks "github.com/fishus/go-advanced-gophermart/internal/storage/mocks"
 )
 
 func (ts *OrderServiceTestSuite) TestAdd() {
@@ -24,8 +25,9 @@ func (ts *OrderServiceTestSuite) TestAdd() {
 	}
 
 	ts.Run("Positive case", func() {
-		mockCall := ts.storage.EXPECT().OrderAdd(ctx, data).Return(wantID, nil)
-		defer mockCall.Unset()
+		stOrder := stMocks.NewOrderer(ts.T())
+		stOrder.EXPECT().Add(ctx, data).Return(wantID, nil)
+		ts.setStorage(stOrder, nil, nil)
 
 		id, err := ts.service.Add(ctx, userID, data.Num)
 		ts.NoError(err)
@@ -34,11 +36,12 @@ func (ts *OrderServiceTestSuite) TestAdd() {
 	})
 
 	ts.Run("Order already exists (my own)", func() {
-		mockCall1 := ts.storage.EXPECT().OrderAdd(ctx, data).Return("", store.ErrAlreadyExists)
-		defer mockCall1.Unset()
+		stOrder := stMocks.NewOrderer(ts.T())
 
-		mockCall2 := ts.storage.EXPECT().OrderByFilter(ctx, mock.Anything).Return(data, nil)
-		defer mockCall2.Unset()
+		stOrder.EXPECT().Add(ctx, data).Return("", store.ErrAlreadyExists)
+		stOrder.EXPECT().GetByFilter(ctx, mock.Anything).Return(data, nil)
+
+		ts.setStorage(stOrder, nil, nil)
 
 		_, err := ts.service.Add(ctx, userID, data.Num)
 		ts.Error(err)
@@ -47,14 +50,16 @@ func (ts *OrderServiceTestSuite) TestAdd() {
 	})
 
 	ts.Run("Order already exists (non-owned)", func() {
+		stOrder := stMocks.NewOrderer(ts.T())
+
 		dataExists := data
 		dataExists.UserID = models.UserID(uuid.New().String())
-		mockCall1 := ts.storage.EXPECT().OrderAdd(ctx, data).Return("", store.ErrAlreadyExists)
-		defer mockCall1.Unset()
+		stOrder.EXPECT().Add(ctx, data).Return("", store.ErrAlreadyExists)
 
 		// mock.FunctionalOptions(store.WithOrderNum(data.Num))
-		mockCall2 := ts.storage.EXPECT().OrderByFilter(ctx, mock.Anything).Return(dataExists, nil)
-		defer mockCall2.Unset()
+		stOrder.EXPECT().GetByFilter(ctx, mock.Anything).Return(dataExists, nil)
+
+		ts.setStorage(stOrder, nil, nil)
 
 		_, err := ts.service.Add(ctx, userID, data.Num)
 		ts.Error(err)

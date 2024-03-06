@@ -1,4 +1,4 @@
-package postgres
+package order
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
-func (s *storage) OrderUpdateStatus(ctx context.Context, id models.OrderID, status models.OrderStatus) error {
+func (s *storage) UpdateStatus(ctx context.Context, id models.OrderID, status models.OrderStatus) error {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
@@ -22,7 +22,7 @@ func (s *storage) OrderUpdateStatus(ctx context.Context, id models.OrderID, stat
 	return err
 }
 
-func (s *storage) OrderAddAccrual(ctx context.Context, orderID models.OrderID, accrual decimal.Decimal) error {
+func (s *storage) AddAccrual(ctx context.Context, orderID models.OrderID, accrual decimal.Decimal) error {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
@@ -32,7 +32,7 @@ func (s *storage) OrderAddAccrual(ctx context.Context, orderID models.OrderID, a
 	}
 	defer tx.Rollback(ctxQuery)
 
-	order, err := s.txOrderByID(ctx, tx, orderID)
+	order, err := s.txGetByID(ctx, tx, orderID)
 	if err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func (s *storage) OrderAddAccrual(ctx context.Context, orderID models.OrderID, a
 		Withdrawal: decimal.NewFromFloat(0),
 	}
 
-	err = s.loyaltyHistoryAdd(ctx, tx, lh)
+	err = s.Loyalty().HistoryAdd(ctx, tx, lh)
 	if err != nil {
 		if errR := tx.Rollback(ctxQuery); errR != nil {
 			return errors.Join(err, errR)
@@ -70,7 +70,7 @@ func (s *storage) OrderAddAccrual(ctx context.Context, orderID models.OrderID, a
 		Withdrawn: decimal.NewFromFloat(0),
 	}
 
-	err = s.loyaltyBalanceUpdate(ctx, tx, lb)
+	err = s.Loyalty().BalanceUpdate(ctx, tx, lb)
 	if err != nil {
 		if errR := tx.Rollback(ctxQuery); errR != nil {
 			return errors.Join(err, errR)

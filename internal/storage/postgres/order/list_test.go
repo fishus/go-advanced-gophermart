@@ -1,4 +1,4 @@
-package postgres
+package order
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
-func (ts *PostgresTestSuite) TestOrdersByFilter() {
+func (ts *PostgresTestSuite) TestListByFilter() {
 	ctx, cancel := context.WithTimeout(context.Background(), ts.cfg.QueryTimeout)
 	defer cancel()
 
@@ -37,13 +37,13 @@ func (ts *PostgresTestSuite) TestOrdersByFilter() {
 		orderData[i].Accrual = decimal.NewFromFloat(0)
 		orderData[i].UploadedAt = time.Now().UTC().Round(time.Minute)
 		orderData[i].UpdatedAt = time.Now().UTC().Round(time.Minute)
-		orderID, err := ts.storage.OrderAdd(ctx, orderData[i])
+		orderID, err := ts.storage.Add(ctx, orderData[i])
 		ts.Require().NoError(err)
 		orderData[i].ID = orderID
 	}
 
 	ts.Run("WithOrderNum", func() {
-		orders, err := ts.storage.OrdersByFilter(ctx, 10, store.WithOrderNum(orderData[0].Num))
+		orders, err := ts.storage.ListByFilter(ctx, 10, store.WithOrderNum(orderData[0].Num))
 		ts.NoError(err)
 		ts.Equal(orderData[0].Num, orders[0].Num)
 		orders[0].UploadedAt = orders[0].UploadedAt.UTC().Round(time.Minute)
@@ -53,7 +53,7 @@ func (ts *PostgresTestSuite) TestOrdersByFilter() {
 
 	ts.Run("WithOrderUserID", func() {
 		limit := 2
-		orders, err := ts.storage.OrdersByFilter(ctx, limit, store.WithOrderUserID(userID))
+		orders, err := ts.storage.ListByFilter(ctx, limit, store.WithOrderUserID(userID))
 		ts.NoError(err)
 		ts.Equal(limit, len(orders))
 		for _, order := range orders {
@@ -68,7 +68,7 @@ func (ts *PostgresTestSuite) TestOrdersByFilter() {
 	})
 
 	ts.Run("WithOrderStatus", func() {
-		orders, err := ts.storage.OrdersByFilter(ctx, 10, store.WithOrderStatus(models.OrderStatusNew))
+		orders, err := ts.storage.ListByFilter(ctx, 10, store.WithOrderStatus(models.OrderStatusNew))
 		ts.NoError(err)
 		for _, order := range orders {
 			i := slices.IndexFunc(orderData, func(o models.Order) bool {
@@ -82,7 +82,7 @@ func (ts *PostgresTestSuite) TestOrdersByFilter() {
 	})
 
 	ts.Run("WithOrderStatuses", func() {
-		orders, err := ts.storage.OrdersByFilter(ctx, 10, store.WithOrderStatuses(models.OrderStatusProcessing))
+		orders, err := ts.storage.ListByFilter(ctx, 10, store.WithOrderStatuses(models.OrderStatusProcessing))
 		ts.NoError(err)
 		for _, order := range orders {
 			i := slices.IndexFunc(orderData, func(o models.Order) bool {

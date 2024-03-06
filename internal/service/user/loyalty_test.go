@@ -12,6 +12,7 @@ import (
 	"github.com/fishus/go-advanced-gophermart/internal/app/config"
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
+	stMocks "github.com/fishus/go-advanced-gophermart/internal/storage/mocks"
 )
 
 func (ts *UserServiceTestSuite) TestLoyaltyUserBalance() {
@@ -25,8 +26,10 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserBalance() {
 			Withdrawn: decimal.NewFromFloatWithExponent(524.631, -config.DecimalExponent),
 		}
 		wantBalance.Current = wantBalance.Accrued.Sub(wantBalance.Withdrawn)
-		mockCall := ts.storage.EXPECT().LoyaltyBalanceByUser(ctx, userID).Return(wantBalance, nil)
-		defer mockCall.Unset()
+
+		stLoyalty := stMocks.NewLoyaltier(ts.T())
+		stLoyalty.EXPECT().BalanceByUser(ctx, userID).Return(wantBalance, nil)
+		ts.setStorage(nil, nil, stLoyalty)
 
 		balance, err := ts.service.LoyaltyUserBalance(ctx, userID)
 		ts.NoError(err)
@@ -35,8 +38,9 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserBalance() {
 	})
 
 	ts.Run("Balance not found", func() {
-		mockCall := ts.storage.EXPECT().LoyaltyBalanceByUser(ctx, userID).Return(models.LoyaltyBalance{}, store.ErrNotFound)
-		defer mockCall.Unset()
+		stLoyalty := stMocks.NewLoyaltier(ts.T())
+		stLoyalty.EXPECT().BalanceByUser(ctx, userID).Return(models.LoyaltyBalance{}, store.ErrNotFound)
+		ts.setStorage(nil, nil, stLoyalty)
 
 		wantBalance := models.LoyaltyBalance{
 			UserID: userID,
@@ -68,8 +72,10 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserWithdrawals() {
 			Withdrawal:  decimal.NewFromFloatWithExponent(654.321, -config.DecimalExponent),
 			ProcessedAt: time.Now().UTC().Round(time.Minute),
 		}
-		mockCall := ts.storage.EXPECT().LoyaltyHistoryByUser(ctx, userID).Return(userHistory, nil)
-		defer mockCall.Unset()
+
+		stLoyalty := stMocks.NewLoyaltier(ts.T())
+		stLoyalty.EXPECT().HistoryByUser(ctx, userID).Return(userHistory, nil)
+		ts.setStorage(nil, nil, stLoyalty)
 
 		wantWithdrawals := make([]models.LoyaltyHistory, 0)
 		wantWithdrawals = append(wantWithdrawals, userHistory[1])
@@ -89,8 +95,10 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserWithdrawals() {
 			Withdrawal:  decimal.NewFromFloat(0),
 			ProcessedAt: time.Now().UTC().Round(time.Minute),
 		}
-		mockCall := ts.storage.EXPECT().LoyaltyHistoryByUser(ctx, userID).Return(userHistory, nil)
-		defer mockCall.Unset()
+
+		stLoyalty := stMocks.NewLoyaltier(ts.T())
+		stLoyalty.EXPECT().HistoryByUser(ctx, userID).Return(userHistory, nil)
+		ts.setStorage(nil, nil, stLoyalty)
 
 		wantWithdrawals := make([]models.LoyaltyHistory, 0)
 
@@ -102,8 +110,10 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserWithdrawals() {
 
 	ts.Run("History not found", func() {
 		var emptyHistory []models.LoyaltyHistory
-		mockCall := ts.storage.EXPECT().LoyaltyHistoryByUser(ctx, userID).Return(emptyHistory, store.ErrNotFound)
-		defer mockCall.Unset()
+
+		stLoyalty := stMocks.NewLoyaltier(ts.T())
+		stLoyalty.EXPECT().HistoryByUser(ctx, userID).Return(emptyHistory, store.ErrNotFound)
+		ts.setStorage(nil, nil, stLoyalty)
 
 		withdrawals, err := ts.service.LoyaltyUserWithdrawals(ctx, userID)
 		ts.NoError(err)
@@ -120,8 +130,10 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 	ts.Run("Positive case", func() {
 		orderNum := "3903733214"
 		withdraw := decimal.NewFromFloatWithExponent(659.784, -config.DecimalExponent)
-		mockCall := ts.storage.EXPECT().LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw).Return(nil)
-		defer mockCall.Unset()
+
+		stLoyalty := stMocks.NewLoyaltier(ts.T())
+		stLoyalty.EXPECT().AddWithdraw(ctx, userID, orderNum, withdraw).Return(nil)
+		ts.setStorage(nil, nil, stLoyalty)
 
 		err := ts.service.LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw)
 		ts.NoError(err)
@@ -149,8 +161,10 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 	ts.Run("Low balance", func() {
 		orderNum := "3903733214"
 		withdraw := decimal.NewFromFloatWithExponent(659.784, -config.DecimalExponent)
-		mockCall := ts.storage.EXPECT().LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw).Return(store.ErrLowBalance)
-		defer mockCall.Unset()
+
+		stLoyalty := stMocks.NewLoyaltier(ts.T())
+		stLoyalty.EXPECT().AddWithdraw(ctx, userID, orderNum, withdraw).Return(store.ErrLowBalance)
+		ts.setStorage(nil, nil, stLoyalty)
 
 		err := ts.service.LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw)
 		ts.Error(err)
@@ -161,8 +175,10 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 	ts.Run("Balance not found", func() {
 		orderNum := "3903733214"
 		withdraw := decimal.NewFromFloatWithExponent(659.784, -config.DecimalExponent)
-		mockCall := ts.storage.EXPECT().LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw).Return(store.ErrNotFound)
-		defer mockCall.Unset()
+
+		stLoyalty := stMocks.NewLoyaltier(ts.T())
+		stLoyalty.EXPECT().AddWithdraw(ctx, userID, orderNum, withdraw).Return(store.ErrNotFound)
+		ts.setStorage(nil, nil, stLoyalty)
 
 		err := ts.service.LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw)
 		ts.Error(err)

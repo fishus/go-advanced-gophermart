@@ -1,4 +1,4 @@
-package postgres
+package user
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
-func (ts *PostgresTestSuite) TestUserByID() {
+func (ts *PostgresTestSuite) TestGetByID() {
 	ctx, cancel := context.WithTimeout(context.Background(), ts.cfg.QueryTimeout)
 	defer cancel()
 
@@ -31,12 +31,12 @@ func (ts *PostgresTestSuite) TestUserByID() {
 			Password:  hex.EncodeToString(bPassword),
 			CreatedAt: time.Now().UTC().Round(time.Minute),
 		}
-		id, err := ts.storage.UserAdd(ctx, data)
+		id, err := ts.storage.Add(ctx, data)
 		ts.Require().NoError(err)
 		data.ID = id
 		data.Password = "" // password is always empty
 
-		user, err := ts.storage.UserByID(ctx, data.ID)
+		user, err := ts.storage.GetByID(ctx, data.ID)
 		ts.NoError(err)
 		user.CreatedAt = user.CreatedAt.UTC().Round(time.Minute)
 		ts.EqualValues(data, user)
@@ -44,7 +44,7 @@ func (ts *PostgresTestSuite) TestUserByID() {
 
 	ts.Run("User not found", func() {
 		userID := models.UserID(uuid.New().String())
-		_, err := ts.storage.UserByID(ctx, userID)
+		_, err := ts.storage.GetByID(ctx, userID)
 		ts.Error(err)
 		ts.ErrorIs(err, store.ErrNotFound)
 	})

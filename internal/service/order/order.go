@@ -11,7 +11,7 @@ import (
 )
 
 func (s *service) OrderByID(ctx context.Context, id models.OrderID) (order models.Order, err error) {
-	order, err = s.storage.OrderByID(ctx, id)
+	order, err = s.storage.Order().GetByID(ctx, id)
 	if err != nil && errors.Is(err, store.ErrNotFound) {
 		err = serviceErr.ErrOrderNotFound
 	}

@@ -1,4 +1,4 @@
-package postgres
+package order
 
 import (
 	"context"
@@ -14,7 +14,7 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
-func (s *storage) OrderAdd(ctx context.Context, order models.Order) (orderID models.OrderID, err error) {
+func (s *storage) Add(ctx context.Context, order models.Order) (orderID models.OrderID, err error) {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 

@@ -1,4 +1,4 @@
-package postgres
+package user
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
-func (ts *PostgresTestSuite) TestUserAdd() {
+func (ts *PostgresTestSuite) TestAdd() {
 	ctx, cancel := context.WithTimeout(context.Background(), ts.cfg.QueryTimeout)
 	defer cancel()
 
@@ -31,7 +31,7 @@ func (ts *PostgresTestSuite) TestUserAdd() {
 	}
 
 	ts.Run("Positive case", func() {
-		userID, err := ts.storage.UserAdd(ctx, data)
+		userID, err := ts.storage.Add(ctx, data)
 		ts.NoError(err)
 
 		var want struct {
@@ -50,7 +50,7 @@ func (ts *PostgresTestSuite) TestUserAdd() {
 	})
 
 	ts.Run("DuplicateUser", func() {
-		_, err = ts.storage.UserAdd(ctx, data)
+		_, err = ts.storage.Add(ctx, data)
 		ts.Error(err)
 		ts.ErrorIs(err, store.ErrAlreadyExists)
 	})
@@ -60,7 +60,7 @@ func (ts *PostgresTestSuite) TestUserAdd() {
 			Username: "",
 			Password: "",
 		}
-		_, err := ts.storage.UserAdd(ctx, data)
+		_, err := ts.storage.Add(ctx, data)
 		ts.Error(err)
 		ts.ErrorIs(err, store.ErrIncorrectData)
 	})

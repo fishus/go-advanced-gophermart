@@ -1,4 +1,4 @@
-package postgres
+package loyalty
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"github.com/fishus/go-advanced-gophermart/internal/app/config"
 )
 
-func (ts *PostgresTestSuite) TestLoyaltyHistoryAdd() {
+func (ts *PostgresTestSuite) TestHistoryAdd() {
 	ctx, cancel := context.WithTimeout(context.Background(), ts.cfg.QueryTimeout)
 	defer cancel()
 
@@ -41,7 +41,7 @@ func (ts *PostgresTestSuite) TestLoyaltyHistoryAdd() {
 		}
 
 		for _, h := range wantHistory {
-			err = ts.storage.loyaltyHistoryAdd(ctx, tx, h)
+			err = ts.storage.HistoryAdd(ctx, tx, h)
 			ts.NoError(err)
 		}
 		tx.Commit(ctx)
@@ -50,7 +50,7 @@ func (ts *PostgresTestSuite) TestLoyaltyHistoryAdd() {
 			"userID": userID.String(),
 		})
 		ts.NoError(err)
-		historyData, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[LoyaltyHistoryResult])
+		historyData, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[HistoryResult])
 		ts.NoError(err)
 		historyList := make([]models.LoyaltyHistory, 0)
 		for _, h := range historyData {
@@ -62,7 +62,7 @@ func (ts *PostgresTestSuite) TestLoyaltyHistoryAdd() {
 	})
 }
 
-func (ts *PostgresTestSuite) TestLoyaltyHistoryByUser() {
+func (ts *PostgresTestSuite) TestHistoryByUser() {
 	ctx, cancel := context.WithTimeout(context.Background(), ts.cfg.QueryTimeout)
 	defer cancel()
 
@@ -97,7 +97,7 @@ func (ts *PostgresTestSuite) TestLoyaltyHistoryByUser() {
 	}
 
 	ts.Run("Positive case", func() {
-		history, err := ts.storage.LoyaltyHistoryByUser(ctx, userID)
+		history, err := ts.storage.HistoryByUser(ctx, userID)
 		for i, h := range history {
 			history[i].ProcessedAt = h.ProcessedAt.UTC().Round(time.Minute)
 		}

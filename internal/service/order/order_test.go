@@ -11,6 +11,7 @@ import (
 
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
+	stMocks "github.com/fishus/go-advanced-gophermart/internal/storage/mocks"
 )
 
 func (ts *OrderServiceTestSuite) TestOrderByID() {
@@ -28,8 +29,11 @@ func (ts *OrderServiceTestSuite) TestOrderByID() {
 			UploadedAt: time.Now().UTC(),
 			UpdatedAt:  time.Now().UTC(),
 		}
-		mockCall := ts.storage.EXPECT().OrderByID(ctx, orderID).Return(want, nil)
-		defer mockCall.Unset()
+
+		stOrder := stMocks.NewOrderer(ts.T())
+		stOrder.EXPECT().GetByID(ctx, orderID).Return(want, nil)
+		ts.setStorage(stOrder, nil, nil)
+
 		list, err := ts.service.OrderByID(ctx, orderID)
 		ts.NoError(err)
 		ts.EqualValues(want, list)
@@ -37,8 +41,10 @@ func (ts *OrderServiceTestSuite) TestOrderByID() {
 	})
 
 	ts.Run("New orders not found", func() {
-		mockCall := ts.storage.EXPECT().OrderByID(ctx, orderID).Return(models.Order{}, store.ErrNotFound)
-		defer mockCall.Unset()
+		stOrder := stMocks.NewOrderer(ts.T())
+		stOrder.EXPECT().GetByID(ctx, orderID).Return(models.Order{}, store.ErrNotFound)
+		ts.setStorage(stOrder, nil, nil)
+
 		_, err := ts.service.OrderByID(ctx, orderID)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrOrderNotFound)

@@ -31,14 +31,14 @@ func (s *service) Add(ctx context.Context, userID models.UserID, orderNum string
 		return
 	}
 
-	orderID, err = s.storage.OrderAdd(ctx, order)
+	orderID, err = s.storage.Order().Add(ctx, order)
 	if err != nil {
 		if errors.Is(err, store.ErrIncorrectData) {
 			err = serviceErr.ErrIncorrectData
 			return
 		}
 		// Если такой заказ загружен ранее
-		o, oErr := s.storage.OrderByFilter(ctx, store.WithOrderNum(orderNum))
+		o, oErr := s.storage.Order().GetByFilter(ctx, store.WithOrderNum(orderNum))
 		if oErr == nil {
 			// номер заказа уже был загружен этим пользователем
 			if o.UserID == userID {

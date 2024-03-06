@@ -1,4 +1,4 @@
-package postgres
+package order
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"github.com/fishus/go-advanced-gophermart/internal/app/config"
 )
 
-func (ts *PostgresTestSuite) TestOrderUpdateStatus() {
+func (ts *PostgresTestSuite) TestUpdateStatus() {
 	ctx, cancel := context.WithTimeout(context.Background(), ts.cfg.QueryTimeout)
 	defer cancel()
 
@@ -24,11 +24,11 @@ func (ts *PostgresTestSuite) TestOrderUpdateStatus() {
 		Num:    "0866150147",
 		Status: models.OrderStatusNew,
 	}
-	orderID, err := ts.storage.OrderAdd(ctx, orderData)
+	orderID, err := ts.storage.Add(ctx, orderData)
 	ts.NoError(err)
 
 	ts.Run("Status Processing", func() {
-		err = ts.storage.OrderUpdateStatus(ctx, orderID, models.OrderStatusProcessing)
+		err = ts.storage.UpdateStatus(ctx, orderID, models.OrderStatusProcessing)
 		ts.NoError(err)
 
 		var orderStatus string
@@ -40,17 +40,17 @@ func (ts *PostgresTestSuite) TestOrderUpdateStatus() {
 	})
 
 	ts.Run("Wrong status", func() {
-		err = ts.storage.OrderUpdateStatus(ctx, orderID, "test")
+		err = ts.storage.UpdateStatus(ctx, orderID, "test")
 		ts.Error(err)
 	})
 
 	ts.Run("Undefined status", func() {
-		err = ts.storage.OrderUpdateStatus(ctx, orderID, "")
+		err = ts.storage.UpdateStatus(ctx, orderID, "")
 		ts.Error(err)
 	})
 }
 
-func (ts *PostgresTestSuite) TestOrderAddAccrual() {
+func (ts *PostgresTestSuite) TestAddAccrual() {
 	ctx, cancel := context.WithTimeout(context.Background(), ts.cfg.QueryTimeout)
 	defer cancel()
 
@@ -62,14 +62,29 @@ func (ts *PostgresTestSuite) TestOrderAddAccrual() {
 		Num:    "0866150147",
 		Status: models.OrderStatusNew,
 	}
-	orderID, err := ts.storage.OrderAdd(ctx, order)
+	orderID, err := ts.storage.Add(ctx, order)
 	ts.NoError(err)
 	order.ID = orderID
 
 	accrual := decimal.NewFromFloatWithExponent(174.682, -config.DecimalExponent)
 
+	type LoyaltyBalanceResult struct {
+		UserID    models.UserID   `db:"user_id"`   // ID пользователя
+		Current   decimal.Decimal `db:"current"`   // Текущий баланс
+		Accrued   decimal.Decimal `db:"accrued"`   // Начислено за всё время
+		Withdrawn decimal.Decimal `db:"withdrawn"` // Списано за всё время
+	}
+
+	type LoyaltyHistoryResult struct {
+		UserID      models.UserID   `db:"user_id"`      // ID пользователя
+		OrderNum    string          `db:"order_num"`    // Номер заказа
+		Accrual     decimal.Decimal `db:"accrual"`      // Начисление
+		Withdrawal  decimal.Decimal `db:"withdrawal"`   // Списание
+		ProcessedAt time.Time       `db:"processed_at"` // Дата зачисления или списания
+	}
+
 	ts.Run("Positive case", func() {
-		err = ts.storage.OrderAddAccrual(ctx, orderID, accrual)
+		err = ts.storage.AddAccrual(ctx, orderID, accrual)
 		ts.NoError(err)
 
 		// Check updated order

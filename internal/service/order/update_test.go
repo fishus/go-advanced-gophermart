@@ -12,6 +12,7 @@ import (
 	"github.com/fishus/go-advanced-gophermart/internal/app/config"
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
+	stMocks "github.com/fishus/go-advanced-gophermart/internal/storage/mocks"
 )
 
 func (ts *OrderServiceTestSuite) TestUpdateStatus() {
@@ -58,8 +59,15 @@ func (ts *OrderServiceTestSuite) TestUpdateStatus() {
 
 	for _, tc := range testCases {
 		ts.Run(tc.name, func() {
-			mockCall := ts.storage.EXPECT().OrderUpdateStatus(ctx, orderID, tc.status).Return(nil)
-			defer mockCall.Unset()
+			stOrder := stMocks.NewOrderer(ts.T())
+			switch tc.name {
+			case "Wrong status",
+				"Undefined status":
+			default:
+				stOrder.EXPECT().UpdateStatus(ctx, orderID, tc.status).Return(nil)
+			}
+			ts.setStorage(stOrder, nil, nil)
+
 			err := ts.service.UpdateStatus(ctx, orderID, tc.status)
 			if tc.wantErr {
 				ts.Error(err)
@@ -89,10 +97,12 @@ func (ts *OrderServiceTestSuite) TestAddAccrual() {
 
 	ts.Run("Positive case", func() {
 		accrual := decimal.NewFromFloatWithExponent(123.456, -config.DecimalExponent)
-		mockCallOrderByID := ts.storage.EXPECT().OrderByID(ctx, orderID).Return(mockOrder, nil)
-		defer mockCallOrderByID.Unset()
-		mockCall := ts.storage.EXPECT().OrderAddAccrual(ctx, orderID, accrual).Return(nil)
-		defer mockCall.Unset()
+
+		stOrder := stMocks.NewOrderer(ts.T())
+		stOrder.EXPECT().GetByID(ctx, orderID).Return(mockOrder, nil)
+		stOrder.EXPECT().AddAccrual(ctx, orderID, accrual).Return(nil)
+		ts.setStorage(stOrder, nil, nil)
+
 		err := ts.service.AddAccrual(ctx, orderID, accrual)
 		ts.NoError(err)
 		ts.storage.AssertExpectations(ts.T())
@@ -108,8 +118,11 @@ func (ts *OrderServiceTestSuite) TestAddAccrual() {
 	ts.Run("Status Processed", func() {
 		mockOrder.Status = models.OrderStatusProcessed
 		accrual := decimal.NewFromFloatWithExponent(123.456, -config.DecimalExponent)
-		mockCallOrderByID := ts.storage.EXPECT().OrderByID(ctx, orderID).Return(mockOrder, nil)
-		defer mockCallOrderByID.Unset()
+
+		stOrder := stMocks.NewOrderer(ts.T())
+		stOrder.EXPECT().GetByID(ctx, orderID).Return(mockOrder, nil)
+		ts.setStorage(stOrder, nil, nil)
+
 		err := ts.service.AddAccrual(ctx, orderID, accrual)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrOrderRewardReceived)
@@ -118,8 +131,11 @@ func (ts *OrderServiceTestSuite) TestAddAccrual() {
 
 	ts.Run("Order not found", func() {
 		accrual := decimal.NewFromFloatWithExponent(123.456, -config.DecimalExponent)
-		mockCallOrderByID := ts.storage.EXPECT().OrderByID(ctx, orderID).Return(models.Order{}, store.ErrNotFound)
-		defer mockCallOrderByID.Unset()
+
+		stOrder := stMocks.NewOrderer(ts.T())
+		stOrder.EXPECT().GetByID(ctx, orderID).Return(models.Order{}, store.ErrNotFound)
+		ts.setStorage(stOrder, nil, nil)
+
 		err := ts.service.AddAccrual(ctx, orderID, accrual)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrOrderNotFound)

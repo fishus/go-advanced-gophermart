@@ -1,8 +1,9 @@
-package postgres
+package loyalty
 
 import (
 	"context"
 	"errors"
+
 	"github.com/jackc/pgx/v5"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
@@ -11,7 +12,7 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
-func (s *storage) loyaltyHistoryAdd(ctx context.Context, tx pgx.Tx, history models.LoyaltyHistory) error {
+func (s *storage) HistoryAdd(ctx context.Context, tx pgx.Tx, history models.LoyaltyHistory) error {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
@@ -25,7 +26,7 @@ func (s *storage) loyaltyHistoryAdd(ctx context.Context, tx pgx.Tx, history mode
 	return err
 }
 
-func (s *storage) LoyaltyHistoryByUser(ctx context.Context, userID models.UserID) ([]models.LoyaltyHistory, error) {
+func (s *storage) HistoryByUser(ctx context.Context, userID models.UserID) ([]models.LoyaltyHistory, error) {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
@@ -36,7 +37,7 @@ func (s *storage) LoyaltyHistoryByUser(ctx context.Context, userID models.UserID
 		return nil, err
 	}
 
-	historyResult, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[LoyaltyHistoryResult])
+	historyResult, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[HistoryResult])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, store.ErrNotFound
@@ -45,5 +46,5 @@ func (s *storage) LoyaltyHistoryByUser(ctx context.Context, userID models.UserID
 		return nil, err
 	}
 
-	return listResultsToLoyaltyHistory(historyResult), nil
+	return listResultsToHistory(historyResult), nil
 }

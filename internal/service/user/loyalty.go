@@ -13,7 +13,7 @@ import (
 )
 
 func (s *service) LoyaltyUserBalance(ctx context.Context, userID models.UserID) (balance models.LoyaltyBalance, err error) {
-	balance, err = s.storage.LoyaltyBalanceByUser(ctx, userID)
+	balance, err = s.storage.Loyalty().BalanceByUser(ctx, userID)
 	if err != nil {
 		if errors.Is(err, store.ErrNotFound) {
 			balance.UserID = userID
@@ -26,7 +26,7 @@ func (s *service) LoyaltyUserBalance(ctx context.Context, userID models.UserID) 
 }
 
 func (s *service) LoyaltyUserWithdrawals(ctx context.Context, userID models.UserID) ([]models.LoyaltyHistory, error) {
-	history, err := s.storage.LoyaltyHistoryByUser(ctx, userID)
+	history, err := s.storage.Loyalty().HistoryByUser(ctx, userID)
 	if err != nil {
 		if errors.Is(err, store.ErrNotFound) {
 			return nil, nil
@@ -54,7 +54,7 @@ func (s *service) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, 
 		return serviceErr.ErrIncorrectData
 	}
 
-	err := s.storage.LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw)
+	err := s.storage.Loyalty().AddWithdraw(ctx, userID, orderNum, withdraw)
 	if err != nil {
 		switch {
 		case errors.Is(err, store.ErrNotFound):

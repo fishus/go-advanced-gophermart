@@ -11,6 +11,7 @@ import (
 
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
+	stMocks "github.com/fishus/go-advanced-gophermart/internal/storage/mocks"
 )
 
 func (ts *UserServiceTestSuite) TestLogin() {
@@ -26,8 +27,9 @@ func (ts *UserServiceTestSuite) TestLogin() {
 	}
 
 	ts.Run("Positive case", func() {
-		mockCall := ts.storage.EXPECT().UserLogin(ctx, data).Return(wantID, nil)
-		defer mockCall.Unset()
+		stUser := stMocks.NewUserer(ts.T())
+		stUser.EXPECT().Login(ctx, data).Return(wantID, nil)
+		ts.setStorage(nil, stUser, nil)
 
 		id, err := ts.service.Login(ctx, data)
 		ts.NoError(err)
@@ -40,8 +42,10 @@ func (ts *UserServiceTestSuite) TestLogin() {
 			Username: "test",
 			Password: "test",
 		}
-		mockCall := ts.storage.EXPECT().UserLogin(ctx, data).Return("", store.ErrNotFound)
-		defer mockCall.Unset()
+
+		stUser := stMocks.NewUserer(ts.T())
+		stUser.EXPECT().Login(ctx, data).Return("", store.ErrNotFound)
+		ts.setStorage(nil, stUser, nil)
 
 		_, err := ts.service.Login(ctx, data)
 		ts.Error(err)

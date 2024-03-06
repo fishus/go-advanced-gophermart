@@ -1,11 +1,12 @@
-package postgres
+package order
 
 import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5"
 	"strings"
+
+	"github.com/jackc/pgx/v5"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
@@ -13,7 +14,7 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
-func (s *storage) OrdersByFilter(ctx context.Context, limit int, filters ...store.OrderFilter) ([]models.Order, error) {
+func (s *storage) ListByFilter(ctx context.Context, limit int, filters ...store.OrderFilter) ([]models.Order, error) {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 

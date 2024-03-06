@@ -1,4 +1,4 @@
-package postgres
+package order
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
-func (ts *PostgresTestSuite) TestOrderByID() {
+func (ts *PostgresTestSuite) TestGetByID() {
 	ctx, cancel := context.WithTimeout(context.Background(), ts.cfg.QueryTimeout)
 	defer cancel()
 
@@ -29,11 +29,11 @@ func (ts *PostgresTestSuite) TestOrderByID() {
 			UpdatedAt:  time.Now().UTC().Round(time.Minute),
 		}
 
-		orderID, err := ts.storage.OrderAdd(ctx, orderData)
+		orderID, err := ts.storage.Add(ctx, orderData)
 		ts.Require().NoError(err)
 		orderData.ID = orderID
 
-		order, err := ts.storage.OrderByID(ctx, orderData.ID)
+		order, err := ts.storage.GetByID(ctx, orderData.ID)
 		ts.NoError(err)
 		order.UploadedAt = order.UploadedAt.UTC().Round(time.Minute)
 		order.UpdatedAt = order.UpdatedAt.UTC().Round(time.Minute)
@@ -42,13 +42,13 @@ func (ts *PostgresTestSuite) TestOrderByID() {
 
 	ts.Run("Order not found", func() {
 		orderID := models.OrderID(uuid.New().String())
-		_, err := ts.storage.OrderByID(ctx, orderID)
+		_, err := ts.storage.GetByID(ctx, orderID)
 		ts.Error(err)
 		ts.ErrorIs(err, store.ErrNotFound)
 	})
 }
 
-func (ts *PostgresTestSuite) TestTxOrderByID() {
+func (ts *PostgresTestSuite) TestTxGetByID() {
 	ctx, cancel := context.WithTimeout(context.Background(), ts.cfg.QueryTimeout)
 	defer cancel()
 
@@ -65,14 +65,14 @@ func (ts *PostgresTestSuite) TestTxOrderByID() {
 			UpdatedAt:  time.Now().UTC().Round(time.Minute),
 		}
 
-		orderID, err := ts.storage.OrderAdd(ctx, orderData)
+		orderID, err := ts.storage.Add(ctx, orderData)
 		ts.Require().NoError(err)
 		orderData.ID = orderID
 
 		tx, err := ts.storage.pool.Begin(ctx)
 		ts.Require().NoError(err)
 
-		order, err := ts.storage.txOrderByID(ctx, tx, orderData.ID)
+		order, err := ts.storage.txGetByID(ctx, tx, orderData.ID)
 		ts.NoError(err)
 		err = tx.Commit(ctx)
 		ts.NoError(err)
@@ -85,7 +85,7 @@ func (ts *PostgresTestSuite) TestTxOrderByID() {
 		orderID := models.OrderID(uuid.New().String())
 		tx, err := ts.storage.pool.Begin(ctx)
 		ts.Require().NoError(err)
-		_, err = ts.storage.txOrderByID(ctx, tx, orderID)
+		_, err = ts.storage.txGetByID(ctx, tx, orderID)
 		ts.Error(err)
 		ts.ErrorIs(err, store.ErrNotFound)
 		err = tx.Commit(ctx)
@@ -93,7 +93,7 @@ func (ts *PostgresTestSuite) TestTxOrderByID() {
 	})
 }
 
-func (ts *PostgresTestSuite) TestOrderByFilter() {
+func (ts *PostgresTestSuite) TestGetByFilter() {
 	ctx, cancel := context.WithTimeout(context.Background(), ts.cfg.QueryTimeout)
 	defer cancel()
 
@@ -111,13 +111,13 @@ func (ts *PostgresTestSuite) TestOrderByFilter() {
 			UploadedAt: time.Now().UTC().Round(time.Minute),
 			UpdatedAt:  time.Now().UTC().Round(time.Minute),
 		}
-		orderID, err := ts.storage.OrderAdd(ctx, orderData[i])
+		orderID, err := ts.storage.Add(ctx, orderData[i])
 		ts.Require().NoError(err)
 		orderData[i].ID = orderID
 	}
 
 	ts.Run("WithOrderNum", func() {
-		order, err := ts.storage.OrderByFilter(ctx, store.WithOrderNum(orderData[0].Num))
+		order, err := ts.storage.GetByFilter(ctx, store.WithOrderNum(orderData[0].Num))
 		ts.NoError(err)
 		order.UploadedAt = order.UploadedAt.UTC().Round(time.Minute)
 		order.UpdatedAt = order.UpdatedAt.UTC().Round(time.Minute)
@@ -125,7 +125,7 @@ func (ts *PostgresTestSuite) TestOrderByFilter() {
 	})
 
 	ts.Run("WithOrderUserID", func() {
-		order, err := ts.storage.OrderByFilter(ctx, store.WithOrderUserID(orderData[1].UserID))
+		order, err := ts.storage.GetByFilter(ctx, store.WithOrderUserID(orderData[1].UserID))
 		ts.NoError(err)
 		order.UploadedAt = order.UploadedAt.UTC().Round(time.Minute)
 		order.UpdatedAt = order.UpdatedAt.UTC().Round(time.Minute)

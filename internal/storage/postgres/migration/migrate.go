@@ -1,4 +1,4 @@
-package postgres
+package migration
 
 import (
 	"embed"
@@ -11,7 +11,7 @@ import (
 //go:embed migrations
 var migrations embed.FS
 
-func migrate(pool *pgxpool.Pool) (err error) {
+func Migrate(pool *pgxpool.Pool) (err error) {
 	goose.SetBaseFS(migrations)
 
 	if err = goose.SetDialect("postgres"); err != nil {

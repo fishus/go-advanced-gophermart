@@ -12,6 +12,7 @@ import (
 
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
+	stMocks "github.com/fishus/go-advanced-gophermart/internal/storage/mocks"
 )
 
 func (ts *UserServiceTestSuite) TestUserByID() {
@@ -28,8 +29,10 @@ func (ts *UserServiceTestSuite) TestUserByID() {
 			Password:  hex.EncodeToString(username),
 			CreatedAt: time.Now().UTC().Round(time.Second),
 		}
-		mockCall := ts.storage.EXPECT().UserByID(ctx, userID).Return(want, nil)
-		defer mockCall.Unset()
+
+		stUser := stMocks.NewUserer(ts.T())
+		stUser.EXPECT().GetByID(ctx, userID).Return(want, nil)
+		ts.setStorage(nil, stUser, nil)
 
 		user, err := ts.service.UserByID(ctx, userID)
 		ts.NoError(err)
@@ -40,8 +43,10 @@ func (ts *UserServiceTestSuite) TestUserByID() {
 	ts.Run("User not found", func() {
 		userID := models.UserID(uuid.New().String())
 		want := models.User{}
-		mockCall := ts.storage.EXPECT().UserByID(ctx, userID).Return(want, store.ErrNotFound)
-		defer mockCall.Unset()
+
+		stUser := stMocks.NewUserer(ts.T())
+		stUser.EXPECT().GetByID(ctx, userID).Return(want, store.ErrNotFound)
+		ts.setStorage(nil, stUser, nil)
 
 		_, err := ts.service.UserByID(ctx, userID)
 		ts.Error(err)

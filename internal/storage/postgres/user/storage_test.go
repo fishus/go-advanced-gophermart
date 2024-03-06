@@ -1,19 +1,19 @@
-package postgres
+package user
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"fmt"
+	"github.com/fishus/go-advanced-gophermart/internal/storage/postgres/migration"
 	"testing"
 	"time"
 
+	pgxdecimal "github.com/jackc/pgx-shopspring-decimal"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/suite"
 	"github.com/testcontainers/testcontainers-go"
 	tcpostgres "github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
-
-	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
 type PostgresTestSuite struct {
@@ -28,7 +28,7 @@ func (ts *PostgresTestSuite) SetupSuite() {
 	const (
 		dbUsername = "postgres"
 		dbPassword = "password"
-		dbName     = "postgres"
+		dbName     = "users"
 	)
 
 	var (
@@ -72,12 +72,16 @@ func (ts *PostgresTestSuite) SetupSuite() {
 	ts.tc = pgc
 	ts.cfg = cfg
 
-	db, err := New(ctx, cfg)
+	pool, err := ts.conn(ctx)
+	ts.Require().NoError(err)
+
+	db, err := New(pool, cfg)
 	ts.Require().NoError(err)
 
 	ts.storage = *db
 
-	ts.T().Logf("Stared postgres at %s:%d", dbHost, dbPort)
+	err = migration.Migrate(pool)
+	ts.Require().NoError(err)
 }
 
 func (ts *PostgresTestSuite) TearDownSuite() {
@@ -97,6 +101,24 @@ func (ts *PostgresTestSuite) TearDownTest() {
 
 func TestPostgres(t *testing.T) {
 	suite.Run(t, new(PostgresTestSuite))
+}
+
+func (ts *PostgresTestSuite) conn(ctx context.Context) (*pgxpool.Pool, error) {
+	ctx, cancel := context.WithTimeout(ctx, ts.cfg.ConnectTimeout)
+	defer cancel()
+
+	pgxConfig, err := pgxpool.ParseConfig(ts.cfg.ConnString)
+	if err != nil {
+		return nil, err
+	}
+
+	pgxConfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
+		// Add integration with decimal package
+		pgxdecimal.Register(conn.TypeMap())
+		return nil
+	}
+
+	return pgxpool.NewWithConfig(ctx, pgxConfig)
 }
 
 func (s *storage) clean(ctx context.Context) (err error) {
@@ -126,16 +148,16 @@ func (s *storage) clean(ctx context.Context) (err error) {
 	return
 }
 
-func (s *storage) addTestUser(ctx context.Context) (userID models.UserID, err error) {
-	bUsername := make([]byte, 10)
-	_, err = rand.Read(bUsername)
-	if err != nil {
-		return
-	}
-
-	userData := models.User{
-		Username: hex.EncodeToString(bUsername),
-		Password: hex.EncodeToString(bUsername),
-	}
-	return s.UserAdd(ctx, userData)
-}
+//func (s *storage) addTestUser(ctx context.Context) (userID models.UserID, err error) {
+//	bUsername := make([]byte, 10)
+//	_, err = rand.Read(bUsername)
+//	if err != nil {
+//		return
+//	}
+//
+//	userData := models.User{
+//		Username: hex.EncodeToString(bUsername),
+//		Password: hex.EncodeToString(bUsername),
+//	}
+//	return s.UserAdd(ctx, userData)
+//}

@@ -14,7 +14,7 @@ func (s *service) UpdateStatus(ctx context.Context, id models.OrderID, status mo
 	if err := status.Validate(); err != nil {
 		return err
 	}
-	return s.storage.OrderUpdateStatus(ctx, id, status)
+	return s.storage.Order().UpdateStatus(ctx, id, status)
 }
 
 func (s *service) AddAccrual(ctx context.Context, id models.OrderID, accrual decimal.Decimal) error {
@@ -31,5 +31,5 @@ func (s *service) AddAccrual(ctx context.Context, id models.OrderID, accrual dec
 		return serviceErr.ErrOrderRewardReceived
 	}
 
-	return s.storage.OrderAddAccrual(ctx, id, accrual)
+	return s.storage.Order().AddAccrual(ctx, id, accrual)
 }

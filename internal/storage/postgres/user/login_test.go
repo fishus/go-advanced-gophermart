@@ -1,4 +1,4 @@
-package postgres
+package user
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
-func (ts *PostgresTestSuite) TestUserLogin() {
+func (ts *PostgresTestSuite) TestLogin() {
 	ctx, cancel := context.WithTimeout(context.Background(), ts.cfg.QueryTimeout)
 	defer cancel()
 
@@ -24,10 +24,10 @@ func (ts *PostgresTestSuite) TestUserLogin() {
 		Username: hex.EncodeToString(bUsername),
 		Password: hex.EncodeToString(bPassword),
 	}
-	id, err := ts.storage.UserAdd(ctx, data)
+	id, err := ts.storage.Add(ctx, data)
 	ts.Require().NoError(err)
 
-	userID, err := ts.storage.UserLogin(ctx, data)
+	userID, err := ts.storage.Login(ctx, data)
 	ts.NoError(err)
 	ts.EqualValues(id, userID)
 }

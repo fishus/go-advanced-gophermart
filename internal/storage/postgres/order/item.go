@@ -1,4 +1,4 @@
-package postgres
+package order
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
-func (s *storage) OrderByID(ctx context.Context, id models.OrderID) (order models.Order, err error) {
+func (s *storage) GetByID(ctx context.Context, id models.OrderID) (order models.Order, err error) {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
@@ -38,7 +38,7 @@ func (s *storage) OrderByID(ctx context.Context, id models.OrderID) (order model
 	return
 }
 
-func (s *storage) txOrderByID(ctx context.Context, tx pgx.Tx, id models.OrderID) (order models.Order, err error) {
+func (s *storage) txGetByID(ctx context.Context, tx pgx.Tx, id models.OrderID) (order models.Order, err error) {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
@@ -63,7 +63,7 @@ func (s *storage) txOrderByID(ctx context.Context, tx pgx.Tx, id models.OrderID)
 	return
 }
 
-func (s *storage) OrderByFilter(ctx context.Context, filters ...store.OrderFilter) (order models.Order, err error) {
+func (s *storage) GetByFilter(ctx context.Context, filters ...store.OrderFilter) (order models.Order, err error) {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 

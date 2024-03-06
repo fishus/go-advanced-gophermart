@@ -11,6 +11,7 @@ import (
 
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
+	stMocks "github.com/fishus/go-advanced-gophermart/internal/storage/mocks"
 )
 
 func (ts *UserServiceTestSuite) TestRegister() {
@@ -26,8 +27,9 @@ func (ts *UserServiceTestSuite) TestRegister() {
 	}
 
 	ts.Run("Positive case", func() {
-		mockCall := ts.storage.EXPECT().UserAdd(ctx, data).Return(wantID, nil)
-		defer mockCall.Unset()
+		stUser := stMocks.NewUserer(ts.T())
+		stUser.EXPECT().Add(ctx, data).Return(wantID, nil)
+		ts.setStorage(nil, stUser, nil)
 
 		id, err := ts.service.Register(ctx, data)
 		ts.NoError(err)
@@ -36,8 +38,9 @@ func (ts *UserServiceTestSuite) TestRegister() {
 	})
 
 	ts.Run("User already exists", func() {
-		mockCall := ts.storage.EXPECT().UserAdd(ctx, data).Return("", store.ErrAlreadyExists)
-		defer mockCall.Unset()
+		stUser := stMocks.NewUserer(ts.T())
+		stUser.EXPECT().Add(ctx, data).Return("", store.ErrAlreadyExists)
+		ts.setStorage(nil, stUser, nil)
 
 		_, err := ts.service.Register(ctx, data)
 		ts.Error(err)

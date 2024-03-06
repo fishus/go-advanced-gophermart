@@ -17,7 +17,7 @@ func (s *service) Register(ctx context.Context, user models.User) (userID models
 		return
 	}
 
-	userID, err = s.storage.UserAdd(ctx, user)
+	userID, err = s.storage.User().Add(ctx, user)
 	if err != nil {
 		if errors.Is(err, store.ErrAlreadyExists) {
 			err = serviceErr.ErrUserAlreadyExists
