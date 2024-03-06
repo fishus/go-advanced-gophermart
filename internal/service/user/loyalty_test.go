@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
@@ -19,10 +20,10 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserBalance() {
 	ts.Run("Positive case", func() {
 		wantBalance := models.LoyaltyBalance{
 			UserID:    userID,
-			Current:   227.482,
-			Accrued:   752.113,
-			Withdrawn: 524.631,
+			Accrued:   decimal.NewFromFloatWithExponent(752.113, -5),
+			Withdrawn: decimal.NewFromFloatWithExponent(524.631, -5),
 		}
+		wantBalance.Current = wantBalance.Accrued.Sub(wantBalance.Withdrawn)
 		mockCall := ts.storage.EXPECT().LoyaltyBalanceByUser(ctx, userID).Return(wantBalance, nil)
 		defer mockCall.Unset()
 
@@ -37,10 +38,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserBalance() {
 		defer mockCall.Unset()
 
 		wantBalance := models.LoyaltyBalance{
-			UserID:    userID,
-			Current:   0,
-			Accrued:   0,
-			Withdrawn: 0,
+			UserID: userID,
 		}
 		balance, err := ts.service.LoyaltyUserBalance(ctx, userID)
 		ts.NoError(err)
@@ -58,15 +56,15 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserWithdrawals() {
 		userHistory[0] = models.LoyaltyHistory{
 			UserID:      userID,
 			OrderNum:    "5347676263",
-			Accrual:     1123.456,
-			Withdrawal:  0,
+			Accrual:     decimal.NewFromFloatWithExponent(1123.456, -5),
+			Withdrawal:  decimal.NewFromFloat(0),
 			ProcessedAt: time.Now().UTC().Round(time.Minute),
 		}
 		userHistory[1] = models.LoyaltyHistory{
 			UserID:      userID,
 			OrderNum:    "8163091187",
-			Accrual:     0,
-			Withdrawal:  654.321,
+			Accrual:     decimal.NewFromFloat(0),
+			Withdrawal:  decimal.NewFromFloatWithExponent(654.321, -5),
 			ProcessedAt: time.Now().UTC().Round(time.Minute),
 		}
 		mockCall := ts.storage.EXPECT().LoyaltyHistoryByUser(ctx, userID).Return(userHistory, nil)
@@ -86,8 +84,8 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserWithdrawals() {
 		userHistory[0] = models.LoyaltyHistory{
 			UserID:      userID,
 			OrderNum:    "5347676263",
-			Accrual:     1123.456,
-			Withdrawal:  0,
+			Accrual:     decimal.NewFromFloatWithExponent(1123.456, -5),
+			Withdrawal:  decimal.NewFromFloat(0),
 			ProcessedAt: time.Now().UTC().Round(time.Minute),
 		}
 		mockCall := ts.storage.EXPECT().LoyaltyHistoryByUser(ctx, userID).Return(userHistory, nil)
@@ -120,7 +118,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 
 	ts.Run("Positive case", func() {
 		orderNum := "3903733214"
-		withdraw := 659.784 // FIXME
+		withdraw := decimal.NewFromFloatWithExponent(659.784, -5)
 		mockCall := ts.storage.EXPECT().LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw).Return(nil)
 		defer mockCall.Unset()
 
@@ -131,7 +129,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 
 	ts.Run("Invalid number", func() {
 		orderNum := "126378912"
-		withdraw := 659.784 // FIXME
+		withdraw := decimal.NewFromFloatWithExponent(659.784, -5)
 
 		err := ts.service.LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw)
 		ts.Error(err)
@@ -140,7 +138,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 
 	ts.Run("Incorrect withdraw amount", func() {
 		orderNum := "3903733214"
-		withdraw := -1.0 // FIXME
+		withdraw := decimal.NewFromFloatWithExponent(-1.0, -5)
 
 		err := ts.service.LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw)
 		ts.Error(err)
@@ -149,7 +147,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 
 	ts.Run("Low balance", func() {
 		orderNum := "3903733214"
-		withdraw := 659.784 // FIXME
+		withdraw := decimal.NewFromFloatWithExponent(659.784, -5)
 		mockCall := ts.storage.EXPECT().LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw).Return(store.ErrLowBalance)
 		defer mockCall.Unset()
 
@@ -161,7 +159,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 
 	ts.Run("Balance not found", func() {
 		orderNum := "3903733214"
-		withdraw := 659.784 // FIXME
+		withdraw := decimal.NewFromFloatWithExponent(659.784, -5)
 		mockCall := ts.storage.EXPECT().LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw).Return(store.ErrNotFound)
 		defer mockCall.Unset()
 

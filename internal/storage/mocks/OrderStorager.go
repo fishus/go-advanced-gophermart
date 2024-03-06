@@ -5,8 +5,10 @@ package mocks
 import (
 	context "context"
 
-	models "github.com/fishus/go-advanced-gophermart/pkg/models"
+	decimal "github.com/shopspring/decimal"
 	mock "github.com/stretchr/testify/mock"
+
+	models "github.com/fishus/go-advanced-gophermart/pkg/models"
 
 	storage "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
@@ -82,7 +84,7 @@ func (_c *OrderStorager_OrderAdd_Call) RunAndReturn(run func(context.Context, mo
 }
 
 // OrderAddAccrual provides a mock function with given fields: ctx, orderID, accrual
-func (_m *OrderStorager) OrderAddAccrual(ctx context.Context, orderID models.OrderID, accrual float64) error {
+func (_m *OrderStorager) OrderAddAccrual(ctx context.Context, orderID models.OrderID, accrual decimal.Decimal) error {
 	ret := _m.Called(ctx, orderID, accrual)
 
 	if len(ret) == 0 {
@@ -90,7 +92,7 @@ func (_m *OrderStorager) OrderAddAccrual(ctx context.Context, orderID models.Ord
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, models.OrderID, float64) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, models.OrderID, decimal.Decimal) error); ok {
 		r0 = rf(ctx, orderID, accrual)
 	} else {
 		r0 = ret.Error(0)
@@ -107,14 +109,14 @@ type OrderStorager_OrderAddAccrual_Call struct {
 // OrderAddAccrual is a helper method to define mock.On call
 //   - ctx context.Context
 //   - orderID models.OrderID
-//   - accrual float64
+//   - accrual decimal.Decimal
 func (_e *OrderStorager_Expecter) OrderAddAccrual(ctx interface{}, orderID interface{}, accrual interface{}) *OrderStorager_OrderAddAccrual_Call {
 	return &OrderStorager_OrderAddAccrual_Call{Call: _e.mock.On("OrderAddAccrual", ctx, orderID, accrual)}
 }
 
-func (_c *OrderStorager_OrderAddAccrual_Call) Run(run func(ctx context.Context, orderID models.OrderID, accrual float64)) *OrderStorager_OrderAddAccrual_Call {
+func (_c *OrderStorager_OrderAddAccrual_Call) Run(run func(ctx context.Context, orderID models.OrderID, accrual decimal.Decimal)) *OrderStorager_OrderAddAccrual_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(models.OrderID), args[2].(float64))
+		run(args[0].(context.Context), args[1].(models.OrderID), args[2].(decimal.Decimal))
 	})
 	return _c
 }
@@ -124,7 +126,7 @@ func (_c *OrderStorager_OrderAddAccrual_Call) Return(_a0 error) *OrderStorager_O
 	return _c
 }
 
-func (_c *OrderStorager_OrderAddAccrual_Call) RunAndReturn(run func(context.Context, models.OrderID, float64) error) *OrderStorager_OrderAddAccrual_Call {
+func (_c *OrderStorager_OrderAddAccrual_Call) RunAndReturn(run func(context.Context, models.OrderID, decimal.Decimal) error) *OrderStorager_OrderAddAccrual_Call {
 	_c.Call.Return(run)
 	return _c
 }

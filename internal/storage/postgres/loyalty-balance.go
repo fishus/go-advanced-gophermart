@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/shopspring/decimal"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
@@ -34,7 +35,7 @@ current = ((loyalty_balance.accrued + EXCLUDED.accrued) - (loyalty_balance.withd
 	return err
 }
 
-func (s *storage) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw float64) error {
+func (s *storage) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw decimal.Decimal) error {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
@@ -50,14 +51,14 @@ func (s *storage) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, 
 		return err
 	}
 
-	if balance.Current < withdraw {
+	if balance.Current.LessThan(withdraw) {
 		return store.ErrLowBalance
 	}
 
 	lh := models.LoyaltyHistory{
 		UserID:     userID,
 		OrderNum:   orderNum,
-		Accrual:    0,
+		Accrual:    decimal.NewFromFloat(0),
 		Withdrawal: withdraw,
 	}
 
@@ -71,7 +72,7 @@ func (s *storage) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, 
 
 	lb := models.LoyaltyBalance{
 		UserID:    userID,
-		Accrued:   0,
+		Accrued:   decimal.NewFromFloat(0),
 		Withdrawn: withdraw,
 	}
 

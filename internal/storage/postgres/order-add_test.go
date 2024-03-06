@@ -2,11 +2,11 @@ package postgres
 
 import (
 	"context"
+	"github.com/shopspring/decimal"
 	"time"
 
-	"github.com/jackc/pgx/v5"
-
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
+	"github.com/jackc/pgx/v5"
 
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
@@ -19,34 +19,26 @@ func (ts *PostgresTestSuite) TestOrderAdd() {
 	ts.Require().NoError(err)
 
 	orderData := models.Order{
-		UserID: userID,
-		Num:    "0866150147",
-		Status: models.OrderStatusNew,
+		UserID:     userID,
+		Num:        "0866150147",
+		Accrual:    decimal.NewFromFloat(0),
+		Status:     models.OrderStatusNew,
+		UploadedAt: time.Now().UTC().Round(time.Minute),
+		UpdatedAt:  time.Now().UTC().Round(time.Minute),
 	}
 
 	ts.Run("Positive case", func() {
 		orderID, err := ts.storage.OrderAdd(ctx, orderData)
 		ts.NoError(err)
+		orderData.ID = orderID
 
-		var want struct {
-			id         string
-			userID     string
-			num        string
-			accrual    float64
-			status     string
-			uploadedAt time.Time
-			updatedAt  time.Time
-		}
+		var want OrderResult
 		err = ts.pool.QueryRow(ctx, "SELECT id, user_id, num, accrual, status, uploaded_at, updated_at FROM orders WHERE id = @id;",
-			pgx.NamedArgs{"id": orderID}).Scan(&want.id, &want.userID, &want.num, &want.accrual, &want.status, &want.uploadedAt, &want.updatedAt)
+			pgx.NamedArgs{"id": orderID}).Scan(&want.ID, &want.UserID, &want.Num, &want.Accrual, &want.Status, &want.UploadedAt, &want.UpdatedAt)
 		ts.NoError(err)
-		ts.Equal(orderID.String(), want.id)
-		ts.Equal(orderData.UserID.String(), want.userID)
-		ts.Equal(orderData.Num, want.num)
-		ts.Equal(float64(0), want.accrual)
-		ts.Equal(orderData.Status.String(), want.status)
-		ts.Equal(time.Now().UTC().Round(time.Minute), want.uploadedAt.Round(time.Minute))
-		ts.Equal(time.Now().UTC().Round(time.Minute), want.updatedAt.Round(time.Minute))
+		want.UploadedAt = want.UploadedAt.UTC().Round(time.Minute)
+		want.UpdatedAt = want.UpdatedAt.UTC().Round(time.Minute)
+		ts.EqualValues(OrderResult(orderData), want)
 	})
 
 	ts.Run("DuplicateOrder", func() {

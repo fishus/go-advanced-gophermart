@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
@@ -20,14 +21,11 @@ func (ts *APITestSuite) TestOrdersList() {
 
 	url := "/api/user/orders"
 
-	type OrderResult struct {
-		ID         models.OrderID     `json:"-"`                 // ID заказа
-		UserID     models.UserID      `json:"-"`                 // ID пользователя
+	type want struct {
 		Num        string             `json:"number"`            // Номер заказа
-		Accrual    float64            `json:"accrual,omitempty"` // Начислено баллов лояльности // FIXME
+		Accrual    float64            `json:"accrual,omitempty"` // Начислено баллов лояльности
 		Status     models.OrderStatus `json:"status"`            // Статус заказа
 		UploadedAt time.Time          `json:"uploaded_at"`       // Дата и время добавления заказа
-		UpdatedAt  time.Time          `json:"-"`                 // Дата и время обновления статуса заказа
 	}
 
 	userID := models.UserID(uuid.New().String())
@@ -35,16 +33,16 @@ func (ts *APITestSuite) TestOrdersList() {
 	tests := []struct {
 		name       string
 		auth       string
-		want       []OrderResult
+		data       []models.Order
 		respStatus int
 	}{
 		{
 			name: "Positive case",
 			auth: "VALID-JWT-TOKEN",
-			want: []OrderResult{
+			data: []models.Order{
 				{
 					Num:        "6825296715",
-					Accrual:    123.456,
+					Accrual:    decimal.NewFromFloatWithExponent(123.456, -5),
 					Status:     models.OrderStatusProcessed,
 					UploadedAt: time.Now().UTC().Round(time.Minute),
 				},
@@ -54,7 +52,7 @@ func (ts *APITestSuite) TestOrdersList() {
 		{
 			name:       "No orders",
 			auth:       "VALID-JWT-TOKEN",
-			want:       nil,
+			data:       nil,
 			respStatus: http.StatusNoContent,
 		},
 		{
@@ -81,11 +79,7 @@ func (ts *APITestSuite) TestOrdersList() {
 			mockUserCheckAuthorizationHeader := sUser.EXPECT().CheckAuthorizationHeader(authToken)
 			if tc.auth == "VALID-JWT-TOKEN" {
 				mockUserCheckAuthorizationHeader.Return(&uService.JWTClaims{UserID: userID}, nil)
-				var oList []models.Order
-				for _, o := range tc.want {
-					oList = append(oList, models.Order(o))
-				}
-				sOrder.EXPECT().ListByUser(mock.AnythingOfType("*context.valueCtx"), userID).Return(oList, nil)
+				sOrder.EXPECT().ListByUser(mock.AnythingOfType("*context.valueCtx"), userID).Return(tc.data, nil)
 			} else {
 				mockUserCheckAuthorizationHeader.Return(nil, uService.ErrInvalidToken)
 			}
@@ -103,7 +97,20 @@ func (ts *APITestSuite) TestOrdersList() {
 			ts.Equal(tc.respStatus, resp.StatusCode())
 
 			if tc.respStatus == http.StatusOK {
-				jsonBody, err := json.Marshal(tc.want)
+				var wantList []want
+				for _, o := range tc.data {
+					w := want{
+						Num: o.Num,
+						Accrual: func() float64 {
+							f, _ := o.Accrual.Float64()
+							return f
+						}(),
+						Status:     o.Status,
+						UploadedAt: o.UploadedAt,
+					}
+					wantList = append(wantList, w)
+				}
+				jsonBody, err := json.Marshal(wantList)
 				ts.Require().NoError(err)
 				ts.JSONEq(string(jsonBody), string(resp.Body()))
 			}

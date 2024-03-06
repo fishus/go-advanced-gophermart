@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
@@ -24,7 +25,7 @@ func (ts *LoyaltyTestSuite) TestAddNewOrders() {
 				ID:         models.OrderID(uuid.New().String()),
 				UserID:     userID,
 				Num:        orderNum,
-				Accrual:    0,
+				Accrual:    decimal.NewFromFloat(0),
 				Status:     models.OrderStatusNew,
 				UploadedAt: time.Now().UTC(),
 				UpdatedAt:  time.Now().UTC(),
@@ -82,7 +83,7 @@ func (ts *LoyaltyTestSuite) TestAddProcessingOrders() {
 				ID:         models.OrderID(uuid.New().String()),
 				UserID:     userID,
 				Num:        orderNum,
-				Accrual:    0,
+				Accrual:    decimal.NewFromFloat(0),
 				Status:     models.OrderStatusProcessing,
 				UploadedAt: time.Now().UTC(),
 				UpdatedAt:  time.Now().UTC(),
@@ -141,7 +142,7 @@ func (ts *LoyaltyTestSuite) TestAddNewOrder() {
 			ID:         models.OrderID(uuid.New().String()),
 			UserID:     models.UserID(uuid.New().String()),
 			Num:        "9400781309",
-			Accrual:    0,
+			Accrual:    decimal.NewFromFloat(0),
 			Status:     models.OrderStatusNew,
 			UploadedAt: time.Now().UTC(),
 			UpdatedAt:  time.Now().UTC(),

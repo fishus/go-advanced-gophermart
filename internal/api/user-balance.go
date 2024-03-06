@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/fishus/go-advanced-gophermart/pkg/models"
-
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 )
 
@@ -28,13 +26,20 @@ func (s *server) userBalance(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type LoyaltyBalanceResult struct {
-		UserID    models.UserID `json:"-"`         // ID пользователя
-		Current   float64       `json:"current"`   // Текущий баланс
-		Accrued   float64       `json:"-"`         // Начислено за всё время
-		Withdrawn float64       `json:"withdrawn"` // Списано за всё время
+		Current   float64 `json:"current"`   // Текущий баланс
+		Withdrawn float64 `json:"withdrawn"` // Списано за всё время
 	}
 
-	res := LoyaltyBalanceResult(balance)
+	res := LoyaltyBalanceResult{
+		Current: func() float64 {
+			f, _ := balance.Current.Float64()
+			return f
+		}(),
+		Withdrawn: func() float64 {
+			f, _ := balance.Withdrawn.Float64()
+			return f
+		}(),
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)

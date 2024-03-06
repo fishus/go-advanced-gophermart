@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
@@ -22,7 +23,7 @@ func (ts *PostgresTestSuite) TestOrderByID() {
 		orderData := models.Order{
 			UserID:     userID,
 			Num:        "8020122696",
-			Accrual:    0,
+			Accrual:    decimal.NewFromFloat(0),
 			Status:     models.OrderStatusNew,
 			UploadedAt: time.Now().UTC().Round(time.Minute),
 			UpdatedAt:  time.Now().UTC().Round(time.Minute),
@@ -58,7 +59,7 @@ func (ts *PostgresTestSuite) TestTxOrderByID() {
 		orderData := models.Order{
 			UserID:     userID,
 			Num:        "8020122696",
-			Accrual:    0,
+			Accrual:    decimal.NewFromFloat(0),
 			Status:     models.OrderStatusNew,
 			UploadedAt: time.Now().UTC().Round(time.Minute),
 			UpdatedAt:  time.Now().UTC().Round(time.Minute),
@@ -105,7 +106,7 @@ func (ts *PostgresTestSuite) TestOrderByFilter() {
 		orderData[i] = models.Order{
 			UserID:     userID,
 			Num:        orderNum,
-			Accrual:    0,
+			Accrual:    decimal.NewFromFloat(0),
 			Status:     models.OrderStatusNew,
 			UploadedAt: time.Now().UTC().Round(time.Minute),
 			UpdatedAt:  time.Now().UTC().Round(time.Minute),

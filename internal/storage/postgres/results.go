@@ -3,6 +3,8 @@ package postgres
 import (
 	"time"
 
+	"github.com/shopspring/decimal"
+
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
@@ -19,7 +21,7 @@ type OrderResult struct {
 	ID         models.OrderID     `db:"id"`          // ID заказа
 	UserID     models.UserID      `db:"user_id"`     // ID пользователя
 	Num        string             `db:"num"`         // Номер заказа
-	Accrual    float64            `db:"accrual"`     // Начислено баллов лояльности // FIXME Хранить в int в копейках
+	Accrual    decimal.Decimal    `db:"accrual"`     // Начислено баллов лояльности
 	Status     models.OrderStatus `db:"status"`      // Статус заказа
 	UploadedAt time.Time          `db:"uploaded_at"` // Дата и время добавления заказа
 	UpdatedAt  time.Time          `db:"updated_at"`  // Дата и время обновления статуса заказа
@@ -35,18 +37,18 @@ func listResultsToOrders(results []OrderResult) []models.Order {
 }
 
 type LoyaltyBalanceResult struct {
-	UserID    models.UserID `db:"user_id"`   // ID пользователя
-	Current   float64       `db:"current"`   // Текущий баланс
-	Accrued   float64       `db:"accrued"`   // Начислено за всё время
-	Withdrawn float64       `db:"withdrawn"` // Списано за всё время
+	UserID    models.UserID   `db:"user_id"`   // ID пользователя
+	Current   decimal.Decimal `db:"current"`   // Текущий баланс
+	Accrued   decimal.Decimal `db:"accrued"`   // Начислено за всё время
+	Withdrawn decimal.Decimal `db:"withdrawn"` // Списано за всё время
 }
 
 type LoyaltyHistoryResult struct {
-	UserID      models.UserID `db:"user_id"`      // ID пользователя
-	OrderNum    string        `db:"order_num"`    // Номер заказа
-	Accrual     float64       `db:"accrual"`      // Начисление
-	Withdrawal  float64       `db:"withdrawal"`   // Списание
-	ProcessedAt time.Time     `db:"processed_at"` // Дата зачисления или списания
+	UserID      models.UserID   `db:"user_id"`      // ID пользователя
+	OrderNum    string          `db:"order_num"`    // Номер заказа
+	Accrual     decimal.Decimal `db:"accrual"`      // Начисление
+	Withdrawal  decimal.Decimal `db:"withdrawal"`   // Списание
+	ProcessedAt time.Time       `db:"processed_at"` // Дата зачисления или списания
 }
 
 func listResultsToLoyaltyHistory(results []LoyaltyHistoryResult) []models.LoyaltyHistory {

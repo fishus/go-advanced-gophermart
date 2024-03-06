@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/shopspring/decimal"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
@@ -21,7 +22,7 @@ func (s *storage) OrderUpdateStatus(ctx context.Context, id models.OrderID, stat
 	return err
 }
 
-func (s *storage) OrderAddAccrual(ctx context.Context, orderID models.OrderID, accrual float64) error {
+func (s *storage) OrderAddAccrual(ctx context.Context, orderID models.OrderID, accrual decimal.Decimal) error {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
@@ -52,7 +53,7 @@ func (s *storage) OrderAddAccrual(ctx context.Context, orderID models.OrderID, a
 		UserID:     order.UserID,
 		OrderNum:   order.Num,
 		Accrual:    accrual,
-		Withdrawal: 0,
+		Withdrawal: decimal.NewFromFloat(0),
 	}
 
 	err = s.loyaltyHistoryAdd(ctx, tx, lh)
@@ -66,7 +67,7 @@ func (s *storage) OrderAddAccrual(ctx context.Context, orderID models.OrderID, a
 	lb := models.LoyaltyBalance{
 		UserID:    order.UserID,
 		Accrued:   accrual,
-		Withdrawn: 0,
+		Withdrawn: decimal.NewFromFloat(0),
 	}
 
 	err = s.loyaltyBalanceUpdate(ctx, tx, lb)

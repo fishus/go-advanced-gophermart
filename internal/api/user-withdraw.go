@@ -5,6 +5,8 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/shopspring/decimal"
+
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 )
@@ -21,8 +23,8 @@ func (s *server) userWithdraw(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type reqData struct {
-		Num string  `json:"order"` // Номер заказа
-		Sum float64 `json:"sum"`   // Сумма баллов к списанию в счёт оплаты
+		Num string          `json:"order"` // Номер заказа
+		Sum decimal.Decimal `json:"sum"`   // Сумма баллов к списанию в счёт оплаты
 	}
 
 	var data reqData
@@ -31,6 +33,7 @@ func (s *server) userWithdraw(w http.ResponseWriter, r *http.Request) {
 		logger.Log.Debug(err.Error())
 		return
 	}
+	data.Sum = data.Sum.Round(5)
 
 	err = s.service.User().LoyaltyAddWithdraw(r.Context(), token.UserID, data.Num, data.Sum)
 	if err != nil {

@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/fishus/go-advanced-gophermart/pkg/models"
-
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 )
 
@@ -39,16 +37,21 @@ func (s *server) userWithdrawals(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type LoyaltyHistoryResult struct {
-		UserID      models.UserID `json:"-"`            // ID пользователя
-		OrderNum    string        `json:"order"`        // Номер заказа
-		Accrual     float64       `json:"-"`            // Начисление
-		Withdrawal  float64       `json:"sum"`          // Списание
-		ProcessedAt time.Time     `json:"processed_at"` // Дата зачисления или списания
+		OrderNum    string    `json:"order"`        // Номер заказа
+		Withdrawal  float64   `json:"sum"`          // Списание
+		ProcessedAt time.Time `json:"processed_at"` // Дата зачисления или списания
 	}
 
 	historyList := make([]LoyaltyHistoryResult, 0)
 	for _, h := range history {
-		o := LoyaltyHistoryResult(h)
+		o := LoyaltyHistoryResult{
+			OrderNum: h.OrderNum,
+			Withdrawal: func() float64 {
+				f, _ := h.Withdrawal.Float64()
+				return f
+			}(),
+			ProcessedAt: h.ProcessedAt,
+		}
 		historyList = append(historyList, o)
 	}
 

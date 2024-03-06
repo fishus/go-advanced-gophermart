@@ -6,10 +6,11 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
-	
+
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 	sMocks "github.com/fishus/go-advanced-gophermart/internal/service/mocks"
 	uService "github.com/fishus/go-advanced-gophermart/internal/service/user"
@@ -23,8 +24,8 @@ func (ts *APITestSuite) TestUserWithdraw() {
 	userID := models.UserID(uuid.New().String())
 
 	type reqData struct {
-		Num string  `json:"order"` // Номер заказа
-		Sum float64 `json:"sum"`   // Сумма баллов к списанию в счёт оплаты
+		Num string          `json:"order"` // Номер заказа
+		Sum decimal.Decimal `json:"sum"`   // Сумма баллов к списанию в счёт оплаты
 	}
 
 	tests := []struct {
@@ -39,7 +40,7 @@ func (ts *APITestSuite) TestUserWithdraw() {
 			auth: "VALID-JWT-TOKEN",
 			data: reqData{
 				Num: "8542143048",
-				Sum: 123.456,
+				Sum: decimal.NewFromFloatWithExponent(123.456, -5),
 			},
 			wErr:       nil,
 			respStatus: http.StatusOK,
@@ -49,7 +50,7 @@ func (ts *APITestSuite) TestUserWithdraw() {
 			auth: "VALID-JWT-TOKEN",
 			data: reqData{
 				Num: "8542143048",
-				Sum: 123.456,
+				Sum: decimal.NewFromFloatWithExponent(123.456, -5),
 			},
 			wErr:       serviceErr.ErrLowBalance,
 			respStatus: http.StatusPaymentRequired,
@@ -59,7 +60,7 @@ func (ts *APITestSuite) TestUserWithdraw() {
 			auth: "VALID-JWT-TOKEN",
 			data: reqData{
 				Num: "8542143048",
-				Sum: -100,
+				Sum: decimal.NewFromInt(-100).Round(5),
 			},
 			wErr:       serviceErr.ErrIncorrectData,
 			respStatus: http.StatusBadRequest,
@@ -69,7 +70,7 @@ func (ts *APITestSuite) TestUserWithdraw() {
 			auth: "VALID-JWT-TOKEN",
 			data: reqData{
 				Num: "55555",
-				Sum: 0,
+				Sum: decimal.NewFromFloat(0).Round(5),
 			},
 			wErr:       serviceErr.ErrOrderWrongNum,
 			respStatus: http.StatusUnprocessableEntity,

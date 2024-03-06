@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/shopspring/decimal"
 )
 
 func (ts *LoyaltyTestSuite) TestRequestOrderAccrual() {
@@ -18,7 +19,7 @@ func (ts *LoyaltyTestSuite) TestRequestOrderAccrual() {
 	type orderResp struct {
 		Num     string             `json:"order"`
 		Status  OrderAccrualStatus `json:"status"`
-		Accrual float64            `json:"accrual"`
+		Accrual decimal.Decimal    `json:"accrual"`
 	}
 
 	// заказ зарегистрирован, но вознаграждение не рассчитано
@@ -28,7 +29,7 @@ func (ts *LoyaltyTestSuite) TestRequestOrderAccrual() {
 		wantOrder := &orderResp{
 			Num:     orderNum,
 			Status:  "REGISTERED",
-			Accrual: 0,
+			Accrual: decimal.NewFromFloat(0).Round(5),
 		}
 
 		ts.fakeLoyaltyAPI.contentType = "application/json; charset=utf-8"
@@ -51,7 +52,7 @@ func (ts *LoyaltyTestSuite) TestRequestOrderAccrual() {
 		wantOrder := &orderResp{
 			Num:     orderNum,
 			Status:  "INVALID",
-			Accrual: 0,
+			Accrual: decimal.NewFromFloat(0).Round(5),
 		}
 
 		ts.fakeLoyaltyAPI.contentType = "application/json; charset=utf-8"
@@ -74,7 +75,7 @@ func (ts *LoyaltyTestSuite) TestRequestOrderAccrual() {
 		wantOrder := &orderResp{
 			Num:     orderNum,
 			Status:  "PROCESSING",
-			Accrual: 0,
+			Accrual: decimal.NewFromFloat(0).Round(5),
 		}
 
 		ts.fakeLoyaltyAPI.contentType = "application/json; charset=utf-8"
@@ -97,7 +98,7 @@ func (ts *LoyaltyTestSuite) TestRequestOrderAccrual() {
 		wantOrder := &orderResp{
 			Num:     orderNum,
 			Status:  "PROCESSED",
-			Accrual: 123.456,
+			Accrual: decimal.NewFromFloatWithExponent(123.456, -5),
 		}
 
 		ts.fakeLoyaltyAPI.contentType = "application/json; charset=utf-8"

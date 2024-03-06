@@ -3,6 +3,8 @@ package models
 import (
 	"errors"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type OrderID string
@@ -41,11 +43,11 @@ func (s OrderStatus) String() string {
 
 // Order Заказ
 type Order struct {
-	ID         OrderID     // ID заказа
-	UserID     UserID      // ID пользователя
-	Num        string      // Номер заказа
-	Accrual    float64     // Начислено баллов лояльности // FIXME Хранить в int в копейках
-	Status     OrderStatus // Статус заказа
-	UploadedAt time.Time   // Дата и время добавления заказа
-	UpdatedAt  time.Time   // Дата и время обновления статуса заказа
+	ID         OrderID         // ID заказа
+	UserID     UserID          // ID пользователя
+	Num        string          // Номер заказа
+	Accrual    decimal.Decimal // Начислено баллов лояльности
+	Status     OrderStatus     // Статус заказа
+	UploadedAt time.Time       // Дата и время добавления заказа
+	UpdatedAt  time.Time       // Дата и время обновления статуса заказа
 }

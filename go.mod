@@ -10,8 +10,10 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gookit/validate v1.5.2
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
+	github.com/jackc/pgx-shopspring-decimal v0.0.0-20220624020537-1d36b5a1853e
 	github.com/jackc/pgx/v5 v5.5.3
 	github.com/pressly/goose/v3 v3.18.0
+	github.com/shopspring/decimal v1.3.1
 	github.com/stretchr/testify v1.8.4
 	github.com/testcontainers/testcontainers-go v0.27.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.27.0

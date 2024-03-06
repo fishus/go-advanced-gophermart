@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/shopspring/decimal"
+
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
@@ -34,7 +36,7 @@ func (s *service) LoyaltyUserWithdrawals(ctx context.Context, userID models.User
 
 	withdrawals := make([]models.LoyaltyHistory, 0, len(history))
 	for _, h := range history {
-		if h.Withdrawal > 0 {
+		if h.Withdrawal.GreaterThan(decimal.NewFromFloat(0)) {
 			withdrawals = append(withdrawals, h)
 		}
 	}
@@ -42,13 +44,13 @@ func (s *service) LoyaltyUserWithdrawals(ctx context.Context, userID models.User
 	return withdrawals, nil
 }
 
-func (s *service) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw float64) error {
+func (s *service) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw decimal.Decimal) error {
 	// Проверка номера заказа на корректность с помощью алгоритма Луна
 	if err := s.order.ValidateNumLuhn(orderNum); err != nil {
 		return serviceErr.ErrOrderWrongNum
 	}
 
-	if withdraw < 0 {
+	if withdraw.LessThan(decimal.NewFromFloat(0)) {
 		return serviceErr.ErrIncorrectData
 	}
 

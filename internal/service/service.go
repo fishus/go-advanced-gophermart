@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 
+	"github.com/shopspring/decimal"
+
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
 	oService "github.com/fishus/go-advanced-gophermart/internal/service/order"
@@ -19,7 +21,7 @@ type Userer interface {
 	DecryptToken(tokenString string) (*uService.JWTClaims, error)
 	CheckAuthorizationHeader(auth string) (*uService.JWTClaims, error)
 	LoyaltyUserBalance(context.Context, models.UserID) (models.LoyaltyBalance, error)
-	LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw float64) error
+	LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw decimal.Decimal) error
 	LoyaltyUserWithdrawals(context.Context, models.UserID) ([]models.LoyaltyHistory, error)
 }
 
@@ -31,7 +33,7 @@ type Orderer interface {
 	ListNew(context.Context) ([]models.Order, error)
 	ListProcessing(ctx context.Context, limit int) ([]models.Order, error)
 	UpdateStatus(context.Context, models.OrderID, models.OrderStatus) error
-	AddAccrual(ctx context.Context, id models.OrderID, accrual float64) error
+	AddAccrual(ctx context.Context, id models.OrderID, accrual decimal.Decimal) error
 	ListByUser(context.Context, models.UserID) ([]models.Order, error)
 }
 

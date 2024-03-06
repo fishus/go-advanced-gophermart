@@ -2,6 +2,8 @@ package accrual
 
 import (
 	"errors"
+
+	"github.com/shopspring/decimal"
 )
 
 // OrderAccrualStatus Статус расчёта начисления вознаграждения за заказ
@@ -36,5 +38,5 @@ func (s OrderAccrualStatus) String() string {
 type OrderAccrual struct {
 	Num     string             `json:"order"`   // Номер заказа
 	Status  OrderAccrualStatus `json:"status"`  // Статус расчёта начисления вознаграждения за заказ
-	Accrual float64            `json:"accrual"` // Начислено баллов лояльности // FIXME
+	Accrual decimal.Decimal    `json:"accrual"` // Начислено баллов лояльности
 }

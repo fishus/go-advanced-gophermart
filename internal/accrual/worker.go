@@ -136,6 +136,7 @@ func (d *daemon) requestOrderAccrual(ctx context.Context, num string) (*OrderAcc
 			if err = respOrder.Status.Validate(); err != nil {
 				return nil, err
 			}
+			respOrder.Accrual = respOrder.Accrual.Round(5)
 			return &respOrder, nil
 
 		// превышено количество запросов к сервису

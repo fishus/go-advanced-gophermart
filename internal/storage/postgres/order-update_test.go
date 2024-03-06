@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/shopspring/decimal"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
@@ -63,7 +64,7 @@ func (ts *PostgresTestSuite) TestOrderAddAccrual() {
 	ts.NoError(err)
 	order.ID = orderID
 
-	accrual := 174.682 // FIXME
+	accrual := decimal.NewFromFloatWithExponent(174.682, -5)
 
 	ts.Run("Positive case", func() {
 		err = ts.storage.OrderAddAccrual(ctx, orderID, accrual)
@@ -71,13 +72,18 @@ func (ts *PostgresTestSuite) TestOrderAddAccrual() {
 
 		// Check updated order
 		var (
-			orderAccrual float64 // FIXME
+			orderAccrual decimal.Decimal
 			orderStatus  string
 		)
 		row := ts.storage.pool.QueryRow(ctx, "SELECT accrual, status FROM orders WHERE id = @id;", pgx.NamedArgs{
 			"id": orderID,
 		})
 		err = row.Scan(&orderAccrual, &orderStatus)
+
+		if orderAccrual.IsZero() {
+			orderAccrual = decimal.NewFromFloat(0)
+		}
+
 		ts.Equal(accrual, orderAccrual)
 		ts.Equal(models.OrderStatusProcessed.String(), orderStatus)
 
@@ -85,9 +91,9 @@ func (ts *PostgresTestSuite) TestOrderAddAccrual() {
 		wantBalance := LoyaltyBalanceResult{
 			UserID:    userID,
 			Accrued:   accrual,
-			Withdrawn: 0,
-			Current:   accrual,
+			Withdrawn: decimal.NewFromFloat(0),
 		}
+		wantBalance.Current = wantBalance.Accrued.Sub(wantBalance.Withdrawn)
 		rows, err := ts.storage.pool.Query(ctx, "SELECT * FROM loyalty_balance WHERE user_id = @userID;", pgx.NamedArgs{
 			"userID": userID.String(),
 		})
@@ -102,7 +108,7 @@ func (ts *PostgresTestSuite) TestOrderAddAccrual() {
 			UserID:      userID,
 			OrderNum:    order.Num,
 			Accrual:     accrual,
-			Withdrawal:  0,
+			Withdrawal:  decimal.NewFromFloat(0),
 			ProcessedAt: time.Now().UTC().Round(time.Minute),
 		}
 		rows, err = ts.storage.pool.Query(ctx, "SELECT * FROM loyalty_history WHERE user_id = @userID;", pgx.NamedArgs{

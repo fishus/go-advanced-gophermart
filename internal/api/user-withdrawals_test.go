@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
@@ -20,12 +21,10 @@ func (ts *APITestSuite) TestUserWithdrawals() {
 
 	url := "/api/user/withdrawals"
 
-	type LoyaltyHistoryResult struct {
-		UserID      models.UserID `json:"-"`            // ID пользователя
-		OrderNum    string        `json:"order"`        // Номер заказа
-		Accrual     float64       `json:"-"`            // Начисление
-		Withdrawal  float64       `json:"sum"`          // Списание
-		ProcessedAt time.Time     `json:"processed_at"` // Дата зачисления или списания
+	type want struct {
+		OrderNum    string    `json:"order"`        // Номер заказа
+		Withdrawal  float64   `json:"sum"`          // Списание
+		ProcessedAt time.Time `json:"processed_at"` // Дата зачисления или списания
 	}
 
 	userID := models.UserID(uuid.New().String())
@@ -33,25 +32,25 @@ func (ts *APITestSuite) TestUserWithdrawals() {
 	tests := []struct {
 		name       string
 		auth       string
-		want       []models.LoyaltyHistory
+		data       []models.LoyaltyHistory
 		respStatus int
 	}{
 		{
 			name: "Positive case",
 			auth: "VALID-JWT-TOKEN",
-			want: []models.LoyaltyHistory{
+			data: []models.LoyaltyHistory{
 				{
 					UserID:      userID,
 					OrderNum:    "6825296715",
-					Accrual:     654.321,
-					Withdrawal:  0,
+					Accrual:     decimal.NewFromFloatWithExponent(654.321, -5),
+					Withdrawal:  decimal.NewFromFloat(0),
 					ProcessedAt: time.Now().UTC().Round(time.Minute),
 				},
 				{
 					UserID:      userID,
 					OrderNum:    "5347676263",
-					Accrual:     0,
-					Withdrawal:  123.456,
+					Accrual:     decimal.NewFromFloat(0),
+					Withdrawal:  decimal.NewFromFloatWithExponent(123.456, -5),
 					ProcessedAt: time.Now().UTC().Round(time.Minute),
 				},
 			},
@@ -60,7 +59,7 @@ func (ts *APITestSuite) TestUserWithdrawals() {
 		{
 			name:       "No withdrawals",
 			auth:       "VALID-JWT-TOKEN",
-			want:       nil,
+			data:       nil,
 			respStatus: http.StatusNoContent,
 		},
 		{
@@ -87,7 +86,7 @@ func (ts *APITestSuite) TestUserWithdrawals() {
 			if tc.auth == "VALID-JWT-TOKEN" {
 				mockUserCheckAuthorizationHeader.Return(&uService.JWTClaims{UserID: userID}, nil)
 
-				sUser.EXPECT().LoyaltyUserWithdrawals(mock.AnythingOfType("*context.valueCtx"), userID).Return(tc.want, nil)
+				sUser.EXPECT().LoyaltyUserWithdrawals(mock.AnythingOfType("*context.valueCtx"), userID).Return(tc.data, nil)
 			} else {
 				mockUserCheckAuthorizationHeader.Return(nil, uService.ErrInvalidToken)
 			}
@@ -105,11 +104,19 @@ func (ts *APITestSuite) TestUserWithdrawals() {
 			ts.Equal(tc.respStatus, resp.StatusCode())
 
 			if tc.respStatus == http.StatusOK {
-				var hList []LoyaltyHistoryResult
-				for _, h := range tc.want {
-					hList = append(hList, LoyaltyHistoryResult(h))
+				var wantList []want
+				for _, h := range tc.data {
+					w := want{
+						OrderNum: h.OrderNum,
+						Withdrawal: func() float64 {
+							f, _ := h.Withdrawal.Float64()
+							return f
+						}(),
+						ProcessedAt: h.ProcessedAt,
+					}
+					wantList = append(wantList, w)
 				}
-				jsonBody, err := json.Marshal(hList)
+				jsonBody, err := json.Marshal(wantList)
 				ts.Require().NoError(err)
 				ts.JSONEq(string(jsonBody), string(resp.Body()))
 			}

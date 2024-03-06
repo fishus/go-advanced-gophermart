@@ -5,8 +5,10 @@ package mocks
 import (
 	context "context"
 
-	models "github.com/fishus/go-advanced-gophermart/pkg/models"
+	decimal "github.com/shopspring/decimal"
 	mock "github.com/stretchr/testify/mock"
+
+	models "github.com/fishus/go-advanced-gophermart/pkg/models"
 
 	storage "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
@@ -25,7 +27,7 @@ func (_m *Storager) EXPECT() *Storager_Expecter {
 }
 
 // LoyaltyAddWithdraw provides a mock function with given fields: ctx, userID, orderNum, withdraw
-func (_m *Storager) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw float64) error {
+func (_m *Storager) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw decimal.Decimal) error {
 	ret := _m.Called(ctx, userID, orderNum, withdraw)
 
 	if len(ret) == 0 {
@@ -33,7 +35,7 @@ func (_m *Storager) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, models.UserID, string, float64) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, models.UserID, string, decimal.Decimal) error); ok {
 		r0 = rf(ctx, userID, orderNum, withdraw)
 	} else {
 		r0 = ret.Error(0)
@@ -51,14 +53,14 @@ type Storager_LoyaltyAddWithdraw_Call struct {
 //   - ctx context.Context
 //   - userID models.UserID
 //   - orderNum string
-//   - withdraw float64
+//   - withdraw decimal.Decimal
 func (_e *Storager_Expecter) LoyaltyAddWithdraw(ctx interface{}, userID interface{}, orderNum interface{}, withdraw interface{}) *Storager_LoyaltyAddWithdraw_Call {
 	return &Storager_LoyaltyAddWithdraw_Call{Call: _e.mock.On("LoyaltyAddWithdraw", ctx, userID, orderNum, withdraw)}
 }
 
-func (_c *Storager_LoyaltyAddWithdraw_Call) Run(run func(ctx context.Context, userID models.UserID, orderNum string, withdraw float64)) *Storager_LoyaltyAddWithdraw_Call {
+func (_c *Storager_LoyaltyAddWithdraw_Call) Run(run func(ctx context.Context, userID models.UserID, orderNum string, withdraw decimal.Decimal)) *Storager_LoyaltyAddWithdraw_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(models.UserID), args[2].(string), args[3].(float64))
+		run(args[0].(context.Context), args[1].(models.UserID), args[2].(string), args[3].(decimal.Decimal))
 	})
 	return _c
 }
@@ -68,7 +70,7 @@ func (_c *Storager_LoyaltyAddWithdraw_Call) Return(_a0 error) *Storager_LoyaltyA
 	return _c
 }
 
-func (_c *Storager_LoyaltyAddWithdraw_Call) RunAndReturn(run func(context.Context, models.UserID, string, float64) error) *Storager_LoyaltyAddWithdraw_Call {
+func (_c *Storager_LoyaltyAddWithdraw_Call) RunAndReturn(run func(context.Context, models.UserID, string, decimal.Decimal) error) *Storager_LoyaltyAddWithdraw_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -247,7 +249,7 @@ func (_c *Storager_OrderAdd_Call) RunAndReturn(run func(context.Context, models.
 }
 
 // OrderAddAccrual provides a mock function with given fields: ctx, orderID, accrual
-func (_m *Storager) OrderAddAccrual(ctx context.Context, orderID models.OrderID, accrual float64) error {
+func (_m *Storager) OrderAddAccrual(ctx context.Context, orderID models.OrderID, accrual decimal.Decimal) error {
 	ret := _m.Called(ctx, orderID, accrual)
 
 	if len(ret) == 0 {
@@ -255,7 +257,7 @@ func (_m *Storager) OrderAddAccrual(ctx context.Context, orderID models.OrderID,
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, models.OrderID, float64) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, models.OrderID, decimal.Decimal) error); ok {
 		r0 = rf(ctx, orderID, accrual)
 	} else {
 		r0 = ret.Error(0)
@@ -272,14 +274,14 @@ type Storager_OrderAddAccrual_Call struct {
 // OrderAddAccrual is a helper method to define mock.On call
 //   - ctx context.Context
 //   - orderID models.OrderID
-//   - accrual float64
+//   - accrual decimal.Decimal
 func (_e *Storager_Expecter) OrderAddAccrual(ctx interface{}, orderID interface{}, accrual interface{}) *Storager_OrderAddAccrual_Call {
 	return &Storager_OrderAddAccrual_Call{Call: _e.mock.On("OrderAddAccrual", ctx, orderID, accrual)}
 }
 
-func (_c *Storager_OrderAddAccrual_Call) Run(run func(ctx context.Context, orderID models.OrderID, accrual float64)) *Storager_OrderAddAccrual_Call {
+func (_c *Storager_OrderAddAccrual_Call) Run(run func(ctx context.Context, orderID models.OrderID, accrual decimal.Decimal)) *Storager_OrderAddAccrual_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(models.OrderID), args[2].(float64))
+		run(args[0].(context.Context), args[1].(models.OrderID), args[2].(decimal.Decimal))
 	})
 	return _c
 }
@@ -289,7 +291,7 @@ func (_c *Storager_OrderAddAccrual_Call) Return(_a0 error) *Storager_OrderAddAcc
 	return _c
 }
 
-func (_c *Storager_OrderAddAccrual_Call) RunAndReturn(run func(context.Context, models.OrderID, float64) error) *Storager_OrderAddAccrual_Call {
+func (_c *Storager_OrderAddAccrual_Call) RunAndReturn(run func(context.Context, models.OrderID, decimal.Decimal) error) *Storager_OrderAddAccrual_Call {
 	_c.Call.Return(run)
 	return _c
 }

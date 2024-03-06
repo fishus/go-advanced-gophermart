@@ -5,6 +5,8 @@ import (
 	"slices"
 	"time"
 
+	"github.com/shopspring/decimal"
+
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
@@ -32,7 +34,7 @@ func (ts *PostgresTestSuite) TestOrdersByFilter() {
 	}
 	for i := 0; i < len(orderData); i++ {
 		orderData[i].UserID = userID
-		orderData[i].Accrual = 0
+		orderData[i].Accrual = decimal.NewFromFloat(0)
 		orderData[i].UploadedAt = time.Now().UTC().Round(time.Minute)
 		orderData[i].UpdatedAt = time.Now().UTC().Round(time.Minute)
 		orderID, err := ts.storage.OrderAdd(ctx, orderData[i])

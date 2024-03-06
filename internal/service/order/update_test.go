@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
@@ -79,14 +80,14 @@ func (ts *OrderServiceTestSuite) TestAddAccrual() {
 		ID:         orderID,
 		UserID:     userID,
 		Num:        "9890896385",
-		Accrual:    0,
+		Accrual:    decimal.NewFromFloat(0),
 		Status:     models.OrderStatusNew,
 		UploadedAt: time.Now().UTC(),
 		UpdatedAt:  time.Now().UTC(),
 	}
 
 	ts.Run("Positive case", func() {
-		accrual := 123.456
+		accrual := decimal.NewFromFloatWithExponent(123.456, -5)
 		mockCallOrderByID := ts.storage.EXPECT().OrderByID(ctx, orderID).Return(mockOrder, nil)
 		defer mockCallOrderByID.Unset()
 		mockCall := ts.storage.EXPECT().OrderAddAccrual(ctx, orderID, accrual).Return(nil)
@@ -97,7 +98,7 @@ func (ts *OrderServiceTestSuite) TestAddAccrual() {
 	})
 
 	ts.Run("Negative accrual", func() {
-		accrual := -100.0
+		accrual := decimal.NewFromFloatWithExponent(-100.0, -5)
 		err := ts.service.AddAccrual(ctx, orderID, accrual)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrIncorrectData)
@@ -105,7 +106,7 @@ func (ts *OrderServiceTestSuite) TestAddAccrual() {
 
 	ts.Run("Status Processed", func() {
 		mockOrder.Status = models.OrderStatusProcessed
-		accrual := 123.456
+		accrual := decimal.NewFromFloatWithExponent(123.456, -5)
 		mockCallOrderByID := ts.storage.EXPECT().OrderByID(ctx, orderID).Return(mockOrder, nil)
 		defer mockCallOrderByID.Unset()
 		err := ts.service.AddAccrual(ctx, orderID, accrual)
@@ -115,7 +116,7 @@ func (ts *OrderServiceTestSuite) TestAddAccrual() {
 	})
 
 	ts.Run("Order not found", func() {
-		accrual := 123.456
+		accrual := decimal.NewFromFloatWithExponent(123.456, -5)
 		mockCallOrderByID := ts.storage.EXPECT().OrderByID(ctx, orderID).Return(models.Order{}, store.ErrNotFound)
 		defer mockCallOrderByID.Unset()
 		err := ts.service.AddAccrual(ctx, orderID, accrual)

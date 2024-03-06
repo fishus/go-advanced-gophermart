@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
@@ -19,11 +20,9 @@ func (ts *APITestSuite) TestUserBalance() {
 
 	url := "/api/user/balance"
 
-	type LoyaltyBalanceResult struct {
-		UserID    models.UserID `json:"-"`         // ID пользователя
-		Current   float64       `json:"current"`   // Текущий баланс
-		Accrued   float64       `json:"-"`         // Начислено за всё время
-		Withdrawn float64       `json:"withdrawn"` // Списано за всё время
+	type want struct {
+		Current   float64 `json:"current"`   // Текущий баланс
+		Withdrawn float64 `json:"withdrawn"` // Списано за всё время
 	}
 
 	userID := models.UserID(uuid.New().String())
@@ -31,24 +30,23 @@ func (ts *APITestSuite) TestUserBalance() {
 	tests := []struct {
 		name       string
 		auth       string
-		want       models.LoyaltyBalance
+		data       models.LoyaltyBalance
 		respStatus int
 	}{
 		{
 			name: "Positive case",
 			auth: "VALID-JWT-TOKEN",
-			want: models.LoyaltyBalance{
+			data: models.LoyaltyBalance{
 				UserID:    userID,
-				Current:   530.865, // FIXME 654.321 - 123.456
-				Accrued:   654.321,
-				Withdrawn: 123.456,
+				Accrued:   decimal.NewFromFloatWithExponent(654.321, -5),
+				Withdrawn: decimal.NewFromFloatWithExponent(123.456, -5),
 			},
 			respStatus: http.StatusOK,
 		},
 		{
 			name: "No balance",
 			auth: "VALID-JWT-TOKEN",
-			want: models.LoyaltyBalance{
+			data: models.LoyaltyBalance{
 				UserID: userID,
 			},
 			respStatus: http.StatusOK,
@@ -67,6 +65,8 @@ func (ts *APITestSuite) TestUserBalance() {
 
 	for _, tc := range tests {
 		ts.Run(tc.name, func() {
+			tc.data.Current = tc.data.Accrued.Sub(tc.data.Withdrawn)
+
 			sUser := sMocks.NewUserer(ts.T())
 
 			var authToken string
@@ -77,7 +77,7 @@ func (ts *APITestSuite) TestUserBalance() {
 			if tc.auth == "VALID-JWT-TOKEN" {
 				mockUserCheckAuthorizationHeader.Return(&uService.JWTClaims{UserID: userID}, nil)
 
-				sUser.EXPECT().LoyaltyUserBalance(mock.AnythingOfType("*context.valueCtx"), userID).Return(tc.want, nil)
+				sUser.EXPECT().LoyaltyUserBalance(mock.AnythingOfType("*context.valueCtx"), userID).Return(tc.data, nil)
 			} else {
 				mockUserCheckAuthorizationHeader.Return(nil, uService.ErrInvalidToken)
 			}
@@ -95,7 +95,17 @@ func (ts *APITestSuite) TestUserBalance() {
 			ts.Equal(tc.respStatus, resp.StatusCode())
 
 			if tc.respStatus == http.StatusOK {
-				jsonBody, err := json.Marshal(LoyaltyBalanceResult(tc.want))
+				wantData := want{
+					Current: func() float64 {
+						f, _ := tc.data.Current.Float64()
+						return f
+					}(),
+					Withdrawn: func() float64 {
+						f, _ := tc.data.Withdrawn.Float64()
+						return f
+					}(),
+				}
+				jsonBody, err := json.Marshal(wantData)
 				ts.Require().NoError(err)
 				ts.JSONEq(string(jsonBody), string(resp.Body()))
 			}

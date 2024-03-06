@@ -4,9 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
-
 	"github.com/jackc/pgx/v5"
+	"strings"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 

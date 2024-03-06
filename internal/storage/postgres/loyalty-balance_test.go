@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/shopspring/decimal"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
@@ -25,15 +26,15 @@ func (ts *PostgresTestSuite) TestLoyaltyBalanceUpdate() {
 
 		bal := models.LoyaltyBalance{
 			UserID:    userID,
-			Accrued:   768.978,
-			Withdrawn: 0,
+			Accrued:   decimal.NewFromFloatWithExponent(768.978, -5),
+			Withdrawn: decimal.NewFromFloat(0),
 		}
 		err = ts.storage.loyaltyBalanceUpdate(ctx, tx, bal)
 		ts.NoError(err)
 		tx.Commit(ctx)
 
 		want := LoyaltyBalanceResult(bal)
-		want.Current = bal.Accrued
+		want.Current = want.Accrued.Sub(want.Withdrawn)
 
 		rows, err := ts.storage.pool.Query(ctx, "SELECT * FROM loyalty_balance WHERE user_id = @userID;", pgx.NamedArgs{
 			"userID": userID.String(),
@@ -50,17 +51,16 @@ func (ts *PostgresTestSuite) TestLoyaltyBalanceUpdate() {
 
 		bal := models.LoyaltyBalance{
 			UserID:    userID,
-			Accrued:   0,
-			Withdrawn: 321.473,
+			Accrued:   decimal.NewFromFloat(0),
+			Withdrawn: decimal.NewFromFloatWithExponent(321.473, -5),
 		}
 		err = ts.storage.loyaltyBalanceUpdate(ctx, tx, bal)
 		ts.NoError(err)
 		tx.Commit(ctx)
 
 		want := LoyaltyBalanceResult(bal)
-		want.Accrued = 768.978
-		// FIXME want.Current = want.Accrued - bal.Withdrawn
-		want.Current = 447.505
+		want.Accrued = decimal.NewFromFloatWithExponent(768.978, -5)
+		want.Current = want.Accrued.Sub(want.Withdrawn)
 
 		rows, err := ts.storage.pool.Query(ctx, "SELECT * FROM loyalty_balance WHERE user_id = @userID;", pgx.NamedArgs{
 			"userID": userID.String(),
@@ -82,10 +82,10 @@ func (ts *PostgresTestSuite) TestLoyaltyAddWithdraw() {
 
 	wantBalance := LoyaltyBalanceResult{
 		UserID:    userID,
-		Accrued:   115.387,
-		Withdrawn: 0,
-		Current:   115.387,
+		Accrued:   decimal.NewFromFloatWithExponent(115.387, -5),
+		Withdrawn: decimal.NewFromFloat(0),
 	}
+	wantBalance.Current = wantBalance.Accrued.Sub(wantBalance.Withdrawn)
 	_, err = ts.storage.pool.Exec(ctx, `INSERT INTO loyalty_balance (user_id, current, accrued, withdrawn) VALUES (@userID, @current, @accrued, @withdrawn);`, pgx.NamedArgs{
 		"userID":    userID,
 		"current":   wantBalance.Current,
@@ -94,9 +94,8 @@ func (ts *PostgresTestSuite) TestLoyaltyAddWithdraw() {
 	})
 	ts.Require().NoError(err)
 
-	wantBalance.Withdrawn = 99.995
-	// FIXME wantBalance.Current = wantBalance.Accrued - wantBalance.Withdrawn
-	wantBalance.Current = 15.392
+	wantBalance.Withdrawn = decimal.NewFromFloatWithExponent(99.995, -5)
+	wantBalance.Current = wantBalance.Accrued.Sub(wantBalance.Withdrawn)
 
 	orderNum := "7334280935"
 
@@ -104,7 +103,7 @@ func (ts *PostgresTestSuite) TestLoyaltyAddWithdraw() {
 		wantHistory := LoyaltyHistoryResult{
 			UserID:      userID,
 			OrderNum:    orderNum,
-			Accrual:     0,
+			Accrual:     decimal.NewFromFloat(0),
 			Withdrawal:  wantBalance.Withdrawn,
 			ProcessedAt: time.Now().UTC().Round(time.Minute),
 		}
@@ -118,6 +117,7 @@ func (ts *PostgresTestSuite) TestLoyaltyAddWithdraw() {
 			"userID": userID.String(),
 		})
 		ts.NoError(err)
+
 		balance, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByNameLax[LoyaltyBalanceResult])
 		ts.NoError(err)
 		ts.EqualValues(wantBalance, balance)
@@ -126,16 +126,19 @@ func (ts *PostgresTestSuite) TestLoyaltyAddWithdraw() {
 			"userID": userID.String(),
 		})
 		ts.NoError(err)
+
 		history, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[LoyaltyHistoryResult])
 		ts.NoError(err)
+
 		for i, h := range history {
 			history[i].ProcessedAt = h.ProcessedAt.UTC().Round(time.Minute)
 		}
+
 		ts.EqualValues(wantHistoryList, history)
 	})
 
 	ts.Run("Low balance", func() {
-		err = ts.storage.LoyaltyAddWithdraw(ctx, userID, orderNum, 959.347)
+		err = ts.storage.LoyaltyAddWithdraw(ctx, userID, orderNum, decimal.NewFromFloatWithExponent(959.347, -5))
 		ts.Error(err)
 		ts.ErrorIs(err, store.ErrLowBalance)
 	})
@@ -151,10 +154,10 @@ func (ts *PostgresTestSuite) TestLoyaltyBalanceByUser() {
 
 	want := models.LoyaltyBalance{
 		UserID:    userID,
-		Accrued:   768.978,
-		Withdrawn: 321.473,
-		Current:   447.505,
+		Accrued:   decimal.NewFromFloatWithExponent(768.978, -5),
+		Withdrawn: decimal.NewFromFloatWithExponent(321.473, -5),
 	}
+	want.Current = want.Accrued.Sub(want.Withdrawn)
 	_, err = ts.storage.pool.Exec(ctx, `INSERT INTO loyalty_balance (user_id, current, accrued, withdrawn) VALUES (@userID, @current, @accrued, @withdrawn);`, pgx.NamedArgs{
 		"userID":    userID,
 		"current":   want.Current,

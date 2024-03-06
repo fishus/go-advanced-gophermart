@@ -3,6 +3,8 @@ package storage
 import (
 	"context"
 
+	"github.com/shopspring/decimal"
+
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 )
 
@@ -20,13 +22,13 @@ type OrderStorager interface {
 	OrderByFilter(context.Context, ...OrderFilter) (models.Order, error)
 	OrdersByFilter(ctx context.Context, limit int, filters ...OrderFilter) ([]models.Order, error)
 	OrderUpdateStatus(context.Context, models.OrderID, models.OrderStatus) error
-	OrderAddAccrual(ctx context.Context, orderID models.OrderID, accrual float64) error
+	OrderAddAccrual(ctx context.Context, orderID models.OrderID, accrual decimal.Decimal) error
 }
 
 //go:generate go run github.com/vektra/mockery/v2@v2.42.0 --name=LoyaltyBalancer  --with-expecter
 type LoyaltyBalancer interface {
 	LoyaltyBalanceByUser(context.Context, models.UserID) (models.LoyaltyBalance, error)
-	LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw float64) error
+	LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw decimal.Decimal) error
 	LoyaltyHistoryByUser(context.Context, models.UserID) ([]models.LoyaltyHistory, error)
 }
 

@@ -5,8 +5,10 @@ package mocks
 import (
 	context "context"
 
-	models "github.com/fishus/go-advanced-gophermart/pkg/models"
+	decimal "github.com/shopspring/decimal"
 	mock "github.com/stretchr/testify/mock"
+
+	models "github.com/fishus/go-advanced-gophermart/pkg/models"
 
 	user "github.com/fishus/go-advanced-gophermart/internal/service/user"
 )
@@ -254,7 +256,7 @@ func (_c *Userer_Login_Call) RunAndReturn(run func(context.Context, models.User)
 }
 
 // LoyaltyAddWithdraw provides a mock function with given fields: ctx, userID, orderNum, withdraw
-func (_m *Userer) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw float64) error {
+func (_m *Userer) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw decimal.Decimal) error {
 	ret := _m.Called(ctx, userID, orderNum, withdraw)
 
 	if len(ret) == 0 {
@@ -262,7 +264,7 @@ func (_m *Userer) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, models.UserID, string, float64) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, models.UserID, string, decimal.Decimal) error); ok {
 		r0 = rf(ctx, userID, orderNum, withdraw)
 	} else {
 		r0 = ret.Error(0)
@@ -280,14 +282,14 @@ type Userer_LoyaltyAddWithdraw_Call struct {
 //   - ctx context.Context
 //   - userID models.UserID
 //   - orderNum string
-//   - withdraw float64
+//   - withdraw decimal.Decimal
 func (_e *Userer_Expecter) LoyaltyAddWithdraw(ctx interface{}, userID interface{}, orderNum interface{}, withdraw interface{}) *Userer_LoyaltyAddWithdraw_Call {
 	return &Userer_LoyaltyAddWithdraw_Call{Call: _e.mock.On("LoyaltyAddWithdraw", ctx, userID, orderNum, withdraw)}
 }
 
-func (_c *Userer_LoyaltyAddWithdraw_Call) Run(run func(ctx context.Context, userID models.UserID, orderNum string, withdraw float64)) *Userer_LoyaltyAddWithdraw_Call {
+func (_c *Userer_LoyaltyAddWithdraw_Call) Run(run func(ctx context.Context, userID models.UserID, orderNum string, withdraw decimal.Decimal)) *Userer_LoyaltyAddWithdraw_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(models.UserID), args[2].(string), args[3].(float64))
+		run(args[0].(context.Context), args[1].(models.UserID), args[2].(string), args[3].(decimal.Decimal))
 	})
 	return _c
 }
@@ -297,7 +299,7 @@ func (_c *Userer_LoyaltyAddWithdraw_Call) Return(_a0 error) *Userer_LoyaltyAddWi
 	return _c
 }
 
-func (_c *Userer_LoyaltyAddWithdraw_Call) RunAndReturn(run func(context.Context, models.UserID, string, float64) error) *Userer_LoyaltyAddWithdraw_Call {
+func (_c *Userer_LoyaltyAddWithdraw_Call) RunAndReturn(run func(context.Context, models.UserID, string, decimal.Decimal) error) *Userer_LoyaltyAddWithdraw_Call {
 	_c.Call.Return(run)
 	return _c
 }

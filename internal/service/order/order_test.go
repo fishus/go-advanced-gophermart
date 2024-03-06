@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
@@ -22,7 +23,7 @@ func (ts *OrderServiceTestSuite) TestOrderByID() {
 			ID:         orderID,
 			UserID:     models.UserID(uuid.New().String()),
 			Num:        "9400781309",
-			Accrual:    0,
+			Accrual:    decimal.NewFromFloat(0),
 			Status:     models.OrderStatusNew,
 			UploadedAt: time.Now().UTC(),
 			UpdatedAt:  time.Now().UTC(),

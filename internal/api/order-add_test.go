@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
@@ -86,7 +87,7 @@ func (ts *APITestSuite) TestOrderAdd() {
 				ID:      orderID,
 				UserID:  userID,
 				Num:     tc.num,
-				Accrual: 0,
+				Accrual: decimal.NewFromFloat(0),
 				Status:  models.OrderStatusNew,
 			}
 

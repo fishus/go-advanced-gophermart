@@ -36,18 +36,23 @@ func (s *server) ordersList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type OrderResult struct {
-		ID         models.OrderID     `json:"-"`                 // ID заказа
-		UserID     models.UserID      `json:"-"`                 // ID пользователя
 		Num        string             `json:"number"`            // Номер заказа
-		Accrual    float64            `json:"accrual,omitempty"` // Начислено баллов лояльности // FIXME
+		Accrual    float64            `json:"accrual,omitempty"` // Начислено баллов лояльности
 		Status     models.OrderStatus `json:"status"`            // Статус заказа
 		UploadedAt time.Time          `json:"uploaded_at"`       // Дата и время добавления заказа
-		UpdatedAt  time.Time          `json:"-"`                 // Дата и время обновления статуса заказа
 	}
 
 	ordersList := make([]OrderResult, 0)
 	for _, order := range list {
-		o := OrderResult(order)
+		o := OrderResult{
+			Num: order.Num,
+			Accrual: func() float64 {
+				f, _ := order.Accrual.Float64()
+				return f
+			}(),
+			Status:     order.Status,
+			UploadedAt: order.UploadedAt,
+		}
 		ordersList = append(ordersList, o)
 	}
 

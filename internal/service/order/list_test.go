@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
@@ -21,7 +22,7 @@ func (ts *OrderServiceTestSuite) TestListNew() {
 				ID:         models.OrderID(uuid.New().String()),
 				UserID:     models.UserID(uuid.New().String()),
 				Num:        "9305514466",
-				Accrual:    0,
+				Accrual:    decimal.NewFromFloat(0),
 				Status:     models.OrderStatusNew,
 				UploadedAt: time.Now().UTC(),
 				UpdatedAt:  time.Now().UTC(),
@@ -30,7 +31,7 @@ func (ts *OrderServiceTestSuite) TestListNew() {
 				ID:         models.OrderID(uuid.New().String()),
 				UserID:     models.UserID(uuid.New().String()),
 				Num:        "1206405415",
-				Accrual:    0,
+				Accrual:    decimal.NewFromFloat(0),
 				Status:     models.OrderStatusNew,
 				UploadedAt: time.Now().UTC(),
 				UpdatedAt:  time.Now().UTC(),
@@ -65,7 +66,7 @@ func (ts *OrderServiceTestSuite) TestListProcessing() {
 				ID:         models.OrderID(uuid.New().String()),
 				UserID:     models.UserID(uuid.New().String()),
 				Num:        "9305514466",
-				Accrual:    0,
+				Accrual:    decimal.NewFromFloat(0),
 				Status:     models.OrderStatusProcessing,
 				UploadedAt: time.Now().UTC(),
 				UpdatedAt:  time.Now().UTC(),
@@ -74,7 +75,7 @@ func (ts *OrderServiceTestSuite) TestListProcessing() {
 				ID:         models.OrderID(uuid.New().String()),
 				UserID:     models.UserID(uuid.New().String()),
 				Num:        "1206405415",
-				Accrual:    0,
+				Accrual:    decimal.NewFromFloat(0),
 				Status:     models.OrderStatusProcessing,
 				UploadedAt: time.Now().UTC(),
 				UpdatedAt:  time.Now().UTC(),
@@ -109,7 +110,7 @@ func (ts *OrderServiceTestSuite) TestListByUser() {
 				ID:         models.OrderID(uuid.New().String()),
 				UserID:     userID,
 				Num:        "9305514466",
-				Accrual:    0,
+				Accrual:    decimal.NewFromFloat(0),
 				Status:     models.OrderStatusNew,
 				UploadedAt: time.Now().UTC(),
 				UpdatedAt:  time.Now().UTC(),
@@ -118,7 +119,7 @@ func (ts *OrderServiceTestSuite) TestListByUser() {
 				ID:         models.OrderID(uuid.New().String()),
 				UserID:     userID,
 				Num:        "1206405415",
-				Accrual:    0,
+				Accrual:    decimal.NewFromFloat(0),
 				Status:     models.OrderStatusProcessing,
 				UploadedAt: time.Now().UTC(),
 				UpdatedAt:  time.Now().UTC(),
@@ -127,7 +128,7 @@ func (ts *OrderServiceTestSuite) TestListByUser() {
 				ID:         models.OrderID(uuid.New().String()),
 				UserID:     userID,
 				Num:        "1853241857",
-				Accrual:    123.456,
+				Accrual:    decimal.NewFromFloatWithExponent(123.456, -5),
 				Status:     models.OrderStatusProcessed,
 				UploadedAt: time.Now().UTC(),
 				UpdatedAt:  time.Now().UTC(),

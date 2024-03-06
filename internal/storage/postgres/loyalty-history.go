@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"errors"
-
 	"github.com/jackc/pgx/v5"
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
