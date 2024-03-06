@@ -10,8 +10,8 @@ import (
 
 func RunAPIServer(ctx context.Context, storage store.Storager, loyalty AccrualDaemon) error {
 	serviceConfig := &service.Config{
-		JWTExpires:   Config.jwtExpires,
-		JWTSecretKey: Config.jwtSecretKey,
+		JWTExpires:   Config.JWTExpires(),
+		JWTSecretKey: Config.JWTSecretKey(),
 	}
 	serv := service.New(serviceConfig, storage)
 

@@ -1,4 +1,4 @@
-package app
+package config
 
 import (
 	"flag"
@@ -111,7 +111,7 @@ func (suite *FlagsTestSuite) TestParseFlags() {
 				os.Args = append(os.Args, tc.args...)
 			}
 
-			config := newConfig()
+			config := NewConfig()
 			config = parseFlags(config)
 
 			configFields := reflect.ValueOf(config)
@@ -186,7 +186,7 @@ func (suite *FlagsTestSuite) TestParseEnvs() {
 				}
 			}
 
-			config := newConfig()
+			config := NewConfig()
 			config = parseEnvs(config)
 
 			configFields := reflect.ValueOf(config)
@@ -332,7 +332,7 @@ func (suite *FlagsTestSuite) TestLoadConfig() {
 				}
 			}
 
-			config := initConfig()
+			config := InitConfig()
 
 			configFields := reflect.ValueOf(config)
 

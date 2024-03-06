@@ -1,4 +1,4 @@
-package app
+package config
 
 import (
 	"flag"
@@ -7,7 +7,7 @@ import (
 	"github.com/caarlos0/env/v10"
 )
 
-func parseFlags(config config) config {
+func parseFlags(config Config) Config {
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 
 	// Флаг -a=<ЗНАЧЕНИЕ> адрес и порт запуска сервиса (по умолчанию localhost:8080).
@@ -35,7 +35,7 @@ func parseFlags(config config) config {
 		SetLogLevel(*logLevel)
 }
 
-func parseEnvs(config config) config {
+func parseEnvs(config Config) Config {
 	var cfg struct {
 		RunAddr      string `env:"RUN_ADDRESS"`
 		AccrualAddr  string `env:"ACCRUAL_SYSTEM_ADDRESS"`
