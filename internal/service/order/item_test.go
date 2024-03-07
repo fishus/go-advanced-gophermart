@@ -14,7 +14,7 @@ import (
 	stMocks "github.com/fishus/go-advanced-gophermart/internal/storage/mocks"
 )
 
-func (ts *OrderServiceTestSuite) TestOrderByID() {
+func (ts *OrderServiceTestSuite) TestGetByID() {
 	ctx := context.Background()
 
 	orderID := models.OrderID(uuid.New().String())
@@ -34,7 +34,7 @@ func (ts *OrderServiceTestSuite) TestOrderByID() {
 		stOrder.EXPECT().GetByID(ctx, orderID).Return(want, nil)
 		ts.setStorage(stOrder, nil, nil)
 
-		list, err := ts.service.OrderByID(ctx, orderID)
+		list, err := ts.service.GetByID(ctx, orderID)
 		ts.NoError(err)
 		ts.EqualValues(want, list)
 		ts.storage.AssertExpectations(ts.T())
@@ -45,7 +45,7 @@ func (ts *OrderServiceTestSuite) TestOrderByID() {
 		stOrder.EXPECT().GetByID(ctx, orderID).Return(models.Order{}, store.ErrNotFound)
 		ts.setStorage(stOrder, nil, nil)
 
-		_, err := ts.service.OrderByID(ctx, orderID)
+		_, err := ts.service.GetByID(ctx, orderID)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrOrderNotFound)
 		ts.storage.AssertExpectations(ts.T())

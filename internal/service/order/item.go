@@ -10,7 +10,7 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
-func (s *service) OrderByID(ctx context.Context, id models.OrderID) (order models.Order, err error) {
+func (s *service) GetByID(ctx context.Context, id models.OrderID) (order models.Order, err error) {
 	order, err = s.storage.Order().GetByID(ctx, id)
 	if err != nil && errors.Is(err, store.ErrNotFound) {
 		err = serviceErr.ErrOrderNotFound

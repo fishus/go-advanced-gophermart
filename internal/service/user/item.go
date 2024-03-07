@@ -10,7 +10,7 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
-func (s *service) UserByID(ctx context.Context, id models.UserID) (user models.User, err error) {
+func (s *service) GetByID(ctx context.Context, id models.UserID) (user models.User, err error) {
 	user, err = s.storage.User().GetByID(ctx, id)
 	if err != nil && errors.Is(err, store.ErrNotFound) {
 		err = serviceErr.ErrUserNotFound

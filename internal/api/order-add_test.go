@@ -106,7 +106,7 @@ func (ts *APITestSuite) TestOrderAdd() {
 				if tc.orderErr == nil {
 					mockOrderAdd.Return(orderID, nil)
 
-					sOrder.EXPECT().OrderByID(mock.AnythingOfType("context.backgroundCtx"), orderID).Return(wantOrder, nil)
+					sOrder.EXPECT().GetByID(mock.AnythingOfType("context.backgroundCtx"), orderID).Return(wantOrder, nil)
 
 					ts.loyalty.EXPECT().AddNewOrder(mock.AnythingOfType("context.backgroundCtx"), wantOrder)
 				} else {

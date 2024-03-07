@@ -198,6 +198,63 @@ func (_c *Userer_DecryptToken_Call) RunAndReturn(run func(string) (*user.JWTClai
 	return _c
 }
 
+// GetByID provides a mock function with given fields: _a0, _a1
+func (_m *Userer) GetByID(_a0 context.Context, _a1 models.UserID) (models.User, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByID")
+	}
+
+	var r0 models.User
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, models.UserID) (models.User, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, models.UserID) models.User); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Get(0).(models.User)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, models.UserID) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Userer_GetByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByID'
+type Userer_GetByID_Call struct {
+	*mock.Call
+}
+
+// GetByID is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 models.UserID
+func (_e *Userer_Expecter) GetByID(_a0 interface{}, _a1 interface{}) *Userer_GetByID_Call {
+	return &Userer_GetByID_Call{Call: _e.mock.On("GetByID", _a0, _a1)}
+}
+
+func (_c *Userer_GetByID_Call) Run(run func(_a0 context.Context, _a1 models.UserID)) *Userer_GetByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(models.UserID))
+	})
+	return _c
+}
+
+func (_c *Userer_GetByID_Call) Return(_a0 models.User, _a1 error) *Userer_GetByID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Userer_GetByID_Call) RunAndReturn(run func(context.Context, models.UserID) (models.User, error)) *Userer_GetByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Login provides a mock function with given fields: _a0, _a1
 func (_m *Userer) Login(_a0 context.Context, _a1 models.User) (models.UserID, error) {
 	ret := _m.Called(_a0, _a1)
@@ -473,63 +530,6 @@ func (_c *Userer_Register_Call) Return(_a0 models.UserID, _a1 error) *Userer_Reg
 }
 
 func (_c *Userer_Register_Call) RunAndReturn(run func(context.Context, models.User) (models.UserID, error)) *Userer_Register_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UserByID provides a mock function with given fields: _a0, _a1
-func (_m *Userer) UserByID(_a0 context.Context, _a1 models.UserID) (models.User, error) {
-	ret := _m.Called(_a0, _a1)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UserByID")
-	}
-
-	var r0 models.User
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, models.UserID) (models.User, error)); ok {
-		return rf(_a0, _a1)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, models.UserID) models.User); ok {
-		r0 = rf(_a0, _a1)
-	} else {
-		r0 = ret.Get(0).(models.User)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, models.UserID) error); ok {
-		r1 = rf(_a0, _a1)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// Userer_UserByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UserByID'
-type Userer_UserByID_Call struct {
-	*mock.Call
-}
-
-// UserByID is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 models.UserID
-func (_e *Userer_Expecter) UserByID(_a0 interface{}, _a1 interface{}) *Userer_UserByID_Call {
-	return &Userer_UserByID_Call{Call: _e.mock.On("UserByID", _a0, _a1)}
-}
-
-func (_c *Userer_UserByID_Call) Run(run func(_a0 context.Context, _a1 models.UserID)) *Userer_UserByID_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(models.UserID))
-	})
-	return _c
-}
-
-func (_c *Userer_UserByID_Call) Return(_a0 models.User, _a1 error) *Userer_UserByID_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *Userer_UserByID_Call) RunAndReturn(run func(context.Context, models.UserID) (models.User, error)) *Userer_UserByID_Call {
 	_c.Call.Return(run)
 	return _c
 }

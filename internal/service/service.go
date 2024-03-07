@@ -16,7 +16,7 @@ import (
 type Userer interface {
 	Register(context.Context, models.User) (models.UserID, error)
 	Login(context.Context, models.User) (models.UserID, error)
-	UserByID(context.Context, models.UserID) (models.User, error)
+	GetByID(context.Context, models.UserID) (models.User, error)
 	BuildToken(models.UserID) (string, error)
 	DecryptToken(tokenString string) (*uService.JWTClaims, error)
 	CheckAuthorizationHeader(auth string) (*uService.JWTClaims, error)
@@ -28,7 +28,7 @@ type Userer interface {
 //go:generate go run github.com/vektra/mockery/v2@v2.42.0 --name=Orderer  --with-expecter
 type Orderer interface {
 	ValidateNumLuhn(num string) error
-	OrderByID(context.Context, models.OrderID) (models.Order, error)
+	GetByID(context.Context, models.OrderID) (models.Order, error)
 	Add(ctx context.Context, userID models.UserID, orderNum string) (models.OrderID, error)
 	ListNew(context.Context) ([]models.Order, error)
 	ListProcessing(ctx context.Context, limit int) ([]models.Order, error)

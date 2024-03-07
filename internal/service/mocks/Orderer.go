@@ -130,6 +130,63 @@ func (_c *Orderer_AddAccrual_Call) RunAndReturn(run func(context.Context, models
 	return _c
 }
 
+// GetByID provides a mock function with given fields: _a0, _a1
+func (_m *Orderer) GetByID(_a0 context.Context, _a1 models.OrderID) (models.Order, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByID")
+	}
+
+	var r0 models.Order
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, models.OrderID) (models.Order, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, models.OrderID) models.Order); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Get(0).(models.Order)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, models.OrderID) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Orderer_GetByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByID'
+type Orderer_GetByID_Call struct {
+	*mock.Call
+}
+
+// GetByID is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 models.OrderID
+func (_e *Orderer_Expecter) GetByID(_a0 interface{}, _a1 interface{}) *Orderer_GetByID_Call {
+	return &Orderer_GetByID_Call{Call: _e.mock.On("GetByID", _a0, _a1)}
+}
+
+func (_c *Orderer_GetByID_Call) Run(run func(_a0 context.Context, _a1 models.OrderID)) *Orderer_GetByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(models.OrderID))
+	})
+	return _c
+}
+
+func (_c *Orderer_GetByID_Call) Return(_a0 models.Order, _a1 error) *Orderer_GetByID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Orderer_GetByID_Call) RunAndReturn(run func(context.Context, models.OrderID) (models.Order, error)) *Orderer_GetByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListByUser provides a mock function with given fields: _a0, _a1
 func (_m *Orderer) ListByUser(_a0 context.Context, _a1 models.UserID) ([]models.Order, error) {
 	ret := _m.Called(_a0, _a1)
@@ -302,63 +359,6 @@ func (_c *Orderer_ListProcessing_Call) Return(_a0 []models.Order, _a1 error) *Or
 }
 
 func (_c *Orderer_ListProcessing_Call) RunAndReturn(run func(context.Context, int) ([]models.Order, error)) *Orderer_ListProcessing_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// OrderByID provides a mock function with given fields: _a0, _a1
-func (_m *Orderer) OrderByID(_a0 context.Context, _a1 models.OrderID) (models.Order, error) {
-	ret := _m.Called(_a0, _a1)
-
-	if len(ret) == 0 {
-		panic("no return value specified for OrderByID")
-	}
-
-	var r0 models.Order
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, models.OrderID) (models.Order, error)); ok {
-		return rf(_a0, _a1)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, models.OrderID) models.Order); ok {
-		r0 = rf(_a0, _a1)
-	} else {
-		r0 = ret.Get(0).(models.Order)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, models.OrderID) error); ok {
-		r1 = rf(_a0, _a1)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// Orderer_OrderByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OrderByID'
-type Orderer_OrderByID_Call struct {
-	*mock.Call
-}
-
-// OrderByID is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 models.OrderID
-func (_e *Orderer_Expecter) OrderByID(_a0 interface{}, _a1 interface{}) *Orderer_OrderByID_Call {
-	return &Orderer_OrderByID_Call{Call: _e.mock.On("OrderByID", _a0, _a1)}
-}
-
-func (_c *Orderer_OrderByID_Call) Run(run func(_a0 context.Context, _a1 models.OrderID)) *Orderer_OrderByID_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(models.OrderID))
-	})
-	return _c
-}
-
-func (_c *Orderer_OrderByID_Call) Return(_a0 models.Order, _a1 error) *Orderer_OrderByID_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *Orderer_OrderByID_Call) RunAndReturn(run func(context.Context, models.OrderID) (models.Order, error)) *Orderer_OrderByID_Call {
 	_c.Call.Return(run)
 	return _c
 }

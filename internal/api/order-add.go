@@ -63,7 +63,7 @@ func (s *server) orderAdd(w http.ResponseWriter, r *http.Request) {
 	)
 
 	ctx := context.Background()
-	order, err := s.service.Order().OrderByID(ctx, orderID)
+	order, err := s.service.Order().GetByID(ctx, orderID)
 	if err != nil {
 		logger.Log.Error(err.Error())
 	} else {

@@ -22,7 +22,7 @@ func (s *service) AddAccrual(ctx context.Context, id models.OrderID, accrual dec
 		return serviceErr.ErrIncorrectData
 	}
 
-	order, err := s.OrderByID(ctx, id)
+	order, err := s.GetByID(ctx, id)
 	if err != nil {
 		return err
 	}
