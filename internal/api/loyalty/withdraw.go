@@ -1,4 +1,4 @@
-package api
+package loyalty
 
 import (
 	"encoding/json"
@@ -7,19 +7,20 @@ import (
 
 	"github.com/shopspring/decimal"
 
+	apiCommon "github.com/fishus/go-advanced-gophermart/internal/api/common"
 	"github.com/fishus/go-advanced-gophermart/internal/app/config"
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 )
 
-// userWithdraw Запрос на списание средств
-func (s *server) userWithdraw(w http.ResponseWriter, r *http.Request) {
+// Withdraw Запрос на списание средств
+func (a *api) Withdraw(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Аутентификация пользователя
-	token, err := s.auth(r)
+	token, err := a.auth(r)
 	if err != nil {
-		JSONError(w, err.Error(), http.StatusUnauthorized)
+		apiCommon.JSONError(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -30,13 +31,13 @@ func (s *server) userWithdraw(w http.ResponseWriter, r *http.Request) {
 
 	var data reqData
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		JSONError(w, err.Error(), http.StatusBadRequest)
+		apiCommon.JSONError(w, err.Error(), http.StatusBadRequest)
 		logger.Log.Debug(err.Error())
 		return
 	}
 	data.Sum = data.Sum.Round(config.DecimalExponent)
 
-	err = s.service.Loyalty().AddWithdraw(r.Context(), token.UserID, data.Num, data.Sum)
+	err = a.service.Loyalty().AddWithdraw(r.Context(), token.UserID, data.Num, data.Sum)
 	if err != nil {
 		retCode := http.StatusInternalServerError
 
@@ -54,7 +55,7 @@ func (s *server) userWithdraw(w http.ResponseWriter, r *http.Request) {
 			logger.Log.Error(err.Error())
 		}
 
-		JSONError(w, err.Error(), retCode)
+		apiCommon.JSONError(w, err.Error(), retCode)
 		return
 	}
 

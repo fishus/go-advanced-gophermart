@@ -8,7 +8,7 @@ import (
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 )
 
-func Router(s *server) chi.Router {
+func (s *server) Router() chi.Router {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RealIP)
@@ -17,13 +17,13 @@ func Router(s *server) chi.Router {
 	r.Use(middleware.Compress(9, "application/json"))
 	r.Use(middleware.RequestLogger(&logger.LogFormatter{}))
 
-	r.Post("/api/user/register", s.userRegister)         // Регистрация пользователя
-	r.Post("/api/user/login", s.userLogin)               // Аутентификация пользователя
-	r.Post("/api/user/orders", s.orderAdd)               // Загрузка номера заказа для расчёта
-	r.Get("/api/user/orders", s.ordersList)              // Список загруженных номеров заказов
-	r.Get("/api/user/balance", s.userBalance)            // Получение баланса пользователя
-	r.Post("/api/user/balance/withdraw", s.userWithdraw) // Запрос на списание средств
-	r.Get("/api/user/withdrawals", s.userWithdrawals)    // Информации о выводе средств
+	r.Post("/api/user/register", s.user.Register)            // Регистрация пользователя
+	r.Post("/api/user/login", s.user.Login)                  // Аутентификация пользователя
+	r.Post("/api/user/orders", s.order.Add)                  // Загрузка номера заказа для расчёта
+	r.Get("/api/user/orders", s.order.List)                  // Список загруженных номеров заказов
+	r.Get("/api/user/balance", s.loyalty.Balance)            // Получение баланса пользователя
+	r.Post("/api/user/balance/withdraw", s.loyalty.Withdraw) // Запрос на списание средств
+	r.Get("/api/user/withdrawals", s.loyalty.Withdrawals)    // Информации о выводе средств
 
 	return r
 }

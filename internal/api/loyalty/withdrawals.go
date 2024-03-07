@@ -1,30 +1,31 @@
-package api
+package loyalty
 
 import (
 	"encoding/json"
 	"net/http"
 	"time"
 
+	apiCommon "github.com/fishus/go-advanced-gophermart/internal/api/common"
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 )
 
-// userWithdrawals Информации о выводе средств
-func (s *server) userWithdrawals(w http.ResponseWriter, r *http.Request) {
+// Withdrawals Информации о выводе средств
+func (a *api) Withdrawals(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Аутентификация пользователя
-	token, err := s.auth(r)
+	token, err := a.auth(r)
 	if err != nil {
-		JSONError(w, err.Error(), http.StatusUnauthorized)
+		apiCommon.JSONError(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
 	// Факты выводов в выдаче должны быть отсортированы по времени вывода от самых старых к самым новым.
 	// Формат даты — RFC3339.
 
-	history, err := s.service.Loyalty().UserWithdrawals(r.Context(), token.UserID)
+	history, err := a.service.Loyalty().UserWithdrawals(r.Context(), token.UserID)
 	if err != nil {
-		JSONError(w, err.Error(), http.StatusInternalServerError)
+		apiCommon.JSONError(w, err.Error(), http.StatusInternalServerError)
 		logger.Log.Error(err.Error())
 		return
 	}

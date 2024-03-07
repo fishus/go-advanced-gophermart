@@ -1,4 +1,4 @@
-package api
+package order
 
 import (
 	"encoding/json"
@@ -7,23 +7,24 @@ import (
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
+	apiCommon "github.com/fishus/go-advanced-gophermart/internal/api/common"
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 )
 
-// ordersList Список загруженных номеров заказов
-func (s *server) ordersList(w http.ResponseWriter, r *http.Request) {
+// List Список загруженных номеров заказов
+func (a *api) List(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Аутентификация пользователя
-	token, err := s.auth(r)
+	token, err := a.auth(r)
 	if err != nil {
-		JSONError(w, err.Error(), http.StatusUnauthorized)
+		apiCommon.JSONError(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
-	list, err := s.service.Order().ListByUser(r.Context(), token.UserID)
+	list, err := a.service.Order().ListByUser(r.Context(), token.UserID)
 	if err != nil {
-		JSONError(w, err.Error(), http.StatusInternalServerError)
+		apiCommon.JSONError(w, err.Error(), http.StatusInternalServerError)
 		logger.Log.Error(err.Error())
 		return
 	}

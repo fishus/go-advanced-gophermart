@@ -1,4 +1,4 @@
-package api
+package user
 
 import (
 	"encoding/json"
@@ -7,12 +7,13 @@ import (
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
+	apiCommon "github.com/fishus/go-advanced-gophermart/internal/api/common"
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 )
 
-// userRegister Регистрация пользователя
-func (s *server) userRegister(w http.ResponseWriter, r *http.Request) {
+// Login Аутентификация пользователя
+func (a *api) Login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	type reqData struct {
@@ -22,7 +23,7 @@ func (s *server) userRegister(w http.ResponseWriter, r *http.Request) {
 
 	var data reqData
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		JSONError(w, err.Error(), http.StatusBadRequest)
+		apiCommon.JSONError(w, err.Error(), http.StatusBadRequest)
 		logger.Log.Debug(err.Error())
 		return
 	}
@@ -32,37 +33,29 @@ func (s *server) userRegister(w http.ResponseWriter, r *http.Request) {
 		Password: data.Password,
 	}
 
-	userID, err := s.service.User().Register(r.Context(), user)
+	userID, err := a.service.User().Login(r.Context(), user)
 	if err != nil {
 		var validErr *serviceErr.ValidationError
 		if errors.As(err, &validErr) {
-			JSONError(w, err.Error(), http.StatusBadRequest)
+			apiCommon.JSONError(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		if errors.Is(err, serviceErr.ErrIncorrectData) {
-			JSONError(w, err.Error(), http.StatusBadRequest)
+		if errors.Is(err, serviceErr.ErrUserNotFound) {
+			apiCommon.JSONError(w, "Wrong login or password", http.StatusUnauthorized)
 			return
 		}
-		if errors.Is(err, serviceErr.ErrUserAlreadyExists) {
-			JSONError(w, err.Error(), http.StatusConflict)
-			return
-		}
-		JSONError(w, err.Error(), http.StatusInternalServerError)
+		apiCommon.JSONError(w, err.Error(), http.StatusInternalServerError)
 		logger.Log.Error(err.Error())
 		return
 	}
 
-	// автоматическая аутентификация пользователя
-	token, err := s.service.User().BuildToken(userID)
+	// аутентификация пользователя
+	token, err := a.service.User().BuildToken(userID)
 	if err != nil {
-		JSONError(w, err.Error(), http.StatusInternalServerError)
+		apiCommon.JSONError(w, err.Error(), http.StatusInternalServerError)
 		logger.Log.Error(err.Error())
 	}
 	w.Header().Set("Authorization", ("Bearer " + token))
-
-	logger.Log.Info("Registered new user",
-		logger.String("userID", userID.String()),
-	)
 
 	w.WriteHeader(http.StatusOK)
 }

@@ -9,6 +9,9 @@ import (
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
+	apiLoyalty "github.com/fishus/go-advanced-gophermart/internal/api/loyalty"
+	apiOrder "github.com/fishus/go-advanced-gophermart/internal/api/order"
+	apiUser "github.com/fishus/go-advanced-gophermart/internal/api/user"
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 	"github.com/fishus/go-advanced-gophermart/internal/service"
 )
@@ -25,23 +28,48 @@ type AccrualDaemon interface {
 	AddNewOrder(context.Context, models.Order)
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.0 --name=User --with-expecter
+type User interface {
+	Login(http.ResponseWriter, *http.Request)
+	Register(http.ResponseWriter, *http.Request)
+}
+
+//go:generate go run github.com/vektra/mockery/v2@v2.42.0 --name=Order --with-expecter
+type Order interface {
+	Add(http.ResponseWriter, *http.Request)
+	List(http.ResponseWriter, *http.Request)
+}
+
+//go:generate go run github.com/vektra/mockery/v2@v2.42.0 --name=Loyalty --with-expecter
+type Loyalty interface {
+	Balance(http.ResponseWriter, *http.Request)
+	Withdraw(http.ResponseWriter, *http.Request)
+	Withdrawals(http.ResponseWriter, *http.Request)
+}
+
 type server struct {
 	cfg     *Config
 	server  *http.Server
 	service Servicer
-	loyalty AccrualDaemon
+	daemon  AccrualDaemon
+	user    User
+	order   Order
+	loyalty Loyalty
 }
 
-func NewServer(cfg *Config, service Servicer, loyalty AccrualDaemon) *server {
+func NewServer(cfg *Config, service Servicer, daemon AccrualDaemon) *server {
 	s := &server{
 		cfg:     cfg,
 		service: service,
-		loyalty: loyalty,
+		daemon:  daemon,
+		user:    apiUser.NewAPI(service),
+		order:   apiOrder.NewAPI(service, daemon),
+		loyalty: apiLoyalty.NewAPI(service),
 	}
 
 	srv := &http.Server{
 		Addr:              cfg.ServerAddr,
-		Handler:           Router(s),
+		Handler:           s.Router(),
 		ReadTimeout:       cfg.ReadTimeout,
 		ReadHeaderTimeout: cfg.ReadHeaderTimeout,
 		WriteTimeout:      cfg.WriteTimeout,

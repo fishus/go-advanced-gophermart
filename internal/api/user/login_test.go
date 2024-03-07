@@ -1,4 +1,4 @@
-package api
+package user
 
 import (
 	"context"
@@ -15,10 +15,10 @@ import (
 	sMocks "github.com/fishus/go-advanced-gophermart/internal/service/mocks"
 )
 
-func (ts *APITestSuite) TestUserRegister() {
+func (ts *APITestSuite) TestLogin() {
 	ctx := context.Background()
 
-	url := "/api/user/register"
+	url := "/login"
 
 	type reqData struct {
 		Username string `json:"login"`              // Логин
@@ -28,7 +28,7 @@ func (ts *APITestSuite) TestUserRegister() {
 	tests := []struct {
 		name       string
 		data       reqData
-		regErr     error
+		loginErr   error
 		respStatus int
 	}{
 		{
@@ -37,7 +37,7 @@ func (ts *APITestSuite) TestUserRegister() {
 				Username: "testuser",
 				Password: "12345",
 			},
-			regErr:     nil,
+			loginErr:   nil,
 			respStatus: http.StatusOK,
 		},
 		{
@@ -46,17 +46,17 @@ func (ts *APITestSuite) TestUserRegister() {
 				Username: "",
 				Password: "",
 			},
-			regErr:     serviceErr.NewValidationError(serviceErr.NewValidationError(errors.New("required fields error"))),
+			loginErr:   serviceErr.NewValidationError(serviceErr.NewValidationError(errors.New("required fields error"))),
 			respStatus: http.StatusBadRequest,
 		},
 		{
-			name: "Already registered",
+			name: "User not found",
 			data: reqData{
 				Username: "testuser",
 				Password: "12345",
 			},
-			regErr:     serviceErr.ErrUserAlreadyExists,
-			respStatus: http.StatusConflict,
+			loginErr:   serviceErr.ErrUserNotFound,
+			respStatus: http.StatusUnauthorized,
 		},
 	}
 	for _, tc := range tests {
@@ -70,11 +70,11 @@ func (ts *APITestSuite) TestUserRegister() {
 
 			sUser := sMocks.NewUserer(ts.T())
 
-			mockUserRegister := sUser.EXPECT().Register(mock.AnythingOfType("*context.valueCtx"), user)
-			if tc.regErr == nil {
-				mockUserRegister.Return(userID, nil)
+			mockUserLogin := sUser.EXPECT().Login(mock.AnythingOfType("*context.valueCtx"), user)
+			if tc.loginErr == nil {
+				mockUserLogin.Return(userID, nil)
 			} else {
-				mockUserRegister.Return("", tc.regErr)
+				mockUserLogin.Return("", tc.loginErr)
 			}
 
 			if tc.respStatus == http.StatusOK {

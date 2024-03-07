@@ -1,4 +1,4 @@
-package api
+package user
 
 import (
 	"context"
@@ -15,10 +15,10 @@ import (
 	sMocks "github.com/fishus/go-advanced-gophermart/internal/service/mocks"
 )
 
-func (ts *APITestSuite) TestUserLogin() {
+func (ts *APITestSuite) TestRegister() {
 	ctx := context.Background()
 
-	url := "/api/user/login"
+	url := "/register"
 
 	type reqData struct {
 		Username string `json:"login"`              // Логин
@@ -28,7 +28,7 @@ func (ts *APITestSuite) TestUserLogin() {
 	tests := []struct {
 		name       string
 		data       reqData
-		loginErr   error
+		regErr     error
 		respStatus int
 	}{
 		{
@@ -37,7 +37,7 @@ func (ts *APITestSuite) TestUserLogin() {
 				Username: "testuser",
 				Password: "12345",
 			},
-			loginErr:   nil,
+			regErr:     nil,
 			respStatus: http.StatusOK,
 		},
 		{
@@ -46,17 +46,17 @@ func (ts *APITestSuite) TestUserLogin() {
 				Username: "",
 				Password: "",
 			},
-			loginErr:   serviceErr.NewValidationError(serviceErr.NewValidationError(errors.New("required fields error"))),
+			regErr:     serviceErr.NewValidationError(serviceErr.NewValidationError(errors.New("required fields error"))),
 			respStatus: http.StatusBadRequest,
 		},
 		{
-			name: "User not found",
+			name: "Already registered",
 			data: reqData{
 				Username: "testuser",
 				Password: "12345",
 			},
-			loginErr:   serviceErr.ErrUserNotFound,
-			respStatus: http.StatusUnauthorized,
+			regErr:     serviceErr.ErrUserAlreadyExists,
+			respStatus: http.StatusConflict,
 		},
 	}
 	for _, tc := range tests {
@@ -70,11 +70,11 @@ func (ts *APITestSuite) TestUserLogin() {
 
 			sUser := sMocks.NewUserer(ts.T())
 
-			mockUserLogin := sUser.EXPECT().Login(mock.AnythingOfType("*context.valueCtx"), user)
-			if tc.loginErr == nil {
-				mockUserLogin.Return(userID, nil)
+			mockUserRegister := sUser.EXPECT().Register(mock.AnythingOfType("*context.valueCtx"), user)
+			if tc.regErr == nil {
+				mockUserRegister.Return(userID, nil)
 			} else {
-				mockUserLogin.Return("", tc.loginErr)
+				mockUserRegister.Return("", tc.regErr)
 			}
 
 			if tc.respStatus == http.StatusOK {

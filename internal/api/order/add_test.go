@@ -1,4 +1,4 @@
-package api
+package order
 
 import (
 	"context"
@@ -16,10 +16,10 @@ import (
 	uService "github.com/fishus/go-advanced-gophermart/internal/service/user"
 )
 
-func (ts *APITestSuite) TestOrderAdd() {
+func (ts *APITestSuite) TestAdd() {
 	ctx := context.Background()
 
-	url := "/api/user/orders"
+	url := "/add"
 
 	tests := []struct {
 		name       string
@@ -108,7 +108,7 @@ func (ts *APITestSuite) TestOrderAdd() {
 
 					sOrder.EXPECT().GetByID(mock.AnythingOfType("context.backgroundCtx"), orderID).Return(wantOrder, nil)
 
-					ts.loyalty.EXPECT().AddNewOrder(mock.AnythingOfType("context.backgroundCtx"), wantOrder)
+					ts.daemon.EXPECT().AddNewOrder(mock.AnythingOfType("context.backgroundCtx"), wantOrder)
 				} else {
 					mockOrderAdd.Return("", tc.orderErr)
 				}

@@ -1,4 +1,4 @@
-package api
+package loyalty
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	uService "github.com/fishus/go-advanced-gophermart/internal/service/user"
 )
 
-func (s *server) auth(r *http.Request) (*uService.JWTClaims, error) {
+func (a *api) auth(r *http.Request) (*uService.JWTClaims, error) {
 	auth := r.Header.Get("Authorization")
-	return s.service.User().CheckAuthorizationHeader(auth)
+	return a.service.User().CheckAuthorizationHeader(auth)
 }

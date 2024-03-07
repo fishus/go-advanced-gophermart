@@ -1,4 +1,4 @@
-package api
+package loyalty
 
 import (
 	"context"
@@ -17,10 +17,10 @@ import (
 	uService "github.com/fishus/go-advanced-gophermart/internal/service/user"
 )
 
-func (ts *APITestSuite) TestUserWithdrawals() {
+func (ts *APITestSuite) TestWithdrawals() {
 	ctx := context.Background()
 
-	url := "/api/user/withdrawals"
+	url := "/withdrawals"
 
 	type want struct {
 		OrderNum    string    `json:"order"`        // Номер заказа

@@ -1,4 +1,4 @@
-package api
+package loyalty
 
 import (
 	"context"
@@ -17,10 +17,10 @@ import (
 	uService "github.com/fishus/go-advanced-gophermart/internal/service/user"
 )
 
-func (ts *APITestSuite) TestUserWithdraw() {
+func (ts *APITestSuite) TestWithdraw() {
 	ctx := context.Background()
 
-	url := "/api/user/balance/withdraw"
+	url := "/withdraw"
 
 	userID := models.UserID(uuid.New().String())
 

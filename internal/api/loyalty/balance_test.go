@@ -1,4 +1,4 @@
-package api
+package loyalty
 
 import (
 	"context"
@@ -16,10 +16,10 @@ import (
 	uService "github.com/fishus/go-advanced-gophermart/internal/service/user"
 )
 
-func (ts *APITestSuite) TestUserBalance() {
+func (ts *APITestSuite) TestBalance() {
 	ctx := context.Background()
 
-	url := "/api/user/balance"
+	url := "/balance"
 
 	type want struct {
 		Current   float64 `json:"current"`   // Текущий баланс

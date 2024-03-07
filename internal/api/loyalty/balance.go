@@ -1,26 +1,27 @@
-package api
+package loyalty
 
 import (
 	"encoding/json"
 	"net/http"
 
+	apiCommon "github.com/fishus/go-advanced-gophermart/internal/api/common"
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 )
 
-// userBalance Получение баланса пользователя
-func (s *server) userBalance(w http.ResponseWriter, r *http.Request) {
+// Balance Получение баланса пользователя
+func (a *api) Balance(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Аутентификация пользователя
-	token, err := s.auth(r)
+	token, err := a.auth(r)
 	if err != nil {
-		JSONError(w, err.Error(), http.StatusUnauthorized)
+		apiCommon.JSONError(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
-	balance, err := s.service.Loyalty().UserBalance(r.Context(), token.UserID)
+	balance, err := a.service.Loyalty().UserBalance(r.Context(), token.UserID)
 	if err != nil {
-		JSONError(w, err.Error(), http.StatusInternalServerError)
+		apiCommon.JSONError(w, err.Error(), http.StatusInternalServerError)
 		logger.Log.Error(err.Error())
 		return
 	}

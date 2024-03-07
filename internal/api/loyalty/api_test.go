@@ -1,9 +1,10 @@
-package api
+package loyalty
 
 import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/suite"
 
@@ -13,25 +14,20 @@ import (
 
 type APITestSuite struct {
 	suite.Suite
-	server  *server
+	api     *api
 	srv     *httptest.Server
 	client  *resty.Client
 	service *mocks.Servicer
-	loyalty *mocks.AccrualDaemon
 }
 
 func (ts *APITestSuite) SetupSuite() {
 	ts.service = mocks.NewServicer(ts.T())
-	ts.loyalty = mocks.NewAccrualDaemon(ts.T())
 
-	ts.server = &server{
-		cfg:     &Config{},
+	ts.api = &api{
 		service: ts.service,
-		loyalty: ts.loyalty,
 	}
 
-	ts.srv = httptest.NewServer(Router(ts.server))
-	ts.server.cfg.ServerAddr = ts.srv.URL
+	ts.srv = httptest.NewServer(ts.api.router())
 	ts.client = resty.New().SetBaseURL(ts.srv.URL)
 }
 
@@ -53,10 +49,6 @@ func (ts *APITestSuite) TearDownSubTest() {
 	}
 }
 
-func (ts *APITestSuite) setServiceOrder(s service.Orderer) {
-	ts.service.EXPECT().Order().Return(s)
-}
-
 func (ts *APITestSuite) setServiceUser(s service.Userer) {
 	ts.service.EXPECT().User().Return(s)
 }
@@ -67,4 +59,14 @@ func (ts *APITestSuite) setServiceLoyalty(s service.Loyaltier) {
 
 func TestApi(t *testing.T) {
 	suite.Run(t, new(APITestSuite))
+}
+
+func (a *api) router() chi.Router {
+	r := chi.NewRouter()
+
+	r.Get("/balance", a.Balance)         // Получение баланса пользователя
+	r.Post("/withdraw", a.Withdraw)      // Запрос на списание средств
+	r.Get("/withdrawals", a.Withdrawals) // Информации о выводе средств
+
+	return r
 }

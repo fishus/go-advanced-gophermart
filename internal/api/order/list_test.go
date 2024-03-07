@@ -1,4 +1,4 @@
-package api
+package order
 
 import (
 	"context"
@@ -17,11 +17,10 @@ import (
 	uService "github.com/fishus/go-advanced-gophermart/internal/service/user"
 )
 
-func (ts *APITestSuite) TestOrdersList() {
+func (ts *APITestSuite) TestList() {
 	ctx := context.Background()
 
-	url := "/api/user/orders"
-
+	url := "/list"
 	type want struct {
 		Num        string             `json:"number"`            // Номер заказа
 		Accrual    float64            `json:"accrual,omitempty"` // Начислено баллов лояльности

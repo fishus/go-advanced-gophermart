@@ -1,4 +1,4 @@
-package api
+package order
 
 import (
 	"context"
@@ -6,54 +6,55 @@ import (
 	"io"
 	"net/http"
 
+	apiCommon "github.com/fishus/go-advanced-gophermart/internal/api/common"
 	"github.com/fishus/go-advanced-gophermart/internal/logger"
 	serviceErr "github.com/fishus/go-advanced-gophermart/internal/service/err"
 )
 
-// orderAdd Загрузка номера заказа для расчёта
-func (s *server) orderAdd(w http.ResponseWriter, r *http.Request) {
+// Add Загрузка номера заказа для расчёта
+func (a *api) Add(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Аутентификация пользователя
-	token, err := s.auth(r)
+	token, err := a.auth(r)
 	if err != nil {
-		JSONError(w, err.Error(), http.StatusUnauthorized)
+		apiCommon.JSONError(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
 	orderNum, err := io.ReadAll(r.Body)
 	if err != nil {
-		JSONError(w, err.Error(), http.StatusBadRequest)
+		apiCommon.JSONError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	orderID, err := s.service.Order().Add(r.Context(), token.UserID, string(orderNum))
+	orderID, err := a.service.Order().Add(r.Context(), token.UserID, string(orderNum))
 	if err != nil {
 		var validErr *serviceErr.ValidationError
 		if errors.As(err, &validErr) {
-			JSONError(w, err.Error(), http.StatusBadRequest)
+			apiCommon.JSONError(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		// номер заказа уже был загружен этим пользователем
 		if errors.Is(err, serviceErr.ErrOrderAlreadyExists) {
-			JSONError(w, serviceErr.ErrOrderAlreadyExists.Error(), http.StatusOK)
+			apiCommon.JSONError(w, serviceErr.ErrOrderAlreadyExists.Error(), http.StatusOK)
 			return
 		}
 		if errors.Is(err, serviceErr.ErrIncorrectData) {
-			JSONError(w, err.Error(), http.StatusBadRequest)
+			apiCommon.JSONError(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		// номер заказа уже был загружен другим пользователем
 		if errors.Is(err, serviceErr.ErrOrderWrongOwner) {
-			JSONError(w, serviceErr.ErrOrderWrongOwner.Error(), http.StatusConflict)
+			apiCommon.JSONError(w, serviceErr.ErrOrderWrongOwner.Error(), http.StatusConflict)
 			return
 		}
 		// неверный формат номера заказа
 		if errors.Is(err, serviceErr.ErrOrderWrongNum) {
-			JSONError(w, serviceErr.ErrOrderWrongNum.Error(), http.StatusUnprocessableEntity)
+			apiCommon.JSONError(w, serviceErr.ErrOrderWrongNum.Error(), http.StatusUnprocessableEntity)
 			return
 		}
-		JSONError(w, err.Error(), http.StatusInternalServerError)
+		apiCommon.JSONError(w, err.Error(), http.StatusInternalServerError)
 		logger.Log.Error(err.Error())
 		return
 	}
@@ -63,11 +64,11 @@ func (s *server) orderAdd(w http.ResponseWriter, r *http.Request) {
 	)
 
 	ctx := context.Background()
-	order, err := s.service.Order().GetByID(ctx, orderID)
+	order, err := a.service.Order().GetByID(ctx, orderID)
 	if err != nil {
 		logger.Log.Error(err.Error())
 	} else {
-		s.loyalty.AddNewOrder(ctx, order)
+		a.daemon.AddNewOrder(ctx, order)
 	}
 
 	// новый номер заказа принят в обработку
