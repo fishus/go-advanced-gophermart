@@ -36,7 +36,7 @@ func (s *server) userWithdraw(w http.ResponseWriter, r *http.Request) {
 	}
 	data.Sum = data.Sum.Round(config.DecimalExponent)
 
-	err = s.service.User().LoyaltyAddWithdraw(r.Context(), token.UserID, data.Num, data.Sum)
+	err = s.service.Loyalty().AddWithdraw(r.Context(), token.UserID, data.Num, data.Sum)
 	if err != nil {
 		retCode := http.StatusInternalServerError
 

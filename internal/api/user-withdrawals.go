@@ -22,7 +22,7 @@ func (s *server) userWithdrawals(w http.ResponseWriter, r *http.Request) {
 	// Факты выводов в выдаче должны быть отсортированы по времени вывода от самых старых к самым новым.
 	// Формат даты — RFC3339.
 
-	history, err := s.service.User().LoyaltyUserWithdrawals(r.Context(), token.UserID)
+	history, err := s.service.Loyalty().UserWithdrawals(r.Context(), token.UserID)
 	if err != nil {
 		JSONError(w, err.Error(), http.StatusInternalServerError)
 		logger.Log.Error(err.Error())

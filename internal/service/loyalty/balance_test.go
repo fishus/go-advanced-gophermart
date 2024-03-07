@@ -1,4 +1,4 @@
-package user
+package loyalty
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 	stMocks "github.com/fishus/go-advanced-gophermart/internal/storage/mocks"
 )
 
-func (ts *UserServiceTestSuite) TestLoyaltyUserBalance() {
+func (ts *LoyaltyServiceTestSuite) TestUserBalance() {
 	ctx := context.Background()
 	userID := models.UserID(uuid.New().String())
 
@@ -31,7 +31,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserBalance() {
 		stLoyalty.EXPECT().BalanceByUser(ctx, userID).Return(wantBalance, nil)
 		ts.setStorage(nil, nil, stLoyalty)
 
-		balance, err := ts.service.LoyaltyUserBalance(ctx, userID)
+		balance, err := ts.service.UserBalance(ctx, userID)
 		ts.NoError(err)
 		ts.EqualValues(wantBalance, balance)
 		ts.storage.AssertExpectations(ts.T())
@@ -45,14 +45,14 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserBalance() {
 		wantBalance := models.LoyaltyBalance{
 			UserID: userID,
 		}
-		balance, err := ts.service.LoyaltyUserBalance(ctx, userID)
+		balance, err := ts.service.UserBalance(ctx, userID)
 		ts.NoError(err)
 		ts.EqualValues(wantBalance, balance)
 		ts.storage.AssertExpectations(ts.T())
 	})
 }
 
-func (ts *UserServiceTestSuite) TestLoyaltyUserWithdrawals() {
+func (ts *LoyaltyServiceTestSuite) TestUserWithdrawals() {
 	ctx := context.Background()
 	userID := models.UserID(uuid.New().String())
 
@@ -80,7 +80,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserWithdrawals() {
 		wantWithdrawals := make([]models.LoyaltyHistory, 0)
 		wantWithdrawals = append(wantWithdrawals, userHistory[1])
 
-		withdrawals, err := ts.service.LoyaltyUserWithdrawals(ctx, userID)
+		withdrawals, err := ts.service.UserWithdrawals(ctx, userID)
 		ts.NoError(err)
 		ts.EqualValues(wantWithdrawals, withdrawals)
 		ts.storage.AssertExpectations(ts.T())
@@ -102,7 +102,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserWithdrawals() {
 
 		wantWithdrawals := make([]models.LoyaltyHistory, 0)
 
-		withdrawals, err := ts.service.LoyaltyUserWithdrawals(ctx, userID)
+		withdrawals, err := ts.service.UserWithdrawals(ctx, userID)
 		ts.NoError(err)
 		ts.EqualValues(wantWithdrawals, withdrawals)
 		ts.storage.AssertExpectations(ts.T())
@@ -115,7 +115,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserWithdrawals() {
 		stLoyalty.EXPECT().HistoryByUser(ctx, userID).Return(emptyHistory, store.ErrNotFound)
 		ts.setStorage(nil, nil, stLoyalty)
 
-		withdrawals, err := ts.service.LoyaltyUserWithdrawals(ctx, userID)
+		withdrawals, err := ts.service.UserWithdrawals(ctx, userID)
 		ts.NoError(err)
 		ts.Nil(withdrawals)
 		ts.Equal(len(withdrawals), 0)
@@ -123,7 +123,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyUserWithdrawals() {
 	})
 }
 
-func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
+func (ts *LoyaltyServiceTestSuite) TestAddWithdraw() {
 	ctx := context.Background()
 	userID := models.UserID(uuid.New().String())
 
@@ -135,7 +135,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 		stLoyalty.EXPECT().AddWithdraw(ctx, userID, orderNum, withdraw).Return(nil)
 		ts.setStorage(nil, nil, stLoyalty)
 
-		err := ts.service.LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw)
+		err := ts.service.AddWithdraw(ctx, userID, orderNum, withdraw)
 		ts.NoError(err)
 		ts.storage.AssertExpectations(ts.T())
 	})
@@ -144,7 +144,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 		orderNum := "126378912"
 		withdraw := decimal.NewFromFloatWithExponent(659.784, -config.DecimalExponent)
 
-		err := ts.service.LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw)
+		err := ts.service.AddWithdraw(ctx, userID, orderNum, withdraw)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrOrderWrongNum)
 	})
@@ -153,7 +153,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 		orderNum := "3903733214"
 		withdraw := decimal.NewFromFloatWithExponent(-1.0, -config.DecimalExponent)
 
-		err := ts.service.LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw)
+		err := ts.service.AddWithdraw(ctx, userID, orderNum, withdraw)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrIncorrectData)
 	})
@@ -166,7 +166,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 		stLoyalty.EXPECT().AddWithdraw(ctx, userID, orderNum, withdraw).Return(store.ErrLowBalance)
 		ts.setStorage(nil, nil, stLoyalty)
 
-		err := ts.service.LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw)
+		err := ts.service.AddWithdraw(ctx, userID, orderNum, withdraw)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrLowBalance)
 		ts.storage.AssertExpectations(ts.T())
@@ -180,7 +180,7 @@ func (ts *UserServiceTestSuite) TestLoyaltyAddWithdraw() {
 		stLoyalty.EXPECT().AddWithdraw(ctx, userID, orderNum, withdraw).Return(store.ErrNotFound)
 		ts.setStorage(nil, nil, stLoyalty)
 
-		err := ts.service.LoyaltyAddWithdraw(ctx, userID, orderNum, withdraw)
+		err := ts.service.AddWithdraw(ctx, userID, orderNum, withdraw)
 		ts.Error(err)
 		ts.ErrorIs(err, serviceErr.ErrLowBalance)
 		ts.storage.AssertExpectations(ts.T())

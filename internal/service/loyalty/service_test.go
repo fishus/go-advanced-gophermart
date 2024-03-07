@@ -1,46 +1,43 @@
-package user
+package loyalty
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/suite"
 
+	oService "github.com/fishus/go-advanced-gophermart/internal/service/order"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 	storageMocks "github.com/fishus/go-advanced-gophermart/internal/storage/mocks"
 )
 
-type UserServiceTestSuite struct {
+type LoyaltyServiceTestSuite struct {
 	suite.Suite
-	cfg     *Config
 	storage *storageMocks.Storager
 	*service
 }
 
-func (ts *UserServiceTestSuite) SetupSuite() {
-	ts.cfg = &Config{
-		JWTExpires:   15 * time.Minute,
-		JWTSecretKey: "TestSecretKey",
-	}
+func (ts *LoyaltyServiceTestSuite) SetupSuite() {
 	ts.storage = storageMocks.NewStorager(ts.T())
-	ts.service = New(ts.cfg, ts.storage)
+	ts.service = New(ts.storage)
+	order := oService.New(ts.storage)
+	ts.service.SetOrder(order)
 }
 
-func (ts *UserServiceTestSuite) TearDownTest() {
+func (ts *LoyaltyServiceTestSuite) TearDownTest() {
 	// Reset mock
 	for _, mc := range ts.storage.ExpectedCalls {
 		mc.Unset()
 	}
 }
 
-func (ts *UserServiceTestSuite) TearDownSubTest() {
+func (ts *LoyaltyServiceTestSuite) TearDownSubTest() {
 	// Reset mock
 	for _, mc := range ts.storage.ExpectedCalls {
 		mc.Unset()
 	}
 }
 
-func (ts *UserServiceTestSuite) setStorage(o store.Orderer, u store.Userer, l store.Loyaltier) {
+func (ts *LoyaltyServiceTestSuite) setStorage(o store.Orderer, u store.Userer, l store.Loyaltier) {
 	if o != nil {
 		ts.storage.EXPECT().Order().Return(o)
 	}
@@ -54,6 +51,6 @@ func (ts *UserServiceTestSuite) setStorage(o store.Orderer, u store.Userer, l st
 	}
 }
 
-func TestUserService(t *testing.T) {
-	suite.Run(t, new(UserServiceTestSuite))
+func TestLoyaltyService(t *testing.T) {
+	suite.Run(t, new(LoyaltyServiceTestSuite))
 }

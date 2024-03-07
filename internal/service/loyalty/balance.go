@@ -1,4 +1,4 @@
-package user
+package loyalty
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
 )
 
-func (s *service) LoyaltyUserBalance(ctx context.Context, userID models.UserID) (balance models.LoyaltyBalance, err error) {
+func (s *service) UserBalance(ctx context.Context, userID models.UserID) (balance models.LoyaltyBalance, err error) {
 	balance, err = s.storage.Loyalty().BalanceByUser(ctx, userID)
 	if err != nil {
 		if errors.Is(err, store.ErrNotFound) {
@@ -25,7 +25,7 @@ func (s *service) LoyaltyUserBalance(ctx context.Context, userID models.UserID) 
 	return
 }
 
-func (s *service) LoyaltyUserWithdrawals(ctx context.Context, userID models.UserID) ([]models.LoyaltyHistory, error) {
+func (s *service) UserWithdrawals(ctx context.Context, userID models.UserID) ([]models.LoyaltyHistory, error) {
 	history, err := s.storage.Loyalty().HistoryByUser(ctx, userID)
 	if err != nil {
 		if errors.Is(err, store.ErrNotFound) {
@@ -44,7 +44,7 @@ func (s *service) LoyaltyUserWithdrawals(ctx context.Context, userID models.User
 	return withdrawals, nil
 }
 
-func (s *service) LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw decimal.Decimal) error {
+func (s *service) AddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw decimal.Decimal) error {
 	// Проверка номера заказа на корректность с помощью алгоритма Луна
 	if err := s.order.ValidateNumLuhn(orderNum); err != nil {
 		return serviceErr.ErrOrderWrongNum

@@ -17,6 +17,7 @@ import (
 type Servicer interface {
 	User() service.Userer
 	Order() service.Orderer
+	Loyalty() service.Loyaltier
 }
 
 //go:generate go run github.com/vektra/mockery/v2@v2.42.0 --name=AccrualDaemon  --with-expecter

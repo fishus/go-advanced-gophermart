@@ -18,6 +18,7 @@ import (
 type Servicer interface {
 	User() service.Userer
 	Order() service.Orderer
+	Loyalty() service.Loyaltier
 }
 
 type daemon struct {

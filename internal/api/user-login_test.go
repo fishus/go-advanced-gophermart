@@ -80,7 +80,8 @@ func (ts *APITestSuite) TestUserLogin() {
 			if tc.respStatus == http.StatusOK {
 				sUser.EXPECT().BuildToken(userID).Return(token, nil)
 			}
-			ts.setService(nil, sUser)
+
+			ts.setServiceUser(sUser)
 
 			body, err := json.Marshal(tc.data)
 			ts.Require().NoError(err)

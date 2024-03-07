@@ -90,7 +90,7 @@ func (ts *APITestSuite) TestUserWithdraw() {
 	for _, tc := range tests {
 		ts.Run(tc.name, func() {
 			sUser := sMocks.NewUserer(ts.T())
-			sOrder := sMocks.NewOrderer(ts.T())
+			sLoyalty := sMocks.NewLoyaltier(ts.T())
 
 			var authToken string
 			if tc.auth != "" {
@@ -100,12 +100,13 @@ func (ts *APITestSuite) TestUserWithdraw() {
 			if tc.auth == "VALID-JWT-TOKEN" {
 				mockUserCheckAuthorizationHeader.Return(&uService.JWTClaims{UserID: userID}, nil)
 
-				sUser.EXPECT().LoyaltyAddWithdraw(mock.AnythingOfType("*context.valueCtx"), userID, tc.data.Num, tc.data.Sum).Return(tc.wErr)
+				sLoyalty.EXPECT().AddWithdraw(mock.AnythingOfType("*context.valueCtx"), userID, tc.data.Num, tc.data.Sum).Return(tc.wErr)
 			} else {
 				mockUserCheckAuthorizationHeader.Return(nil, uService.ErrInvalidToken)
 			}
 
-			ts.setService(sOrder, sUser)
+			ts.setServiceUser(sUser)
+			ts.setServiceLoyalty(sLoyalty)
 
 			body, err := json.Marshal(tc.data)
 			ts.Require().NoError(err)

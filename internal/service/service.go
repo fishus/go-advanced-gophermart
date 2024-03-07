@@ -7,6 +7,7 @@ import (
 
 	"github.com/fishus/go-advanced-gophermart/pkg/models"
 
+	lService "github.com/fishus/go-advanced-gophermart/internal/service/loyalty"
 	oService "github.com/fishus/go-advanced-gophermart/internal/service/order"
 	uService "github.com/fishus/go-advanced-gophermart/internal/service/user"
 	store "github.com/fishus/go-advanced-gophermart/internal/storage"
@@ -20,9 +21,6 @@ type Userer interface {
 	BuildToken(models.UserID) (string, error)
 	DecryptToken(tokenString string) (*uService.JWTClaims, error)
 	CheckAuthorizationHeader(auth string) (*uService.JWTClaims, error)
-	LoyaltyUserBalance(context.Context, models.UserID) (models.LoyaltyBalance, error)
-	LoyaltyAddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw decimal.Decimal) error
-	LoyaltyUserWithdrawals(context.Context, models.UserID) ([]models.LoyaltyHistory, error)
 }
 
 //go:generate go run github.com/vektra/mockery/v2@v2.42.0 --name=Orderer  --with-expecter
@@ -32,9 +30,16 @@ type Orderer interface {
 	Add(ctx context.Context, userID models.UserID, orderNum string) (models.OrderID, error)
 	ListNew(context.Context) ([]models.Order, error)
 	ListProcessing(ctx context.Context, limit int) ([]models.Order, error)
+	ListByUser(context.Context, models.UserID) ([]models.Order, error)
 	UpdateStatus(context.Context, models.OrderID, models.OrderStatus) error
 	AddAccrual(ctx context.Context, id models.OrderID, accrual decimal.Decimal) error
-	ListByUser(context.Context, models.UserID) ([]models.Order, error)
+}
+
+//go:generate go run github.com/vektra/mockery/v2@v2.42.0 --name=Loyaltier  --with-expecter
+type Loyaltier interface {
+	UserBalance(context.Context, models.UserID) (models.LoyaltyBalance, error)
+	AddWithdraw(ctx context.Context, userID models.UserID, orderNum string, withdraw decimal.Decimal) error
+	UserWithdrawals(context.Context, models.UserID) ([]models.LoyaltyHistory, error)
 }
 
 type service struct {
@@ -42,6 +47,7 @@ type service struct {
 	storage store.Storager
 	user    Userer
 	order   Orderer
+	loyalty Loyaltier
 }
 
 func New(cfg *Config, s store.Storager) *service {
@@ -50,13 +56,15 @@ func New(cfg *Config, s store.Storager) *service {
 		JWTExpires:   cfg.JWTExpires,
 		JWTSecretKey: cfg.JWTSecretKey,
 	}
-	user := uService.New(userCfg, s).SetOrder(order)
+	user := uService.New(userCfg, s)
+	loyalty := lService.New(s).SetOrder(order)
 
 	return &service{
 		storage: s,
 		cfg:     cfg,
 		user:    user,
 		order:   order,
+		loyalty: loyalty,
 	}
 }
 
@@ -70,4 +78,8 @@ func (s *service) User() Userer {
 
 func (s *service) Order() Orderer {
 	return s.order
+}
+
+func (s *service) Loyalty() Loyaltier {
+	return s.loyalty
 }

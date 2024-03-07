@@ -33,7 +33,7 @@ func (ts *LoyaltyTestSuite) TestAddNewOrders() {
 		}
 		mockCall := sOrder.EXPECT().ListNew(ctx).Return(list, nil)
 		defer mockCall.Unset()
-		ts.setService(sOrder, nil)
+		ts.setServiceOrder(sOrder)
 
 		ts.daemon.addNewOrders(ctx)
 
@@ -52,7 +52,7 @@ func (ts *LoyaltyTestSuite) TestAddNewOrders() {
 		sOrder := sMocks.NewOrderer(ts.T())
 		mockCall := sOrder.EXPECT().ListNew(ctx).Return(nil, nil)
 		defer mockCall.Unset()
-		ts.setService(sOrder, nil)
+		ts.setServiceOrder(sOrder)
 
 		ts.daemon.addNewOrders(ctx)
 
@@ -91,7 +91,7 @@ func (ts *LoyaltyTestSuite) TestAddProcessingOrders() {
 		}
 		mockCall := sOrder.EXPECT().ListProcessing(ctx, 1).Return(list, nil)
 		defer mockCall.Unset()
-		ts.setService(sOrder, nil)
+		ts.setServiceOrder(sOrder)
 
 		ts.daemon.addProcessingOrders(ctx)
 
@@ -114,7 +114,7 @@ func (ts *LoyaltyTestSuite) TestAddProcessingOrders() {
 		sOrder := sMocks.NewOrderer(ts.T())
 		mockCall := sOrder.EXPECT().ListProcessing(ctx, 1).Return(nil, nil)
 		defer mockCall.Unset()
-		ts.setService(sOrder, nil)
+		ts.setServiceOrder(sOrder)
 
 		ts.daemon.addProcessingOrders(ctx)
 

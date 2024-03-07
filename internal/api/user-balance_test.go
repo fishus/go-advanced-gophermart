@@ -69,6 +69,7 @@ func (ts *APITestSuite) TestUserBalance() {
 			tc.data.Current = tc.data.Accrued.Sub(tc.data.Withdrawn)
 
 			sUser := sMocks.NewUserer(ts.T())
+			sLoyalty := sMocks.NewLoyaltier(ts.T())
 
 			var authToken string
 			if tc.auth != "" {
@@ -78,12 +79,13 @@ func (ts *APITestSuite) TestUserBalance() {
 			if tc.auth == "VALID-JWT-TOKEN" {
 				mockUserCheckAuthorizationHeader.Return(&uService.JWTClaims{UserID: userID}, nil)
 
-				sUser.EXPECT().LoyaltyUserBalance(mock.AnythingOfType("*context.valueCtx"), userID).Return(tc.data, nil)
+				sLoyalty.EXPECT().UserBalance(mock.AnythingOfType("*context.valueCtx"), userID).Return(tc.data, nil)
 			} else {
 				mockUserCheckAuthorizationHeader.Return(nil, uService.ErrInvalidToken)
 			}
 
-			ts.setService(nil, sUser)
+			ts.setServiceUser(sUser)
+			ts.setServiceLoyalty(sLoyalty)
 
 			req := ts.client.R().SetContext(ctx)
 

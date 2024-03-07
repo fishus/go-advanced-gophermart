@@ -116,7 +116,8 @@ func (ts *APITestSuite) TestOrderAdd() {
 				mockUserCheckAuthorizationHeader.Return(nil, uService.ErrInvalidToken)
 			}
 
-			ts.setService(sOrder, sUser)
+			ts.setServiceOrder(sOrder)
+			ts.setServiceUser(sUser)
 
 			req := ts.client.R().
 				SetContext(ctx).

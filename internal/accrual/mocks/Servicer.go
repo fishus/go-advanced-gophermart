@@ -20,6 +20,53 @@ func (_m *Servicer) EXPECT() *Servicer_Expecter {
 	return &Servicer_Expecter{mock: &_m.Mock}
 }
 
+// Loyalty provides a mock function with given fields:
+func (_m *Servicer) Loyalty() service.Loyaltier {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Loyalty")
+	}
+
+	var r0 service.Loyaltier
+	if rf, ok := ret.Get(0).(func() service.Loyaltier); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(service.Loyaltier)
+		}
+	}
+
+	return r0
+}
+
+// Servicer_Loyalty_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Loyalty'
+type Servicer_Loyalty_Call struct {
+	*mock.Call
+}
+
+// Loyalty is a helper method to define mock.On call
+func (_e *Servicer_Expecter) Loyalty() *Servicer_Loyalty_Call {
+	return &Servicer_Loyalty_Call{Call: _e.mock.On("Loyalty")}
+}
+
+func (_c *Servicer_Loyalty_Call) Run(run func()) *Servicer_Loyalty_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Servicer_Loyalty_Call) Return(_a0 service.Loyaltier) *Servicer_Loyalty_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Servicer_Loyalty_Call) RunAndReturn(run func() service.Loyaltier) *Servicer_Loyalty_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Order provides a mock function with given fields:
 func (_m *Servicer) Order() service.Orderer {
 	ret := _m.Called()

@@ -53,13 +53,16 @@ func (ts *APITestSuite) TearDownSubTest() {
 	}
 }
 
-func (ts *APITestSuite) setService(o service.Orderer, u service.Userer) {
-	if o != nil {
-		ts.service.EXPECT().Order().Return(o)
-	}
-	if u != nil {
-		ts.service.EXPECT().User().Return(u)
-	}
+func (ts *APITestSuite) setServiceOrder(s service.Orderer) {
+	ts.service.EXPECT().Order().Return(s)
+}
+
+func (ts *APITestSuite) setServiceUser(s service.Userer) {
+	ts.service.EXPECT().User().Return(s)
+}
+
+func (ts *APITestSuite) setServiceLoyalty(s service.Loyaltier) {
+	ts.service.EXPECT().Loyalty().Return(s)
 }
 
 func TestApi(t *testing.T) {

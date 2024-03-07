@@ -58,13 +58,16 @@ func (ts *LoyaltyTestSuite) TearDownSubTest() {
 	ts.fakeLoyaltyAPI.Clear()
 }
 
-func (ts *LoyaltyTestSuite) setService(o service.Orderer, u service.Userer) {
-	if o != nil {
-		ts.service.EXPECT().Order().Return(o)
-	}
-	if u != nil {
-		ts.service.EXPECT().User().Return(u)
-	}
+func (ts *LoyaltyTestSuite) setServiceOrder(s service.Orderer) {
+	ts.service.EXPECT().Order().Return(s)
+}
+
+func (ts *LoyaltyTestSuite) setServiceUser(s service.Userer) {
+	ts.service.EXPECT().User().Return(s)
+}
+
+func (ts *LoyaltyTestSuite) setServiceLoyalty(s service.Loyaltier) {
+	ts.service.EXPECT().Loyalty().Return(s)
 }
 
 func TestLoyalty(t *testing.T) {
