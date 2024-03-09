@@ -46,7 +46,7 @@ func NewAccrual(cfg *Config, service Servicer) *daemon {
 		cfg:        cfg,
 		client:     client,
 		service:    service,
-		chOrders:   make(chan models.Order),
+		chOrders:   make(chan models.Order, cfg.WorkersNum),
 		wg:         &sync.WaitGroup{},
 		chShutdown: make(chan struct{}),
 	}
