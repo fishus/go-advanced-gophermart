@@ -39,7 +39,12 @@ func (ts *OrderServiceTestSuite) TestAdd() {
 		stOrder := stMocks.NewOrderer(ts.T())
 
 		stOrder.EXPECT().Add(ctx, data).Return("", store.ErrAlreadyExists)
-		stOrder.EXPECT().GetByFilter(ctx, mock.Anything).Return(data, nil)
+		stOrder.EXPECT().GetByFilter(ctx, mock.MatchedBy(func(filter store.OrderFilter) bool {
+			f := &store.OrderFilters{}
+			filter(f)
+			return f.Num == data.Num
+		})).Return(data, nil)
+		//
 
 		ts.setStorage(stOrder, nil, nil)
 
@@ -56,8 +61,11 @@ func (ts *OrderServiceTestSuite) TestAdd() {
 		dataExists.UserID = models.UserID(uuid.New().String())
 		stOrder.EXPECT().Add(ctx, data).Return("", store.ErrAlreadyExists)
 
-		// mock.FunctionalOptions(store.WithOrderNum(data.Num))
-		stOrder.EXPECT().GetByFilter(ctx, mock.Anything).Return(dataExists, nil)
+		stOrder.EXPECT().GetByFilter(ctx, mock.MatchedBy(func(filter store.OrderFilter) bool {
+			f := &store.OrderFilters{}
+			filter(f)
+			return f.Num == data.Num
+		})).Return(dataExists, nil)
 
 		ts.setStorage(stOrder, nil, nil)
 

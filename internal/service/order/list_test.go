@@ -41,7 +41,15 @@ func (ts *OrderServiceTestSuite) TestListNew() {
 		}
 
 		stOrder := stMocks.NewOrderer(ts.T())
-		stOrder.EXPECT().ListByFilter(ctx, 0, mock.Anything, mock.Anything).Return(want, nil)
+		stOrder.EXPECT().ListByFilter(ctx, 0, mock.MatchedBy(func(filter store.OrderFilter) bool {
+			f := &store.OrderFilters{}
+			filter(f)
+			return len(f.Statuses) == 1 && f.Statuses[0] == models.OrderStatusNew
+		}), mock.MatchedBy(func(filter store.OrderFilter) bool {
+			f := &store.OrderFilters{}
+			filter(f)
+			return len(f.OrderBy) == 1 && f.OrderBy[0].Field == store.OrderByUploadedAt && f.OrderBy[0].Dir == store.OrderByAsc
+		})).Return(want, nil)
 		ts.setStorage(stOrder, nil, nil)
 
 		list, err := ts.service.ListNew(ctx)
@@ -52,7 +60,15 @@ func (ts *OrderServiceTestSuite) TestListNew() {
 
 	ts.Run("New orders not found", func() {
 		stOrder := stMocks.NewOrderer(ts.T())
-		stOrder.EXPECT().ListByFilter(ctx, 0, mock.Anything, mock.Anything).Return([]models.Order{}, store.ErrNotFound)
+		stOrder.EXPECT().ListByFilter(ctx, 0, mock.MatchedBy(func(filter store.OrderFilter) bool {
+			f := &store.OrderFilters{}
+			filter(f)
+			return len(f.Statuses) == 1 && f.Statuses[0] == models.OrderStatusNew
+		}), mock.MatchedBy(func(filter store.OrderFilter) bool {
+			f := &store.OrderFilters{}
+			filter(f)
+			return len(f.OrderBy) == 1 && f.OrderBy[0].Field == store.OrderByUploadedAt && f.OrderBy[0].Dir == store.OrderByAsc
+		})).Return([]models.Order{}, store.ErrNotFound)
 		ts.setStorage(stOrder, nil, nil)
 
 		list, err := ts.service.ListNew(ctx)
@@ -90,7 +106,15 @@ func (ts *OrderServiceTestSuite) TestListProcessing() {
 		}
 
 		stOrder := stMocks.NewOrderer(ts.T())
-		stOrder.EXPECT().ListByFilter(ctx, limit, mock.Anything, mock.Anything).Return(want, nil)
+		stOrder.EXPECT().ListByFilter(ctx, limit, mock.MatchedBy(func(filter store.OrderFilter) bool {
+			f := &store.OrderFilters{}
+			filter(f)
+			return len(f.Statuses) == 1 && f.Statuses[0] == models.OrderStatusProcessing
+		}), mock.MatchedBy(func(filter store.OrderFilter) bool {
+			f := &store.OrderFilters{}
+			filter(f)
+			return len(f.OrderBy) == 1 && f.OrderBy[0].Field == store.OrderByUpdatedAt && f.OrderBy[0].Dir == store.OrderByAsc
+		})).Return(want, nil)
 		ts.setStorage(stOrder, nil, nil)
 
 		list, err := ts.service.ListProcessing(ctx, limit)
@@ -101,7 +125,15 @@ func (ts *OrderServiceTestSuite) TestListProcessing() {
 
 	ts.Run("Orders in processing not found", func() {
 		stOrder := stMocks.NewOrderer(ts.T())
-		stOrder.EXPECT().ListByFilter(ctx, limit, mock.Anything, mock.Anything).Return([]models.Order{}, store.ErrNotFound)
+		stOrder.EXPECT().ListByFilter(ctx, limit, mock.MatchedBy(func(filter store.OrderFilter) bool {
+			f := &store.OrderFilters{}
+			filter(f)
+			return len(f.Statuses) == 1 && f.Statuses[0] == models.OrderStatusProcessing
+		}), mock.MatchedBy(func(filter store.OrderFilter) bool {
+			f := &store.OrderFilters{}
+			filter(f)
+			return len(f.OrderBy) == 1 && f.OrderBy[0].Field == store.OrderByUpdatedAt && f.OrderBy[0].Dir == store.OrderByAsc
+		})).Return([]models.Order{}, store.ErrNotFound)
 		ts.setStorage(stOrder, nil, nil)
 
 		list, err := ts.service.ListProcessing(ctx, limit)
@@ -148,7 +180,15 @@ func (ts *OrderServiceTestSuite) TestListByUser() {
 		}
 
 		stOrder := stMocks.NewOrderer(ts.T())
-		stOrder.EXPECT().ListByFilter(ctx, 0, mock.Anything, mock.Anything).Return(want, nil)
+		stOrder.EXPECT().ListByFilter(ctx, 0, mock.MatchedBy(func(filter store.OrderFilter) bool {
+			f := &store.OrderFilters{}
+			filter(f)
+			return f.UserID == userID
+		}), mock.MatchedBy(func(filter store.OrderFilter) bool {
+			f := &store.OrderFilters{}
+			filter(f)
+			return len(f.OrderBy) == 1 && f.OrderBy[0].Field == store.OrderByUploadedAt && f.OrderBy[0].Dir == store.OrderByAsc
+		})).Return(want, nil)
 		ts.setStorage(stOrder, nil, nil)
 
 		list, err := ts.service.ListByUser(ctx, userID)
@@ -159,7 +199,15 @@ func (ts *OrderServiceTestSuite) TestListByUser() {
 
 	ts.Run("New orders not found", func() {
 		stOrder := stMocks.NewOrderer(ts.T())
-		stOrder.EXPECT().ListByFilter(ctx, 0, mock.Anything, mock.Anything).Return([]models.Order{}, store.ErrNotFound)
+		stOrder.EXPECT().ListByFilter(ctx, 0, mock.MatchedBy(func(filter store.OrderFilter) bool {
+			f := &store.OrderFilters{}
+			filter(f)
+			return f.UserID == userID
+		}), mock.MatchedBy(func(filter store.OrderFilter) bool {
+			f := &store.OrderFilters{}
+			filter(f)
+			return len(f.OrderBy) == 1 && f.OrderBy[0].Field == store.OrderByUploadedAt && f.OrderBy[0].Dir == store.OrderByAsc
+		})).Return([]models.Order{}, store.ErrNotFound)
 		ts.setStorage(stOrder, nil, nil)
 
 		list, err := ts.service.ListByUser(ctx, userID)
