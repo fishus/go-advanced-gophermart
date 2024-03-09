@@ -32,7 +32,7 @@ func (s *storage) AddAccrual(ctx context.Context, orderID models.OrderID, accrua
 	}
 	defer tx.Rollback(ctxQuery)
 
-	order, err := s.txGetByID(ctx, tx, orderID)
+	order, err := s.txGetByIDForUpdate(ctx, tx, orderID)
 	if err != nil {
 		return err
 	}

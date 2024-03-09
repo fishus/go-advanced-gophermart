@@ -48,7 +48,7 @@ func (ts *PostgresTestSuite) TestGetByID() {
 	})
 }
 
-func (ts *PostgresTestSuite) TestTxGetByID() {
+func (ts *PostgresTestSuite) TestTxGetByIDForUpdate() {
 	ctx, cancel := context.WithTimeout(context.Background(), ts.cfg.QueryTimeout)
 	defer cancel()
 
@@ -72,7 +72,7 @@ func (ts *PostgresTestSuite) TestTxGetByID() {
 		tx, err := ts.storage.pool.Begin(ctx)
 		ts.Require().NoError(err)
 
-		order, err := ts.storage.txGetByID(ctx, tx, orderData.ID)
+		order, err := ts.storage.txGetByIDForUpdate(ctx, tx, orderData.ID)
 		ts.NoError(err)
 		err = tx.Commit(ctx)
 		ts.NoError(err)
@@ -85,7 +85,7 @@ func (ts *PostgresTestSuite) TestTxGetByID() {
 		orderID := models.OrderID(uuid.New().String())
 		tx, err := ts.storage.pool.Begin(ctx)
 		ts.Require().NoError(err)
-		_, err = ts.storage.txGetByID(ctx, tx, orderID)
+		_, err = ts.storage.txGetByIDForUpdate(ctx, tx, orderID)
 		ts.Error(err)
 		ts.ErrorIs(err, store.ErrNotFound)
 		err = tx.Commit(ctx)

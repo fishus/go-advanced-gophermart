@@ -46,12 +46,15 @@ func (s *storage) AddWithdraw(ctx context.Context, userID models.UserID, orderNu
 	defer tx.Rollback(ctxQuery)
 
 	// Проверка баланса
-	balance, err := s.BalanceByUser(ctx, userID)
+	var curBalance decimal.Decimal
+	err = s.pool.QueryRow(ctxQuery, `SELECT current FROM loyalty_balance WHERE user_id = @userID FOR UPDATE;`, pgx.NamedArgs{
+		"userID": userID.String(),
+	}).Scan(&curBalance)
 	if err != nil {
 		return err
 	}
 
-	if balance.Current.LessThan(withdraw) {
+	if curBalance.LessThan(withdraw) {
 		return store.ErrLowBalance
 	}
 

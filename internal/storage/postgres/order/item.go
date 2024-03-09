@@ -38,11 +38,11 @@ func (s *storage) GetByID(ctx context.Context, id models.OrderID) (order models.
 	return
 }
 
-func (s *storage) txGetByID(ctx context.Context, tx pgx.Tx, id models.OrderID) (order models.Order, err error) {
+func (s *storage) txGetByIDForUpdate(ctx context.Context, tx pgx.Tx, id models.OrderID) (order models.Order, err error) {
 	ctxQuery, cancel := context.WithTimeout(ctx, s.cfg.QueryTimeout)
 	defer cancel()
 
-	rows, err := tx.Query(ctxQuery, "SELECT * FROM orders WHERE id = @id;", pgx.NamedArgs{
+	rows, err := tx.Query(ctxQuery, "SELECT * FROM orders WHERE id = @id FOR UPDATE;", pgx.NamedArgs{
 		"id": id,
 	})
 	if err != nil {
