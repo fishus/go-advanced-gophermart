@@ -65,9 +65,11 @@ func (a *api) Add(w http.ResponseWriter, r *http.Request) {
 	order, err := a.service.Order().GetByID(ctx, orderID)
 	if err != nil {
 		logger.Log.Error(err.Error())
-	} else {
-		a.daemon.AddNewOrder(ctx, order)
+		apiCommon.JSONError(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+
+	a.daemon.AddNewOrder(ctx, order)
 
 	// новый номер заказа принят в обработку
 	w.WriteHeader(http.StatusAccepted)
