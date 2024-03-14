@@ -99,14 +99,8 @@ func (ts *APITestSuite) TestBalance() {
 
 			if tc.respStatus == http.StatusOK {
 				wantData := want{
-					Current: func() float64 {
-						f, _ := tc.data.Current.Float64()
-						return f
-					}(),
-					Withdrawn: func() float64 {
-						f, _ := tc.data.Withdrawn.Float64()
-						return f
-					}(),
+					Current:   tc.data.Current.InexactFloat64(),
+					Withdrawn: tc.data.Withdrawn.InexactFloat64(),
 				}
 				jsonBody, err := json.Marshal(wantData)
 				ts.Require().NoError(err)

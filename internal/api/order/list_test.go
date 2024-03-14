@@ -101,11 +101,8 @@ func (ts *APITestSuite) TestList() {
 				var wantList []want
 				for _, o := range tc.data {
 					w := want{
-						Num: o.Num,
-						Accrual: func() float64 {
-							f, _ := o.Accrual.Float64()
-							return f
-						}(),
+						Num:        o.Num,
+						Accrual:    o.Accrual.InexactFloat64(),
 						Status:     o.Status,
 						UploadedAt: o.UploadedAt,
 					}

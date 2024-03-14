@@ -46,11 +46,8 @@ func (a *api) Withdrawals(w http.ResponseWriter, r *http.Request) {
 	historyList := make([]LoyaltyHistoryResult, 0)
 	for _, h := range history {
 		o := LoyaltyHistoryResult{
-			OrderNum: h.OrderNum,
-			Withdrawal: func() float64 {
-				f, _ := h.Withdrawal.Float64()
-				return f
-			}(),
+			OrderNum:    h.OrderNum,
+			Withdrawal:  h.Withdrawal.InexactFloat64(),
 			ProcessedAt: h.ProcessedAt,
 		}
 		historyList = append(historyList, o)

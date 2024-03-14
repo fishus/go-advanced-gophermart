@@ -32,14 +32,8 @@ func (a *api) Balance(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res := LoyaltyBalanceResult{
-		Current: func() float64 {
-			f, _ := balance.Current.Float64()
-			return f
-		}(),
-		Withdrawn: func() float64 {
-			f, _ := balance.Withdrawn.Float64()
-			return f
-		}(),
+		Current:   balance.Current.InexactFloat64(),
+		Withdrawn: balance.Withdrawn.InexactFloat64(),
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

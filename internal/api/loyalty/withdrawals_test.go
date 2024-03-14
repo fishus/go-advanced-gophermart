@@ -110,11 +110,8 @@ func (ts *APITestSuite) TestWithdrawals() {
 				var wantList []want
 				for _, h := range tc.data {
 					w := want{
-						OrderNum: h.OrderNum,
-						Withdrawal: func() float64 {
-							f, _ := h.Withdrawal.Float64()
-							return f
-						}(),
+						OrderNum:    h.OrderNum,
+						Withdrawal:  h.Withdrawal.InexactFloat64(),
 						ProcessedAt: h.ProcessedAt,
 					}
 					wantList = append(wantList, w)

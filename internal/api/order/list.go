@@ -46,11 +46,8 @@ func (a *api) List(w http.ResponseWriter, r *http.Request) {
 	ordersList := make([]OrderResult, 0)
 	for _, order := range list {
 		o := OrderResult{
-			Num: order.Num,
-			Accrual: func() float64 {
-				f, _ := order.Accrual.Float64()
-				return f
-			}(),
+			Num:        order.Num,
+			Accrual:    order.Accrual.InexactFloat64(),
 			Status:     order.Status,
 			UploadedAt: order.UploadedAt,
 		}
