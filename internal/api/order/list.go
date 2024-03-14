@@ -13,8 +13,6 @@ import (
 
 // List Список загруженных номеров заказов
 func (a *api) List(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
 	// Аутентификация пользователя
 	token, err := a.auth(r)
 	if err != nil {

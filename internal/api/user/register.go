@@ -14,8 +14,6 @@ import (
 
 // Register Регистрация пользователя
 func (a *api) Register(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
 	type reqData struct {
 		Username string `json:"login"`              // Логин
 		Password string `json:"password,omitempty"` // Пароль

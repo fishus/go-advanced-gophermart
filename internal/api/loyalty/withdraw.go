@@ -15,8 +15,6 @@ import (
 
 // Withdraw Запрос на списание средств
 func (a *api) Withdraw(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
 	// Аутентификация пользователя
 	token, err := a.auth(r)
 	if err != nil {

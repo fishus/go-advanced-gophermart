@@ -13,8 +13,6 @@ import (
 
 // Add Загрузка номера заказа для расчёта
 func (a *api) Add(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
 	// Аутентификация пользователя
 	token, err := a.auth(r)
 	if err != nil {

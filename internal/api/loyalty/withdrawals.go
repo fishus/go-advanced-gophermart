@@ -11,8 +11,6 @@ import (
 
 // Withdrawals Информации о выводе средств
 func (a *api) Withdrawals(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
 	// Аутентификация пользователя
 	token, err := a.auth(r)
 	if err != nil {

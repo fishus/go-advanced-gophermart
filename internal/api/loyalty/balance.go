@@ -10,8 +10,6 @@ import (
 
 // Balance Получение баланса пользователя
 func (a *api) Balance(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
 	// Аутентификация пользователя
 	token, err := a.auth(r)
 	if err != nil {
