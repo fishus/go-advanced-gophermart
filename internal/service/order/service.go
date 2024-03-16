@@ -1,0 +1,17 @@
+package order
+
+import (
+	store "github.com/fishus/go-advanced-gophermart/internal/storage"
+)
+
+type service struct {
+	storage store.Storager
+}
+
+func New(s store.Storager) *service {
+	return &service{storage: s}
+}
+
+func (s *service) Storage() store.Storager {
+	return s.storage
+}
